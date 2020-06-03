@@ -1,7 +1,11 @@
 package com.example.biophonie
 
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Canvas
 import android.graphics.PointF
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +18,9 @@ import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression
+import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_BOTTOM_LEFT
+import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_TOP_RIGHT
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -57,14 +64,23 @@ class MapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRead
                 Point.fromLngLat(-1.778381,47.512238)
             ).apply { addStringProperty(propertyName, "Point 3") }
         )
+        val d = resources.getDrawable(R.drawable.ic_marker, theme)
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
-            .withImage(idIcon, BitmapFactory.decodeResource(this.resources, R.drawable.mapbox_marker_icon_default))
+            .withImage(idIcon, d.toBitmap())
             .withSource(GeoJsonSource(idSource, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)))
             .withLayer(SymbolLayer(idLayer, idSource)
                 .withProperties(
                     iconImage(idIcon),
+                    iconOpacity(8f),
+                    iconSize(0.7f),
                     iconAllowOverlap(true),
-                    iconIgnorePlacement(true)
+                    iconIgnorePlacement(true),
+                    textColor("#000000"),
+                    textField("{name}"),
+                    textSize(12f),
+                    textOffset(arrayOf(2.2f,0f)),
+                    textIgnorePlacement(false),
+                    textAllowOverlap(false)
                 )
             )) {
             //LoadGeoJsonDataTask(this).execute()
@@ -89,31 +105,24 @@ class MapActivity : AppCompatActivity(), MapboxMap.OnMapClickListener, OnMapRead
             true
         }
     }
-    /*
 
-            mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
+    /**
+     * Convert a drawable to a bitmap
+     *
+     * @return bitmap
+     */
+    private fun Drawable.toBitmap(): Bitmap {
+        if (this is BitmapDrawable) {
+            return this.bitmap
+        }
 
-            .withImage(idIcon, BitmapFactory.decodeResource(this.resources, R.drawable.mapbox_marker_icon_default))
+        val bitmap = Bitmap.createBitmap(this.intrinsicWidth, this.intrinsicHeight, Bitmap.Config.ARGB_8888)
+        val canvas = Canvas(bitmap)
+        this.setBounds(0, 0, canvas.width, canvas.height)
+        this.draw(canvas)
 
-            .withSource(GeoJsonSource(idSource, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)))
-
-            .withLayer(SymbolLayer(idLayer, idSource)
-                .withProperties(
-                    iconImage(idIcon),
-                    iconAllowOverlap(true),
-                    iconIgnorePlacement(true)
-                )
-            )){
-            *//*val sound = SymbolLayer("count", idSource)
-            sound.setProperties(
-                textField("{point_count}"),
-                textSize(8f),
-                textOffset(arrayOf(0.0f, 0.0f)),
-                textColor(Color.WHITE),
-                textIgnorePlacement(true)
-            )
-            mapboxMap.style?.addLayerBelow(sound, idSounds)*//*
-        }*/
+        return bitmap
+    }
 
     override fun onStart() {
         super.onStart()
