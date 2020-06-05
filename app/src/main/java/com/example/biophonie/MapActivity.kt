@@ -3,6 +3,7 @@ package com.example.biophonie
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
+import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
@@ -20,6 +21,7 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+
 
 private const val PROPERTY_NAME: String = "name"
 private const val PROPERTY_ID: String = "id"
@@ -94,8 +96,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun handleClickIcon(screenPoint: PointF?): Boolean {
+        var rectF: RectF? = null
+        // This is a hack. It does not allow for a real hitbox of the size of the text
+        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 50, screenPoint.y + 10) }
+
         val features: List<Feature> =
-            screenPoint?.let { mapboxMap?.queryRenderedFeatures(it, ID_LAYER) } as List<Feature>
+            rectF?.let { mapboxMap?.queryRenderedFeatures(it, ID_LAYER) } as List<Feature>
         return if (features.isEmpty()) false
         else {
             var fragment: BottomSheetFragment? = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? BottomSheetFragment
