@@ -2,7 +2,6 @@ package com.example.biophonie
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +9,7 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import com.example.biophonie.api.ApiClient
-import com.example.biophonie.api.ApiError
-import com.example.biophonie.api.ApiInterface
-import com.example.biophonie.api.ErrorUtils
+import com.example.biophonie.api.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import retrofit2.Call
 import retrofit2.Callback
@@ -64,15 +60,9 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
      * @param id name of the sound to be requested
      */
     fun show(id: String){
-        getSound()
         textView.text = id
-    }
-
-    private fun getSound() {
-        val client: ApiClient =
-            ApiClient()
-        val api: ApiInterface = client.createService(ApiInterface::class.java)
-        val call: Call<SoundResponse> = api.getSound("sound")
+        val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
+        val call: Call<SoundResponse> = api.getSound(id)
         call.enqueue(object: Callback<SoundResponse>{
             override fun onResponse(call: Call<SoundResponse>, response: Response<SoundResponse>) {
                 if (response.isSuccessful){

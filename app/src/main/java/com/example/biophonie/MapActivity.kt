@@ -22,6 +22,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 
 private const val PROPERTY_NAME: String = "name"
+private const val PROPERTY_ID: String = "id"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
@@ -49,17 +50,20 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         symbolLayerIconFeatureList.add(
             Feature.fromGeometry(
                 Point.fromLngLat(-1.803165, 47.516218)
-            ).apply { addStringProperty(PROPERTY_NAME, "Point 1") }
+            ).apply { addStringProperty(PROPERTY_NAME, "Point 1")
+                addStringProperty(PROPERTY_ID, "1")}
         )
         symbolLayerIconFeatureList.add(
             Feature.fromGeometry(
                 Point.fromLngLat(-1.814496,47.534516)
-            ).apply { addStringProperty(PROPERTY_NAME, "Point 2") }
+            ).apply { addStringProperty(PROPERTY_NAME, "Point 2")
+                addStringProperty(PROPERTY_ID, "2")}
         )
         symbolLayerIconFeatureList.add(
             Feature.fromGeometry(
                 Point.fromLngLat(-1.778381,47.512238)
-            ).apply { addStringProperty(PROPERTY_NAME, "Point 3") }
+            ).apply { addStringProperty(PROPERTY_NAME, "Point 3")
+                addStringProperty(PROPERTY_ID, "3")}
         )
         val d = resources.getDrawable(R.drawable.ic_marker, theme)
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
@@ -96,14 +100,14 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         else {
             var fragment: BottomSheetFragment? = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? BottomSheetFragment
             if (fragment == null){
-                fragment = BottomSheetFragment(features.first().getStringProperty(PROPERTY_NAME))
+                fragment = BottomSheetFragment(features.first().getStringProperty(PROPERTY_ID))
                 supportFragmentManager.beginTransaction()
                 .add(R.id.containerMap, fragment, FRAGMENT_TAG)
                 .addToBackStack(FRAGMENT_TAG)
                 .commit()
             }
             else
-                fragment.show(features.first().getStringProperty(PROPERTY_NAME))
+                fragment.show(features.first().getStringProperty(PROPERTY_ID))
             true
         }
     }
