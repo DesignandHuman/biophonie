@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import com.example.biophonie.api.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import kotlinx.android.synthetic.main.bottom_sheet_layout.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -24,7 +23,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     private val TAG: String? = "BottomSheetFragment:"
     private lateinit var mListener: SoundSheetListener
     private lateinit var textView: TextView
-    private lateinit var button: Button
+    //private lateinit var button: Button
     private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(
@@ -34,12 +33,12 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     ): View? {
         val view: View = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
 
-        textView = view.findViewById(R.id.textView)
-        button = view.findViewById(R.id.button)
+        textView = view.findViewById(R.id.location)
+        /*button = view.findViewById(R.id.button)
         button.setOnClickListener {
             mListener.onButtonClicked("Button clicked")
-        }
-        progressBar = view.findViewById(R.id.progressBar)
+        }*/
+        progressBar = view.findViewById(R.id.progress_bar)
         show(soundName)
         val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(view)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -66,7 +65,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
      * @param id name of the sound to be requested
      */
     fun show(id: String){
-        changeWidgetsVisibility(false)
+        //changeWidgetsVisibility(false)
         val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
         val call: Call<SoundResponse> = api.getSound(id)
         call.enqueue(object: Callback<SoundResponse>{
@@ -74,8 +73,8 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
                 if (response.isSuccessful){
                     val sound = response.body()
                     // TODO(not implemented yet)
-                    textView.text = sound.toString()
-                    changeWidgetsVisibility(true)
+                    //textView.text = sound.toString()
+                    //changeWidgetsVisibility(true)
                 } else {
                     val error: ApiError? = ErrorUtils().parseError(response)
                     if (error == null)
@@ -99,12 +98,12 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     private fun changeWidgetsVisibility(makeVisible: Boolean){
         if (makeVisible){
             textView.visibility = View.VISIBLE
-            button.visibility = View.VISIBLE
+            //button.visibility = View.VISIBLE
             progressBar.visibility = View.GONE
         }
         else{
             textView.visibility = View.GONE
-            button.visibility = View.GONE
+            //button.visibility = View.GONE
             progressBar.visibility = View.VISIBLE
         }
     }
