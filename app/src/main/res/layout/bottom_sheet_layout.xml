@@ -26,6 +26,7 @@
         android:layout_height="wrap_content"
         android:text="Lieu ??"
         android:textSize="12sp"
+        android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toStartOf="@id/date"
         app:layout_constraintHorizontal_weight="4"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,6 +38,7 @@
         android:layout_height="wrap_content"
         android:text="Date ??"
         android:textSize="12sp"
+        android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toStartOf="@id/coordinates"
         app:layout_constraintHorizontal_weight="3"
         app:layout_constraintStart_toEndOf="@id/location"
@@ -48,6 +50,7 @@
         android:layout_height="wrap_content"
         android:text="Coordonnées ??"
         android:textSize="12sp"
+        android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintHorizontal_weight="5"
         app:layout_constraintStart_toEndOf="@id/date"
@@ -56,16 +59,18 @@
     <ImageView
         android:id="@+id/close"
         android:layout_width="15dp"
-        android:layout_height="15dp"
+        android:layout_height="0dp"
         android:clickable="true"
         android:contentDescription="close"
         android:focusable="true"
         android:gravity="center"
         android:onClick="onCloseClick"
         android:src="@drawable/ic_marker"
+        android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_weight="1"
         app:layout_constraintStart_toEndOf="@id/coordinates"
+        app:layout_constraintBottom_toTopOf="@id/wave_form"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
@@ -78,53 +83,83 @@
         app:layout_constraintTop_toBottomOf="@+id/date" />
 
     <TextView
+        android:id="@+id/empty_left"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text=" "
+        android:background="@drawable/border_top"
+        android:textSize="12sp"
+        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/left"/>
+
+    <TextView
         android:id="@+id/left"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:gravity="center"
         android:onClick="onLeftClick"
+        android:background="@drawable/border_top"
         android:text="&lt;"
         android:textSize="12sp"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/date_picker"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintHorizontal_chainStyle="packed"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toEndOf="@id/empty_left"
+        app:layout_constraintEnd_toStartOf="@id/date_picker"/>
 
     <TextView
         android:id="@+id/date_picker"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
+        android:gravity="center"
         android:text="Janvier 2000"
+        android:background="@drawable/border_top"
         android:textSize="12sp"
+        app:layout_constraintHorizontal_weight="4"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/right"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/left" />
+        app:layout_constraintStart_toEndOf="@id/left"
+        app:layout_constraintEnd_toStartOf="@id/right"/>
 
     <TextView
         android:id="@+id/right"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:focusable="true"
         android:gravity="center"
         android:onClick="onRightClick"
+        android:background="@drawable/border_top"
         android:text="&gt;"
         android:textSize="12sp"
+        app:layout_constraintHorizontal_weight="3"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/see_picture"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/date_picker" />
+        app:layout_constraintStart_toEndOf="@+id/date_picker"
+        app:layout_constraintEnd_toStartOf="@id/empty_right"/>
+
+    <TextView
+        android:id="@+id/empty_right"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="@drawable/border_top"
+        android:text=" "
+        android:textSize="12sp"
+        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="@id/right"
+        app:layout_constraintEnd_toStartOf="@id/see_picture"/>
 
     <TextView
         android:id="@+id/see_picture"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="@drawable/border_top_left"
+        android:gravity="center"
         android:text="Voir la photo"
         android:textSize="12sp"
+        app:layout_constraintHorizontal_weight="5"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/empty_right" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
