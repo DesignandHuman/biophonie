@@ -11,7 +11,7 @@
 
     <ProgressBar
         android:id="@+id/progress_bar"
-        style="@style/MyProgressBarRectangle"
+        style="@style/ExampleProgressBar"
         android:layout_width="100dp"
         android:layout_height="100dp"
         android:layout_margin="20dp"
@@ -21,11 +21,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/location"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:text="Lieu ??"
-        android:textSize="12sp"
         android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toStartOf="@id/date"
         app:layout_constraintHorizontal_weight="4"
@@ -33,11 +31,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/date"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:text="Date ??"
-        android:textSize="12sp"
         android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toStartOf="@id/coordinates"
         app:layout_constraintHorizontal_weight="3"
@@ -45,11 +41,9 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/coordinates"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:text="Coordonnées ??"
-        android:textSize="12sp"
         android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toEndOf="@+id/close"
         app:layout_constraintHorizontal_weight="5"
@@ -83,80 +77,69 @@
         app:layout_constraintTop_toBottomOf="@+id/date" />
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/empty_left"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:text=" "
         android:background="@drawable/border_top"
-        android:textSize="12sp"
-        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintHorizontal_weight="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@id/left"/>
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/left"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:focusable="true"
         android:gravity="center"
         android:onClick="onLeftClick"
         android:background="@drawable/border_top"
         android:text="&lt;"
-        android:textSize="12sp"
-        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/empty_left"
         app:layout_constraintEnd_toStartOf="@id/date_picker"/>
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/date_picker"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:gravity="center"
         android:text="Janvier 2000"
         android:background="@drawable/border_top"
-        android:textSize="12sp"
         app:layout_constraintHorizontal_weight="4"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/left"
         app:layout_constraintEnd_toStartOf="@id/right"/>
 
+    <!-- TODO: Create style for cliquable elements -->
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/right"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:focusable="true"
         android:gravity="center"
         android:onClick="onRightClick"
         android:background="@drawable/border_top"
         android:text="&gt;"
-        android:textSize="12sp"
-        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintHorizontal_weight="1"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/date_picker"
         app:layout_constraintEnd_toStartOf="@id/empty_right"/>
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/empty_right"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:background="@drawable/border_top"
         android:text=" "
-        android:textSize="12sp"
-        app:layout_constraintHorizontal_weight="3"
+        app:layout_constraintHorizontal_weight="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/right"
         app:layout_constraintEnd_toStartOf="@id/see_picture"/>
 
     <TextView
+        style="@style/BottomSheetTextView"
         android:id="@+id/see_picture"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:background="@drawable/border_top_left"
         android:gravity="center"
         android:text="Voir la photo"
-        android:textSize="12sp"
         app:layout_constraintHorizontal_weight="5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
