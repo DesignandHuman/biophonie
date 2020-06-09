@@ -17,10 +17,6 @@
 
     <style name="DefaultTextView" parent="Widget.AppCompat.TextView">
         <item name="android:textAppearance">@style/MyTextAppearance</item>
-        <item name="autoSizeTextType">uniform</item>
-        <item name="autoSizeMinTextSize">12sp</item>
-        <item name="autoSizeMaxTextSize">100sp</item>
-        <item name="autoSizeStepGranularity">2sp</item>
     </style>
 
     <style name="BottomSheetTextView" parent="DefaultTextView">
@@ -31,6 +27,8 @@
 
     <style name="MyTextAppearance" parent="TextAppearance.AppCompat.Medium">
         <item name="android:fontFamily">@font/ibm_plex_mono</item>
+        <item name="fontFamily">@font/ibm_plex_mono</item>
+        <item name="android:textSize">14sp</item>
     </style>
 
 </resources>
