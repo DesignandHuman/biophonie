@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="150dp"
     android:background="@color/design_default_color_background"
     app:behavior_hideable="false"
     app:behavior_peekHeight="56dp"
@@ -25,7 +25,6 @@
         android:id="@+id/location"
         android:text=".??"
         android:background="@drawable/border_bottom_top"
-        android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/date"
         app:layout_constraintHorizontal_weight="4"
         app:layout_constraintStart_toStartOf="parent"
@@ -76,12 +75,13 @@
         android:src="@drawable/spectre"
         app:layout_constraintBottom_toTopOf="@+id/date_picker"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/date" />
+        app:layout_constraintTop_toBottomOf="@id/location" />
 
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/BottomSheetTextView"
         android:id="@+id/empty_left"
         android:text=" "
+        android:visibility="gone"
         android:background="@drawable/border_top"
         app:layout_constraintHorizontal_weight="0"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -130,6 +130,7 @@
         android:id="@+id/empty_right"
         android:background="@drawable/border_top"
         android:text=" "
+        android:visibility="gone"
         app:layout_constraintHorizontal_weight="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/right"

@@ -5,10 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.ProgressBar
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.biophonie.api.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -22,8 +19,15 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
     private lateinit var mListener: SoundSheetListener
-    private lateinit var textView: TextView
-    //private lateinit var button: Button
+    private lateinit var location: TextView
+    private lateinit var date: TextView
+    private lateinit var coords: TextView
+    private lateinit var close: ImageView
+    private lateinit var waveForm: ImageView
+    private lateinit var left: TextView
+    private lateinit var datePicker: TextView
+    private lateinit var right: TextView
+    private lateinit var seePicture: TextView
     private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(
@@ -33,11 +37,15 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     ): View? {
         val view: View = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
 
-        textView = view.findViewById(R.id.location)
-        /*button = view.findViewById(R.id.button)
-        button.setOnClickListener {
-            mListener.onButtonClicked("Button clicked")
-        }*/
+        location = view.findViewById(R.id.location)
+        date = view.findViewById(R.id.date)
+        coords = view.findViewById(R.id.coordinates)
+        close = view.findViewById(R.id.close)
+        waveForm = view.findViewById(R.id.wave_form)
+        left = view.findViewById(R.id.left)
+        datePicker = view.findViewById(R.id.date_picker)
+        right = view.findViewById(R.id.right)
+        seePicture = view.findViewById(R.id.see_picture)
         progressBar = view.findViewById(R.id.progress_bar)
         show(soundName)
         val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(view)
@@ -65,7 +73,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
      * @param id name of the sound to be requested
      */
     fun show(id: String){
-        //changeWidgetsVisibility(false)
+        changeWidgetsVisibility(false)
         val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
         val call: Call<SoundResponse> = api.getSound(id)
         call.enqueue(object: Callback<SoundResponse>{
@@ -73,8 +81,8 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
                 if (response.isSuccessful){
                     val sound = response.body()
                     // TODO(not implemented yet)
-                    //textView.text = sound.toString()
-                    //changeWidgetsVisibility(true)
+                    //location.text = sound.toString()
+                    changeWidgetsVisibility(true)
                 } else {
                     val error: ApiError? = ErrorUtils().parseError(response)
                     if (error == null)
@@ -97,13 +105,29 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
 
     private fun changeWidgetsVisibility(makeVisible: Boolean){
         if (makeVisible){
-            textView.visibility = View.VISIBLE
-            //button.visibility = View.VISIBLE
+            location.visibility = View.VISIBLE
+            date.visibility = View.VISIBLE
+            coords.visibility = View.VISIBLE
+            close.visibility = View.VISIBLE
+            waveForm.visibility = View.VISIBLE
+            left.visibility = View.VISIBLE
+            datePicker.visibility = View.VISIBLE
+            right.visibility = View.VISIBLE
+            seePicture.visibility = View.VISIBLE
+
             progressBar.visibility = View.GONE
         }
         else{
-            textView.visibility = View.GONE
-            //button.visibility = View.GONE
+            location.visibility = View.GONE
+            date.visibility = View.GONE
+            coords.visibility = View.GONE
+            close.visibility = View.GONE
+            waveForm.visibility = View.GONE
+            left.visibility = View.GONE
+            datePicker.visibility = View.GONE
+            right.visibility = View.GONE
+            seePicture.visibility = View.GONE
+
             progressBar.visibility = View.VISIBLE
         }
     }
