@@ -29,6 +29,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     private lateinit var right: TextView
     private lateinit var seePicture: TextView
     private lateinit var progressBar: ProgressBar
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -36,19 +37,30 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view: View = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
+        bottomSheetBehavior = BottomSheetBehavior.from(view)
 
         location = view.findViewById(R.id.location)
         date = view.findViewById(R.id.date)
         coords = view.findViewById(R.id.coordinates)
+
         close = view.findViewById(R.id.close)
+        close.setOnClickListener { bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN }
+
         waveForm = view.findViewById(R.id.wave_form)
+        waveForm.setOnClickListener { Toast.makeText(view.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
+
         left = view.findViewById(R.id.left)
+        left.setOnClickListener {Toast.makeText(view.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+
         datePicker = view.findViewById(R.id.date_picker)
+
         right = view.findViewById(R.id.right)
+        right.setOnClickListener {Toast.makeText(view.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+
         seePicture = view.findViewById(R.id.see_picture)
+        seePicture.setOnClickListener { Toast.makeText(view.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
         progressBar = view.findViewById(R.id.progress_bar)
         show(soundName)
-        val bottomSheetBehavior: BottomSheetBehavior<*> = BottomSheetBehavior.from(view)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         return view
     }
@@ -73,6 +85,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
      * @param id name of the sound to be requested
      */
     fun show(id: String){
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         changeWidgetsVisibility(false)
         val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
         val call: Call<SoundResponse> = api.getSound(id)
@@ -80,7 +93,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
             override fun onResponse(call: Call<SoundResponse>, response: Response<SoundResponse>) {
                 if (response.isSuccessful){
                     val sound = response.body()
-                    // TODO(not implemented yet)
+                    // TODO not implemented yet)
                     //location.text = sound.toString()
                     changeWidgetsVisibility(true)
                 } else {
@@ -131,4 +144,5 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
             progressBar.visibility = View.VISIBLE
         }
     }
+
 }
