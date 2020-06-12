@@ -6,8 +6,8 @@ import java.io.IOException
 import java.net.URI
 
 // FAKE RESPONSES
-private const val SoundId1 = "{\"id\":1,\"name\":\"Son de lac\",\"urlAudio\":\"https://blabla.com/1\",\"amplitudes\":[0,1,2,3,4,5,6]}"
-private const val SoundId2 = "{\"id\":2,\"name\":\"Son de forêt\",\"urlAudio\":\"https://blabla.com/2\",\"amplitudes\":[6,5,4,3,2,1,0]}"
+private const val SoundId1 = "{\"id\":1,\"location\":\"Lac joli\",\"date\":\"2017-06-24T09:32:55Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"urlPhoto\":\"https://biophonie.fr/photos/1\",\"urlAudio\":\"https://biophonie.fr/audios/1\"}"
+private const val SoundId2 = "{\"id\":2,\"location\":\"Jolie forêt\",\"urlAudio\":\"https://blabla.com/2\",\"amplitudes\":[6,5,4,3,2,1,0]}"
 
 // Only for testing purpose. Use a MockWebServer for more complete tests
 class FakeInterceptor : Interceptor {
@@ -23,7 +23,7 @@ class FakeInterceptor : Interceptor {
         // Get Query String.
         val query: String = uri.query
         // Parse the Query String.
-        SystemClock.sleep(1000);
+        SystemClock.sleep(1000)
         val parsedQuery = query.split("=".toRegex()).toTypedArray()
         responseString = if (parsedQuery[0].equals("id", ignoreCase = true) && parsedQuery[1]
                 .equals("1", ignoreCase = true)

@@ -6,6 +6,7 @@ import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.location.Location
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
@@ -104,17 +105,22 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             rectF?.let { mapboxMap?.queryRenderedFeatures(it, ID_LAYER) } as List<Feature>
         return if (features.isEmpty()) false
         else {
-            var fragment: BottomSheetFragment? = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? BottomSheetFragment
-            if (fragment == null){
-                fragment = BottomSheetFragment(features.first().getStringProperty(PROPERTY_ID))
-                supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, fragment, FRAGMENT_TAG)
-                .addToBackStack(FRAGMENT_TAG)
-                .commit()
+            val clickedFeature: Feature? = features.first { it.geometry() is Point }
+            val clickedPoint: Point? = clickedFeature?.geometry() as Point?
+            clickedPoint?.let {
+                var fragment: BottomSheetFragment? = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? BottomSheetFragment
+                if (fragment == null){
+                    fragment = BottomSheetFragment(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(PROPERTY_NAME), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
+                    supportFragmentManager.beginTransaction()
+                        .add(R.id.containerMap, fragment, FRAGMENT_TAG)
+                        .addToBackStack(FRAGMENT_TAG)
+                        .commit()
+                }
+                else
+                    fragment.show(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(PROPERTY_NAME), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
+                return true
             }
-            else
-                fragment.show(features.first().getStringProperty(PROPERTY_ID))
-            true
+            return false
         }
     }
 

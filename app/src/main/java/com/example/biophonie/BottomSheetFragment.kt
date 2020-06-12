@@ -8,16 +8,22 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
 import com.example.biophonie.api.*
+import com.example.biophonie.classes.Sound
+import com.example.biophonie.classes.SoundResponse
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.mapbox.mapboxsdk.geometry.LatLng
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
-class BottomSheetFragment(private var soundName: String) : Fragment() {
+class BottomSheetFragment(private var id: String, private var name: String, private var coordinates: LatLng) : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
+
     private lateinit var mListener: SoundSheetListener
     private lateinit var location: TextView
     private lateinit var date: TextView
@@ -60,7 +66,11 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
         seePicture = view.findViewById(R.id.see_picture)
         seePicture.setOnClickListener { Toast.makeText(view.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
         progressBar = view.findViewById(R.id.progress_bar)
-        show(soundName)
+
+        // A bit of a hack. There should be a better way to do it.
+        val initId: String = id
+        id = ""
+        show(initId, name, coordinates)
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
         return view
     }
@@ -82,19 +92,30 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     /**
      * Display the sound inside the fragment
      *
-     * @param id name of the sound to be requested
+     * @param id id of the sound to show
+     * @param name name of the sound
+     * @param coordinates coordinates of the location
      */
-    fun show(id: String){
+    fun show(id: String, name: String, coordinates: LatLng){
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        if (this.id == id)
+            return
+        this.id = id
         changeWidgetsVisibility(false)
         val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
         val call: Call<SoundResponse> = api.getSound(id)
         call.enqueue(object: Callback<SoundResponse>{
             override fun onResponse(call: Call<SoundResponse>, response: Response<SoundResponse>) {
                 if (response.isSuccessful){
-                    val sound = response.body()
-                    // TODO not implemented yet)
-                    //location.text = sound.toString()
+                    val sound: Sound = response.body()!!.toSound().apply {
+                        this.name = name
+                        this.coordinates = coordinates
+                    }
+                    location.text = sound.name
+                    date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
+                    coords.text = sound.coordinatesToString()
+                    datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
+                    // TODO(build the waveForm corresponding to the urlAudio)
                     changeWidgetsVisibility(true)
                 } else {
                     val error: ApiError? = ErrorUtils().parseError(response)
