@@ -35,16 +35,21 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private var mapView: MapView? = null
     private var mapboxMap: MapboxMap? = null
+    private var bottomSheet: BottomSheetFragment = BottomSheetFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_map)
 
+        supportFragmentManager.beginTransaction()
+            .add(R.id.containerMap, bottomSheet, FRAGMENT_TAG)
+            .addToBackStack(FRAGMENT_TAG)
+            .commit()
+
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
-
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -108,16 +113,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             val clickedFeature: Feature? = features.first { it.geometry() is Point }
             val clickedPoint: Point? = clickedFeature?.geometry() as Point?
             clickedPoint?.let {
-                var fragment: BottomSheetFragment? = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? BottomSheetFragment
-                if (fragment == null){
-                    fragment = BottomSheetFragment(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(PROPERTY_NAME), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
-                    supportFragmentManager.beginTransaction()
-                        .add(R.id.containerMap, fragment, FRAGMENT_TAG)
-                        .addToBackStack(FRAGMENT_TAG)
-                        .commit()
-                }
-                else
-                    fragment.show(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(PROPERTY_NAME), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
+                bottomSheet.show(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(PROPERTY_NAME), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
                 return true
             }
             return false

@@ -20,9 +20,10 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class BottomSheetFragment(private var id: String, private var name: String, private var coordinates: LatLng) : Fragment() {
+class BottomSheetFragment() : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
+    private var id: String = ""
 
     private lateinit var mListener: SoundSheetListener
     private lateinit var location: TextView
@@ -67,11 +68,7 @@ class BottomSheetFragment(private var id: String, private var name: String, priv
         seePicture.setOnClickListener { Toast.makeText(view.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
         progressBar = view.findViewById(R.id.progress_bar)
 
-        // A bit of a hack. There should be a better way to do it.
-        val initId: String = id
-        id = ""
-        show(initId, name, coordinates)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         return view
     }
 
