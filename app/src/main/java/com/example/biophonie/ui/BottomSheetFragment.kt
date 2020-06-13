@@ -1,15 +1,18 @@
-package com.example.biophonie
+package com.example.biophonie.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.fragment.app.Fragment
+import com.example.biophonie.R
 import com.example.biophonie.api.*
+import com.example.biophonie.classes.GeoPoint
+import com.example.biophonie.classes.GeoPointResponse
 import com.example.biophonie.classes.Sound
-import com.example.biophonie.classes.SoundResponse
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 import retrofit2.Call
@@ -19,11 +22,10 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-class BottomSheetFragment() : Fragment() {
+class BottomSheetFragment : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
-    private var id: String = ""
+    private lateinit var geoPoint: GeoPoint
 
     private lateinit var mListener: SoundSheetListener
     private lateinit var location: TextView
@@ -95,24 +97,25 @@ class BottomSheetFragment() : Fragment() {
      */
     fun show(id: String, name: String, coordinates: LatLng){
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-        if (this.id == id)
+        if (this::geoPoint.isInitialized && geoPoint.id == id)
             return
-        this.id = id
         changeWidgetsVisibility(false)
         val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
-        val call: Call<SoundResponse> = api.getSound(id)
-        call.enqueue(object: Callback<SoundResponse>{
-            override fun onResponse(call: Call<SoundResponse>, response: Response<SoundResponse>) {
+        val call: Call<GeoPointResponse> = api.getGeoPoint(id)
+        call.enqueue(object: Callback<GeoPointResponse>{
+            override fun onResponse(call: Call<GeoPointResponse>, response: Response<GeoPointResponse>) {
                 if (response.isSuccessful){
-                    val sound: Sound = response.body()!!.toSound().apply {
+                    geoPoint = response.body()!!.toGeoPoint().apply {
                         this.name = name
                         this.coordinates = coordinates
                     }
-                    location.text = sound.name
-                    date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
-                    coords.text = sound.coordinatesToString()
-                    datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
-                    // TODO(build the waveForm corresponding to the urlAudio)
+                    geoPoint.sounds?.first()?.let {
+                        location.text = geoPoint.name
+                        date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(it.date.time)
+                        coords.text = geoPoint.coordinatesToString()
+                        datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(it.date.time)
+                        // TODO(build the waveForm corresponding to the urlAudio)
+                    }
                     changeWidgetsVisibility(true)
                 } else {
                     val error: ApiError? = ErrorUtils().parseError(response)
@@ -123,7 +126,7 @@ class BottomSheetFragment() : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<SoundResponse>, t: Throwable) {
+            override fun onFailure(call: Call<GeoPointResponse>, t: Throwable) {
                 if (t is IOException) {
                     Toast.makeText(context, "Problème réseau. Assurez-vous d'avoir une connection Internet suffisante", Toast.LENGTH_SHORT).show();
                 }
