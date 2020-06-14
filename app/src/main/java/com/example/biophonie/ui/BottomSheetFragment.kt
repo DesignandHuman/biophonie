@@ -61,12 +61,19 @@ class BottomSheetFragment : Fragment() {
         waveForm.setOnClickListener { Toast.makeText(view.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
         left = view.findViewById(R.id.left)
-        left.setOnClickListener {Toast.makeText(view?.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+        left.setOnClickListener {
+            soundsIterator.previous()
+            val sound: Sound = soundsIterator.previous()
+            displaySound(sound)
+        }
 
         datePicker = view.findViewById(R.id.date_picker)
 
         right = view.findViewById(R.id.right)
-        right.setOnClickListener {Toast.makeText(view?.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+        right.setOnClickListener {
+            val sound: Sound = soundsIterator.next()
+            displaySound(sound)
+        }
 
 
         seePicture = view.findViewById(R.id.see_picture)
@@ -114,17 +121,10 @@ class BottomSheetFragment : Fragment() {
                     }
                     geoPoint.sounds?.let {
                         soundsIterator = it.listIterator()
-                        Log.d(TAG, "onResponse: before"+soundsIterator.nextIndex().toString())
                         val sound = soundsIterator.next()
-                        Log.d(TAG, "onResponse: after"+soundsIterator.nextIndex().toString())
-                        checkClickability(it)
-                        location.text = geoPoint.name
-                        date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
-                        coords.text = geoPoint.coordinatesToString()
-                        datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
+                        displaySound(sound)
                         // TODO(build the waveForm corresponding to the urlAudio)
                     }
-                    changeWidgetsVisibility(true)
                 } else {
                     val error: ApiError? = ErrorUtils().parseError(response)
                     if (error == null)
@@ -145,6 +145,16 @@ class BottomSheetFragment : Fragment() {
         })
     }
 
+    private fun displaySound(sound: Sound) {
+        checkClickability(geoPoint.sounds!!)
+        location.text = geoPoint.name
+        date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
+        Log.d(TAG, "displaySound: "+SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time))
+        coords.text = geoPoint.coordinatesToString()
+        datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
+        changeWidgetsVisibility(true)
+    }
+
     private fun checkClickability(sounds: List<Sound>){
         // A bit of a hack due to ListIterators' behavior.
         // The index is between two elements.
@@ -159,7 +169,7 @@ class BottomSheetFragment : Fragment() {
         try{
             Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
             right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
-            left.isClickable = true
+            right.isClickable = true
         } catch (e: IndexOutOfBoundsException){
             right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
             right.isClickable = false
