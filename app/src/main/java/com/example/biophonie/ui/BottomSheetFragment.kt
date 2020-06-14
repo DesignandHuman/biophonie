@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.biophonie.R
 import com.example.biophonie.api.*
@@ -25,6 +26,7 @@ import java.util.*
 class BottomSheetFragment : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
+    private lateinit var soundsIterator: ListIterator<Sound>
     private lateinit var geoPoint: GeoPoint
 
     private lateinit var mListener: SoundSheetListener
@@ -59,12 +61,13 @@ class BottomSheetFragment : Fragment() {
         waveForm.setOnClickListener { Toast.makeText(view.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
         left = view.findViewById(R.id.left)
-        left.setOnClickListener {Toast.makeText(view.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+        left.setOnClickListener {Toast.makeText(view?.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
 
         datePicker = view.findViewById(R.id.date_picker)
 
         right = view.findViewById(R.id.right)
-        right.setOnClickListener {Toast.makeText(view.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+        right.setOnClickListener {Toast.makeText(view?.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+
 
         seePicture = view.findViewById(R.id.see_picture)
         seePicture.setOnClickListener { Toast.makeText(view.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
@@ -109,11 +112,16 @@ class BottomSheetFragment : Fragment() {
                         this.name = name
                         this.coordinates = coordinates
                     }
-                    geoPoint.sounds?.first()?.let {
+                    geoPoint.sounds?.let {
+                        soundsIterator = it.listIterator()
+                        Log.d(TAG, "onResponse: before"+soundsIterator.nextIndex().toString())
+                        val sound = soundsIterator.next()
+                        Log.d(TAG, "onResponse: after"+soundsIterator.nextIndex().toString())
+                        checkClickability(it)
                         location.text = geoPoint.name
-                        date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(it.date.time)
+                        date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
                         coords.text = geoPoint.coordinatesToString()
-                        datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(it.date.time)
+                        datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
                         // TODO(build the waveForm corresponding to the urlAudio)
                     }
                     changeWidgetsVisibility(true)
@@ -135,6 +143,27 @@ class BottomSheetFragment : Fragment() {
                 }
             }
         })
+    }
+
+    private fun checkClickability(sounds: List<Sound>){
+        // A bit of a hack due to ListIterators' behavior.
+        // The index is between two elements.
+        try {
+            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].urlAudio)
+            left.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+            left.isClickable = true
+        } catch (e: IndexOutOfBoundsException){
+            left.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
+            left.isClickable = false
+        }
+        try{
+            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
+            right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+            left.isClickable = true
+        } catch (e: IndexOutOfBoundsException){
+            right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
+            right.isClickable = false
+        }
     }
 
     private fun changeWidgetsVisibility(makeVisible: Boolean){
