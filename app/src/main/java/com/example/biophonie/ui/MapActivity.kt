@@ -1,4 +1,4 @@
-package com.example.biophonie
+package com.example.biophonie.ui
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -9,6 +9,7 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
+import com.example.biophonie.R
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -34,16 +35,25 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private var mapView: MapView? = null
     private var mapboxMap: MapboxMap? = null
+    private var bottomSheet: BottomSheetFragment =
+        BottomSheetFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         setContentView(R.layout.activity_map)
 
+        supportFragmentManager.beginTransaction()
+            .add(
+                R.id.containerMap, bottomSheet,
+                FRAGMENT_TAG
+            )
+            .addToBackStack(FRAGMENT_TAG)
+            .commit()
+
         mapView = findViewById(R.id.mapView)
         mapView?.onCreate(savedInstanceState)
         mapView?.getMapAsync(this)
-
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -71,7 +81,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
             .withImage(ID_ICON, d.toBitmap())
             .withSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)))
-            .withLayer(SymbolLayer(ID_LAYER, ID_SOURCE)
+            .withLayer(SymbolLayer(
+                ID_LAYER,
+                ID_SOURCE
+            )
                 .withProperties(
                     iconImage(ID_ICON),
                     iconOpacity(8f),
@@ -101,20 +114,20 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 50, screenPoint.y + 10) }
 
         val features: List<Feature> =
-            rectF?.let { mapboxMap?.queryRenderedFeatures(it, ID_LAYER) } as List<Feature>
+            rectF?.let { mapboxMap?.queryRenderedFeatures(it,
+                ID_LAYER
+            ) } as List<Feature>
         return if (features.isEmpty()) false
         else {
-            var fragment: BottomSheetFragment? = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG) as? BottomSheetFragment
-            if (fragment == null){
-                fragment = BottomSheetFragment(features.first().getStringProperty(PROPERTY_ID))
-                supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, fragment, FRAGMENT_TAG)
-                .addToBackStack(FRAGMENT_TAG)
-                .commit()
+            val clickedFeature: Feature? = features.first { it.geometry() is Point }
+            val clickedPoint: Point? = clickedFeature?.geometry() as Point?
+            clickedPoint?.let {
+                bottomSheet.show(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(
+                    PROPERTY_NAME
+                ), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
+                return true
             }
-            else
-                fragment.show(features.first().getStringProperty(PROPERTY_ID))
-            true
+            return false
         }
     }
 

@@ -1,23 +1,34 @@
-package com.example.biophonie
+package com.example.biophonie.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import com.example.biophonie.R
 import com.example.biophonie.api.*
+import com.example.biophonie.classes.GeoPoint
+import com.example.biophonie.classes.GeoPointResponse
+import com.example.biophonie.classes.Sound
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.mapbox.mapboxsdk.geometry.LatLng
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
-
-class BottomSheetFragment(private var soundName: String) : Fragment() {
+class BottomSheetFragment : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
+    private lateinit var soundsIterator: ListIterator<Sound>
+    private lateinit var geoPoint: GeoPoint
+
     private lateinit var mListener: SoundSheetListener
     private lateinit var location: TextView
     private lateinit var date: TextView
@@ -50,18 +61,26 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
         waveForm.setOnClickListener { Toast.makeText(view.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
         left = view.findViewById(R.id.left)
-        left.setOnClickListener {Toast.makeText(view.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+        left.setOnClickListener {
+            soundsIterator.previous()
+            val sound: Sound = soundsIterator.previous()
+            displaySound(sound)
+        }
 
         datePicker = view.findViewById(R.id.date_picker)
 
         right = view.findViewById(R.id.right)
-        right.setOnClickListener {Toast.makeText(view.context,"Not implemented yet", Toast.LENGTH_SHORT).show() }
+        right.setOnClickListener {
+            val sound: Sound = soundsIterator.next()
+            displaySound(sound)
+        }
+
 
         seePicture = view.findViewById(R.id.see_picture)
         seePicture.setOnClickListener { Toast.makeText(view.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
         progressBar = view.findViewById(R.id.progress_bar)
-        show(soundName)
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         return view
     }
 
@@ -82,20 +101,30 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
     /**
      * Display the sound inside the fragment
      *
-     * @param id name of the sound to be requested
+     * @param id id of the sound to show
+     * @param name name of the sound
+     * @param coordinates coordinates of the location
      */
-    fun show(id: String){
+    fun show(id: String, name: String, coordinates: LatLng){
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        if (this::geoPoint.isInitialized && geoPoint.id == id)
+            return
         changeWidgetsVisibility(false)
         val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
-        val call: Call<SoundResponse> = api.getSound(id)
-        call.enqueue(object: Callback<SoundResponse>{
-            override fun onResponse(call: Call<SoundResponse>, response: Response<SoundResponse>) {
+        val call: Call<GeoPointResponse> = api.getGeoPoint(id)
+        call.enqueue(object: Callback<GeoPointResponse>{
+            override fun onResponse(call: Call<GeoPointResponse>, response: Response<GeoPointResponse>) {
                 if (response.isSuccessful){
-                    val sound = response.body()
-                    // TODO not implemented yet)
-                    //location.text = sound.toString()
-                    changeWidgetsVisibility(true)
+                    geoPoint = response.body()!!.toGeoPoint().apply {
+                        this.name = name
+                        this.coordinates = coordinates
+                    }
+                    geoPoint.sounds?.let {
+                        soundsIterator = it.listIterator()
+                        val sound = soundsIterator.next()
+                        displaySound(sound)
+                        // TODO(build the waveForm corresponding to the urlAudio)
+                    }
                 } else {
                     val error: ApiError? = ErrorUtils().parseError(response)
                     if (error == null)
@@ -105,7 +134,7 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
                 }
             }
 
-            override fun onFailure(call: Call<SoundResponse>, t: Throwable) {
+            override fun onFailure(call: Call<GeoPointResponse>, t: Throwable) {
                 if (t is IOException) {
                     Toast.makeText(context, "Problème réseau. Assurez-vous d'avoir une connection Internet suffisante", Toast.LENGTH_SHORT).show();
                 }
@@ -114,6 +143,37 @@ class BottomSheetFragment(private var soundName: String) : Fragment() {
                 }
             }
         })
+    }
+
+    private fun displaySound(sound: Sound) {
+        checkClickability(geoPoint.sounds!!)
+        location.text = geoPoint.name
+        date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
+        Log.d(TAG, "displaySound: "+SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time))
+        coords.text = geoPoint.coordinatesToString()
+        datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
+        changeWidgetsVisibility(true)
+    }
+
+    private fun checkClickability(sounds: List<Sound>){
+        // A bit of a hack due to ListIterators' behavior.
+        // The index is between two elements.
+        try {
+            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].urlAudio)
+            left.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+            left.isClickable = true
+        } catch (e: IndexOutOfBoundsException){
+            left.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
+            left.isClickable = false
+        }
+        try{
+            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
+            right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
+            right.isClickable = true
+        } catch (e: IndexOutOfBoundsException){
+            right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
+            right.isClickable = false
+        }
     }
 
     private fun changeWidgetsVisibility(makeVisible: Boolean){
