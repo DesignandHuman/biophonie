@@ -3,150 +3,171 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="150dp"
+    android:layout_height="500dp"
     android:background="@color/design_default_color_background"
     app:behavior_hideable="true"
     app:behavior_skipCollapsed="false"
     app:behavior_peekHeight="56dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-    <ProgressBar
-        android:id="@+id/progress_bar"
-        style="@style/ExampleProgressBar"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_margin="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/location"
-        android:text=".??"
-        android:background="@drawable/border_bottom_top"
-        app:layout_constraintEnd_toStartOf="@id/date"
-        app:layout_constraintHorizontal_weight="4"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/date"
-        android:text=".??/??/??"
-        android:background="@drawable/border_bottom_top"
-        app:layout_constraintEnd_toStartOf="@id/coordinates"
-        app:layout_constraintHorizontal_weight="3"
-        app:layout_constraintStart_toEndOf="@id/location"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/coordinates"
-        android:text=".??°E ??°N"
-        android:gravity="center"
-        android:background="@drawable/border_bottom_top"
-        app:layout_constraintEnd_toEndOf="@+id/close"
-        app:layout_constraintHorizontal_weight="5"
-        app:layout_constraintStart_toEndOf="@id/date"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/close"
-        android:layout_width="30dp"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_height="0dp"
-        android:clickable="true"
-        android:contentDescription="close"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onCloseClick"
-        android:src="@drawable/ic_marker"
-        android:background="@drawable/border_bottom_top"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_weight="0"
-        app:layout_constraintStart_toEndOf="@id/coordinates"
-        app:layout_constraintBottom_toTopOf="@id/wave_form"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_width="match_parent"
+        android:id="@+id/sound_container"
+        app:layout_constraintVertical_weight="1"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/sound_image"
+        app:layout_constraintStart_toStartOf="parent">
 
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            style="@style/ExampleProgressBar"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_margin="20dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/location"
+            android:text=".??"
+            android:background="@drawable/border_bottom_top"
+            app:layout_constraintEnd_toStartOf="@id/date"
+            app:layout_constraintHorizontal_weight="4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/date"
+            android:text=".??/??/??"
+            android:background="@drawable/border_bottom_top"
+            app:layout_constraintEnd_toStartOf="@id/coordinates"
+            app:layout_constraintHorizontal_weight="3"
+            app:layout_constraintStart_toEndOf="@id/location"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/coordinates"
+            android:text=".??°E ??°N"
+            android:gravity="center"
+            android:background="@drawable/border_bottom_top"
+            app:layout_constraintEnd_toEndOf="@+id/close"
+            app:layout_constraintHorizontal_weight="5"
+            app:layout_constraintStart_toEndOf="@id/date"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_width="30dp"
+            android:layout_height="0dp"
+            android:clickable="true"
+            android:contentDescription="close"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onCloseClick"
+            android:src="@drawable/ic_marker"
+            android:background="@drawable/border_bottom_top"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="0"
+            app:layout_constraintStart_toEndOf="@id/coordinates"
+            app:layout_constraintBottom_toTopOf="@id/wave_form"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <ImageView
+            android:id="@+id/wave_form"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:src="@drawable/spectre"
+            app:layout_constraintBottom_toTopOf="@+id/date_picker"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/location" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/empty_left"
+            android:text=" "
+            android:visibility="gone"
+            android:background="@drawable/border_top"
+            app:layout_constraintHorizontal_weight="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/left"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/left"
+            android:focusable="true"
+            android:gravity="center"
+            android:background="@drawable/border_top"
+            android:textColor="@color/colorPrimary"
+            android:text="&lt;"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/empty_left"
+            app:layout_constraintEnd_toStartOf="@id/date_picker"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/date_picker"
+            android:gravity="center"
+            android:text="Janvier 2000"
+            android:background="@drawable/border_top"
+            app:layout_constraintHorizontal_weight="4"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/left"
+            app:layout_constraintEnd_toStartOf="@id/right"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/right"
+            android:focusable="true"
+            android:gravity="center"
+            android:onClick="onRightClick"
+            android:background="@drawable/border_top"
+            android:textColor="@color/colorPrimary"
+            android:text="&gt;"
+            app:layout_constraintHorizontal_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/date_picker"
+            app:layout_constraintEnd_toStartOf="@id/empty_right"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/empty_right"
+            android:background="@drawable/border_top"
+            android:text=" "
+            android:visibility="gone"
+            app:layout_constraintHorizontal_weight="0"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/right"
+            app:layout_constraintEnd_toStartOf="@id/see_picture"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            style="@style/BottomSheetTextView"
+            android:id="@+id/see_picture"
+            android:background="@drawable/border_top_left"
+            android:gravity="center"
+            android:text="Voir la photo"
+            app:layout_constraintHorizontal_weight="5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/empty_right" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    
     <ImageView
-        android:id="@+id/wave_form"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:src="@drawable/spectre"
-        app:layout_constraintBottom_toTopOf="@+id/date_picker"
+        android:id="@+id/sound_image"
+        android:src="@drawable/france"
+        app:layout_constraintVertical_weight="2"
+        app:layout_constraintTop_toBottomOf="@id/sound_container"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/location" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/empty_left"
-        android:text=" "
-        android:visibility="gone"
-        android:background="@drawable/border_top"
-        app:layout_constraintHorizontal_weight="0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@id/left"/>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/left"
-        android:focusable="true"
-        android:gravity="center"
-        android:background="@drawable/border_top"
-        android:textColor="@color/colorPrimary"
-        android:text="&lt;"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/empty_left"
-        app:layout_constraintEnd_toStartOf="@id/date_picker"/>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/date_picker"
-        android:gravity="center"
-        android:text="Janvier 2000"
-        android:background="@drawable/border_top"
-        app:layout_constraintHorizontal_weight="4"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/left"
-        app:layout_constraintEnd_toStartOf="@id/right"/>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/right"
-        android:focusable="true"
-        android:gravity="center"
-        android:onClick="onRightClick"
-        android:background="@drawable/border_top"
-        android:textColor="@color/colorPrimary"
-        android:text="&gt;"
-        app:layout_constraintHorizontal_weight="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/date_picker"
-        app:layout_constraintEnd_toStartOf="@id/empty_right"/>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/empty_right"
-        android:background="@drawable/border_top"
-        android:text=" "
-        android:visibility="gone"
-        app:layout_constraintHorizontal_weight="0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@id/right"
-        app:layout_constraintEnd_toStartOf="@id/see_picture"/>
-
-    <androidx.appcompat.widget.AppCompatTextView
-        style="@style/BottomSheetTextView"
-        android:id="@+id/see_picture"
-        android:background="@drawable/border_top_left"
-        android:gravity="center"
-        android:text="Voir la photo"
-        app:layout_constraintHorizontal_weight="5"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/empty_right" />
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
