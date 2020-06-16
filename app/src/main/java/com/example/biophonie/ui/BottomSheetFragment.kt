@@ -98,12 +98,12 @@ class BottomSheetFragment : Fragment() {
         pin = parentView.findViewById(R.id.pin)
         pin.translationY = 0F
 
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         parentView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 bottomSheetBehavior.peekHeight = pin.height*2
-                heightExpanded = parentView.height - parentView.top
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                heightExpanded = 2*parentView.height - parentView.top // A bit mysterious but it works
+
                 val obs: ViewTreeObserver = parentView.viewTreeObserver
                 obs.removeOnGlobalLayoutListener(this)
             }
