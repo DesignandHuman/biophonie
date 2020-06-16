@@ -9,7 +9,7 @@
     app:behavior_hideable="true"
     app:behavior_skipCollapsed="false"
     app:behavior_peekHeight="100dp"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    app:layout_behavior="com.example.biophonie.ui.LockableBottomSheetBehavior">
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -74,19 +74,20 @@
     <ImageView
         android:id="@+id/wave_form"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="100dp"
         android:src="@drawable/spectre"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/pin"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/location" />
+        app:layout_constraintTop_toBottomOf="@id/location"
+        app:layout_constraintVertical_bias="0.0" />
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:id="@+id/sound_image"
         android:src="@drawable/france"
-        android:visibility="visible"
+        android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/pin"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/location" />
@@ -156,11 +157,11 @@
         app:layout_constraintHorizontal_weight="0"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@id/right"
-        app:layout_constraintEnd_toStartOf="@id/see_picture"/>
+        app:layout_constraintEnd_toStartOf="@id/expand"/>
 
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/BottomSheetTextView"
-        android:id="@+id/see_picture"
+        android:id="@+id/expand"
         android:background="@drawable/border_top_left"
         android:gravity="center"
         android:text="Voir la photo"

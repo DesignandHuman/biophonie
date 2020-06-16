@@ -32,13 +32,14 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 class BottomSheetFragment : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
     private lateinit var soundsIterator: ListIterator<Sound>
     private lateinit var geoPoint: GeoPoint
     private var heightExpanded: Int = 400
+    private var waveFormDisplayed: Boolean = true
+    private var imageDisplayed: Boolean = false
 
     private lateinit var parentView: View
     private lateinit var mListener: SoundSheetListener
@@ -47,11 +48,11 @@ class BottomSheetFragment : Fragment() {
     private lateinit var coords: TextView
     private lateinit var close: ImageView
     private lateinit var waveForm: ImageView
-    private lateinit var soundImage: ImageView
+    private lateinit var image: ImageView
     private lateinit var left: TextView
     private lateinit var datePicker: TextView
     private lateinit var right: TextView
-    private lateinit var seePicture: TextView
+    private lateinit var expand: TextView
     private lateinit var pin: ConstraintLayout
     private lateinit var progressBar: ProgressBar
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
@@ -70,10 +71,15 @@ class BottomSheetFragment : Fragment() {
         coords = parentView.findViewById(R.id.coordinates)
 
         close = parentView.findViewById(R.id.close)
-        close.setOnClickListener { bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN }
+        close.setOnClickListener {
+            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            else
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        }
 
         waveForm = parentView.findViewById(R.id.wave_form)
-        soundImage = parentView.findViewById(R.id.sound_image)
+        image = parentView.findViewById(R.id.sound_image)
         waveForm.setOnClickListener { Toast.makeText(parentView.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
         left = parentView.findViewById(R.id.left)
@@ -92,8 +98,24 @@ class BottomSheetFragment : Fragment() {
         }
 
 
-        seePicture = parentView.findViewById(R.id.see_picture)
-        seePicture.setOnClickListener { Toast.makeText(parentView.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
+        expand = parentView.findViewById(R.id.expand)
+        expand.setOnClickListener {
+            if (!imageDisplayed){
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                image.visibility = View.VISIBLE
+                imageDisplayed = true
+                waveForm.visibility = View.GONE
+                expand.text = "Voir le son"
+            }
+            else{
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+                image.visibility = View.GONE
+                imageDisplayed = false
+                waveForm.visibility = View.VISIBLE
+                waveForm.layoutParams.height = 0
+                expand.text = "Voir l'image"
+            }
+        }
         progressBar = parentView.findViewById(R.id.progress_bar)
         pin = parentView.findViewById(R.id.pin)
         pin.translationY = 0F
@@ -112,11 +134,26 @@ class BottomSheetFragment : Fragment() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             // No other solution was found to pin a view to the bottom of the BottomSheet
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                //TODO make STATE_HALF_EXPANDED a compulsory step
                     val bottomSheetVisibleHeight = bottomSheet.height - bottomSheet.top
                     pin.translationY = (bottomSheetVisibleHeight - heightExpanded).toFloat()
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    when(newState){
+                        BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                            close.setImageResource(R.drawable.ic_marker)
+                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
+                        }
+                        BottomSheetBehavior.STATE_EXPANDED -> {
+                            close.setImageResource(R.drawable.arrow_down)
+                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
+                        }
+                        else -> {
+                            close.setImageResource(R.drawable.ic_marker)
+                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
+                        }
+                    }
                 }
             })
         return parentView
@@ -221,13 +258,11 @@ class BottomSheetFragment : Fragment() {
             coords.visibility = View.VISIBLE
             close.visibility = View.VISIBLE
             waveForm.visibility = View.VISIBLE
-            soundImage.visibility = View.VISIBLE
             pin.visibility = View.VISIBLE
 
             progressBar.visibility = View.GONE
         }
         else{
-            soundImage.visibility = View.GONE
             location.visibility = View.GONE
             date.visibility = View.GONE
             coords.visibility = View.GONE
