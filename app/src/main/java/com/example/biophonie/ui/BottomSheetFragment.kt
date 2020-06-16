@@ -6,11 +6,20 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
+import android.view.ViewTreeObserver
+import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.widget.ImageView
+import android.widget.ProgressBar
+import android.widget.TextView
+import android.widget.Toast
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.biophonie.R
-import com.example.biophonie.api.*
+import com.example.biophonie.api.ApiClient
+import com.example.biophonie.api.ApiError
+import com.example.biophonie.api.ApiInterface
+import com.example.biophonie.api.ErrorUtils
 import com.example.biophonie.classes.GeoPoint
 import com.example.biophonie.classes.GeoPointResponse
 import com.example.biophonie.classes.Sound
@@ -23,22 +32,27 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
+
 class BottomSheetFragment : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
     private lateinit var soundsIterator: ListIterator<Sound>
     private lateinit var geoPoint: GeoPoint
+    private var heightExpanded: Int = 400
 
+    private lateinit var parentView: View
     private lateinit var mListener: SoundSheetListener
     private lateinit var location: TextView
     private lateinit var date: TextView
     private lateinit var coords: TextView
     private lateinit var close: ImageView
     private lateinit var waveForm: ImageView
+    private lateinit var soundImage: ImageView
     private lateinit var left: TextView
     private lateinit var datePicker: TextView
     private lateinit var right: TextView
     private lateinit var seePicture: TextView
+    private lateinit var pin: ConstraintLayout
     private lateinit var progressBar: ProgressBar
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
@@ -47,41 +61,65 @@ class BottomSheetFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view: View = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
-        bottomSheetBehavior = BottomSheetBehavior.from(view)
+        parentView = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
+        Log.d(TAG, "onCreateView: top "+ parentView.top)
+        bottomSheetBehavior = BottomSheetBehavior.from(parentView)
 
-        location = view.findViewById(R.id.location)
-        date = view.findViewById(R.id.date)
-        coords = view.findViewById(R.id.coordinates)
+        location = parentView.findViewById(R.id.location)
+        date = parentView.findViewById(R.id.date)
+        coords = parentView.findViewById(R.id.coordinates)
 
-        close = view.findViewById(R.id.close)
+        close = parentView.findViewById(R.id.close)
         close.setOnClickListener { bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN }
 
-        waveForm = view.findViewById(R.id.wave_form)
-        waveForm.setOnClickListener { Toast.makeText(view.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
+        waveForm = parentView.findViewById(R.id.wave_form)
+        soundImage = parentView.findViewById(R.id.sound_image)
+        waveForm.setOnClickListener { Toast.makeText(parentView.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
-        left = view.findViewById(R.id.left)
+        left = parentView.findViewById(R.id.left)
         left.setOnClickListener {
             soundsIterator.previous()
             val sound: Sound = soundsIterator.previous()
             displaySound(sound)
         }
 
-        datePicker = view.findViewById(R.id.date_picker)
+        datePicker = parentView.findViewById(R.id.date_picker)
 
-        right = view.findViewById(R.id.right)
+        right = parentView.findViewById(R.id.right)
         right.setOnClickListener {
             val sound: Sound = soundsIterator.next()
             displaySound(sound)
         }
 
 
-        seePicture = view.findViewById(R.id.see_picture)
-        seePicture.setOnClickListener { Toast.makeText(view.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
-        progressBar = view.findViewById(R.id.progress_bar)
+        seePicture = parentView.findViewById(R.id.see_picture)
+        seePicture.setOnClickListener { Toast.makeText(parentView.context, "Affichage de la photo", Toast.LENGTH_SHORT).show() }
+        progressBar = parentView.findViewById(R.id.progress_bar)
+        pin = parentView.findViewById(R.id.pin)
+        pin.translationY = 0F
 
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-        return view
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        parentView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                bottomSheetBehavior.peekHeight = pin.height*2
+                heightExpanded = parentView.height - parentView.top
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+                val obs: ViewTreeObserver = parentView.viewTreeObserver
+                obs.removeOnGlobalLayoutListener(this)
+            }
+        })
+
+        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+            // No other solution was found to pin a view to the bottom of the BottomSheet
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    val bottomSheetVisibleHeight = bottomSheet.height - bottomSheet.top
+                    pin.translationY = (bottomSheetVisibleHeight - heightExpanded).toFloat()
+                }
+
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                }
+            })
+        return parentView
     }
 
     interface SoundSheetListener{
@@ -106,7 +144,7 @@ class BottomSheetFragment : Fragment() {
      * @param coordinates coordinates of the location
      */
     fun show(id: String, name: String, coordinates: LatLng){
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
         if (this::geoPoint.isInitialized && geoPoint.id == id)
             return
         changeWidgetsVisibility(false)
@@ -183,23 +221,19 @@ class BottomSheetFragment : Fragment() {
             coords.visibility = View.VISIBLE
             close.visibility = View.VISIBLE
             waveForm.visibility = View.VISIBLE
-            left.visibility = View.VISIBLE
-            datePicker.visibility = View.VISIBLE
-            right.visibility = View.VISIBLE
-            seePicture.visibility = View.VISIBLE
+            soundImage.visibility = View.VISIBLE
+            pin.visibility = View.VISIBLE
 
             progressBar.visibility = View.GONE
         }
         else{
+            soundImage.visibility = View.GONE
             location.visibility = View.GONE
             date.visibility = View.GONE
             coords.visibility = View.GONE
             close.visibility = View.GONE
             waveForm.visibility = View.GONE
-            left.visibility = View.GONE
-            datePicker.visibility = View.GONE
-            right.visibility = View.GONE
-            seePicture.visibility = View.GONE
+            pin.visibility = View.GONE
 
             progressBar.visibility = View.VISIBLE
         }
