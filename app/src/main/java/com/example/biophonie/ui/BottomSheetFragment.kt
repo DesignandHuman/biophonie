@@ -2,6 +2,7 @@ package com.example.biophonie.ui
 
 import android.content.Context
 import android.os.Bundle
+import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -38,7 +39,6 @@ class BottomSheetFragment : Fragment() {
     private lateinit var soundsIterator: ListIterator<Sound>
     private lateinit var geoPoint: GeoPoint
     private var heightExpanded: Int = 400
-    private var waveFormDisplayed: Boolean = true
     private var imageDisplayed: Boolean = false
     private var state: Int = 0
 
@@ -64,6 +64,7 @@ class BottomSheetFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         parentView = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
+        parentView.fitsSystemWindows = true //prevents from launching events to the map
         Log.d(TAG, "onCreateView: top "+ parentView.top)
         bottomSheetBehavior = BottomSheetBehavior.from(parentView)
 
@@ -115,6 +116,7 @@ class BottomSheetFragment : Fragment() {
                 waveForm.visibility = View.VISIBLE
                 waveForm.layoutParams.height = 0
                 expand.text = "Voir l'image"
+                Log.d(TAG, "onStateChanged: waveForm.height ${waveForm.height}")
             }
         }
         progressBar = parentView.findViewById(R.id.progress_bar)
@@ -125,7 +127,9 @@ class BottomSheetFragment : Fragment() {
         parentView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 bottomSheetBehavior.peekHeight = pin.height*2
+                val screenHeight: Int = DisplayMetrics().also { activity!!.windowManager.defaultDisplay.getMetrics(it) }.heightPixels
                 heightExpanded = 2*parentView.height - parentView.top // A bit mysterious but it works
+                bottomSheetBehavior.halfExpandedRatio = (pin.height*2 + waveForm.height).toFloat() / screenHeight.toFloat()
 
                 val obs: ViewTreeObserver = parentView.viewTreeObserver
                 obs.removeOnGlobalLayoutListener(this)
@@ -135,7 +139,6 @@ class BottomSheetFragment : Fragment() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             // No other solution was found to pin a view to the bottom of the BottomSheet
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                //TODO make STATE_HALF_EXPANDED a compulsory step
                     val bottomSheetVisibleHeight = bottomSheet.height - bottomSheet.top
                     pin.translationY = (bottomSheetVisibleHeight - heightExpanded).toFloat()
                 }
@@ -144,25 +147,34 @@ class BottomSheetFragment : Fragment() {
                     when(newState){
                         BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
                             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
+                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_COLLAPSED -> {
                             state = BottomSheetBehavior.STATE_COLLAPSED
-                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
+                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                         BottomSheetBehavior.STATE_HALF_EXPANDED -> {
                             state = BottomSheetBehavior.STATE_HALF_EXPANDED
                             close.setImageResource(R.drawable.ic_marker)
-                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
+                            if (imageDisplayed) {
+                                image.visibility = View.GONE
+                                waveForm.visibility = View.VISIBLE
+                                expand.text = "Voir l'image"
+                                imageDisplayed = false
+                            }
+                            waveForm.apply{requestLayout()}.layoutParams.height = 100*(context!!.resources.displayMetrics.density).toInt()
+                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_EXPANDED -> {
                             state = BottomSheetBehavior.STATE_EXPANDED
                             close.setImageResource(R.drawable.arrow_down)
-                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
+                            waveForm.apply{requestLayout()}.layoutParams.height = 0
+                            Log.d(TAG, "onStateChanged: waveForm.height ${waveForm.height}")
+                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                         else -> {
                             close.setImageResource(R.drawable.ic_marker)
-                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
+                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                     }
                 }

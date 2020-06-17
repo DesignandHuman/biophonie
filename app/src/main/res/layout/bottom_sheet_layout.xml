@@ -4,12 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
-    android:layout_height="500dp"
+    android:layout_height="400dp"
     android:background="@color/design_default_color_background"
     app:behavior_hideable="true"
     app:behavior_skipCollapsed="false"
     app:behavior_peekHeight="100dp"
-    app:layout_behavior="com.example.biophonie.ui.LockableBottomSheetBehavior">
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <ProgressBar
         android:id="@+id/progress_bar"
@@ -21,7 +21,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
 
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/BottomSheetTextView"
@@ -75,7 +76,7 @@
         android:id="@+id/wave_form"
         android:layout_width="match_parent"
         android:layout_height="100dp"
-        android:src="@drawable/spectre"
+        android:background="@drawable/spectre"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/pin"
         app:layout_constraintStart_toStartOf="parent"
