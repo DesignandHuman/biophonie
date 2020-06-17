@@ -40,6 +40,7 @@ class BottomSheetFragment : Fragment() {
     private var heightExpanded: Int = 400
     private var waveFormDisplayed: Boolean = true
     private var imageDisplayed: Boolean = false
+    private var state: Int = 0
 
     private lateinit var parentView: View
     private lateinit var mListener: SoundSheetListener
@@ -141,11 +142,21 @@ class BottomSheetFragment : Fragment() {
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
                     when(newState){
+                        BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
+                        }
+                        BottomSheetBehavior.STATE_COLLAPSED -> {
+                            state = BottomSheetBehavior.STATE_COLLAPSED
+                            (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
+                        }
                         BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                            state = BottomSheetBehavior.STATE_HALF_EXPANDED
                             close.setImageResource(R.drawable.ic_marker)
                             (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_EXPANDED -> {
+                            state = BottomSheetBehavior.STATE_EXPANDED
                             close.setImageResource(R.drawable.arrow_down)
                             (bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
