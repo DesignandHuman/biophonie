@@ -4,10 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.ViewTreeObserver
+import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.ImageView
 import android.widget.ProgressBar
@@ -64,9 +61,9 @@ class BottomSheetFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         parentView = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
-        parentView.fitsSystemWindows = true //prevents from launching events to the map
-        Log.d(TAG, "onCreateView: top "+ parentView.top)
         bottomSheetBehavior = BottomSheetBehavior.from(parentView)
+
+        activity!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         location = parentView.findViewById(R.id.location)
         date = parentView.findViewById(R.id.date)
@@ -82,6 +79,8 @@ class BottomSheetFragment : Fragment() {
 
         waveForm = parentView.findViewById(R.id.wave_form)
         image = parentView.findViewById(R.id.sound_image)
+        image.setOnClickListener {
+            Toast.makeText(parentView.context, "Click sur l'image", Toast.LENGTH_SHORT).show() }
         waveForm.setOnClickListener { Toast.makeText(parentView.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
         left = parentView.findViewById(R.id.left)
@@ -108,6 +107,8 @@ class BottomSheetFragment : Fragment() {
                 imageDisplayed = true
                 waveForm.visibility = View.GONE
                 expand.text = "Voir le son"
+                parentView.fitsSystemWindows = false
+                parentView.fitsSystemWindows = true
             }
             else{
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -116,7 +117,6 @@ class BottomSheetFragment : Fragment() {
                 waveForm.visibility = View.VISIBLE
                 waveForm.layoutParams.height = 0
                 expand.text = "Voir l'image"
-                Log.d(TAG, "onStateChanged: waveForm.height ${waveForm.height}")
             }
         }
         progressBar = parentView.findViewById(R.id.progress_bar)
@@ -169,7 +169,6 @@ class BottomSheetFragment : Fragment() {
                             state = BottomSheetBehavior.STATE_EXPANDED
                             close.setImageResource(R.drawable.arrow_down)
                             waveForm.apply{requestLayout()}.layoutParams.height = 0
-                            Log.d(TAG, "onStateChanged: waveForm.height ${waveForm.height}")
                             //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                         else -> {
