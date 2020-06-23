@@ -1,5 +1,7 @@
 package com.example.biophonie.ui
 
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -12,6 +14,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat.animate
 import androidx.fragment.app.Fragment
 import com.example.biophonie.R
 import com.example.biophonie.api.ApiClient
@@ -38,6 +41,7 @@ class BottomSheetFragment : Fragment() {
     private var heightExpanded: Int = 400
     private var imageDisplayed: Boolean = false
     private var state: Int = 0
+    private var shortAnimationDuration: Int = 0
 
     private lateinit var parentView: View
     private lateinit var mListener: SoundSheetListener
@@ -166,7 +170,34 @@ class BottomSheetFragment : Fragment() {
                 }
             })
 
+        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         return parentView
+    }
+
+    private fun crossfade(fadeIn: View, fadeOut: View) {
+        fadeIn.apply {
+            // Set the content view to 0% opacity but visible
+            alpha = 0f
+            visibility = View.VISIBLE
+
+            // Animate the content view to 100% opacity
+            animate()
+                .alpha(1f)
+                .setDuration(shortAnimationDuration.toLong())
+                .setListener(null)
+        }
+        // Animate the loading view to 0% opacity.
+        // After the animation ends, set its visibility to GONE
+        fadeOut.animate()
+            .alpha(0f)
+            .setDuration(shortAnimationDuration.toLong())
+            .setListener(object : AnimatorListenerAdapter() {
+                override fun onAnimationEnd(animation: Animator) {
+                    fadeOut.visibility = View.GONE
+                    /*waveForm.apply{ requestLayout() }
+                    image.apply { requestLayout() }*/
+                }
+            })
     }
 
     private fun dpToPx(dp: Int): Int {
@@ -245,18 +276,16 @@ class BottomSheetFragment : Fragment() {
     }
 
     private fun displayImage(){
-        image.visibility = View.VISIBLE
-        imageDisplayed = true
-        waveForm.visibility = View.GONE
+        crossfade(image, waveForm)
         expand.text = "Voir le son"
+        imageDisplayed = true
     }
 
     private fun displayWaveForm(){
-        image.visibility = View.GONE
-        imageDisplayed = false
-        waveForm.visibility = View.VISIBLE
+        crossfade(waveForm, image)
         waveForm.layoutParams.height = 0
         expand.text = "Voir l'image"
+        imageDisplayed = false
     }
 
     private fun measure() {
