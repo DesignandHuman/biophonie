@@ -9,7 +9,6 @@
     android:background="@color/design_default_color_background"
     app:behavior_hideable="true"
     app:behavior_skipCollapsed="false"
-    app:behavior_peekHeight="100dp"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
     <ProgressBar
@@ -17,17 +16,21 @@
         style="@style/ExampleProgressBar"
         android:layout_width="100dp"
         android:layout_height="100dp"
-        android:layout_margin="20dp"
+        android:padding="20dp"
         android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.17" />
 
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/BottomSheetTextView"
         android:id="@+id/location"
+        android:layout_height="30dp"
+        android:gravity="center_vertical"
+        android:paddingStart="15dp"
+        android:paddingEnd="15dp"
         android:text=".??"
         android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toStartOf="@id/date"
@@ -38,6 +41,7 @@
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/BottomSheetTextView"
         android:id="@+id/date"
+        android:layout_height="30dp"
         android:text=".??/??/??"
         android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toStartOf="@id/coordinates"
@@ -58,13 +62,12 @@
 
     <ImageView
         android:id="@+id/close"
+        android:padding="5dp"
         android:layout_width="30dp"
         android:layout_height="0dp"
         android:clickable="true"
-        android:contentDescription="close"
         android:focusable="true"
         android:gravity="center"
-        android:onClick="onCloseClick"
         android:src="@drawable/ic_marker"
         android:background="@drawable/border_bottom_top"
         app:layout_constraintEnd_toEndOf="parent"
@@ -76,7 +79,7 @@
     <ImageView
         android:id="@+id/wave_form"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="150dp"
         android:background="@drawable/spectre"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/pin"
@@ -116,7 +119,6 @@
         style="@style/BottomSheetTextView"
         android:id="@+id/left"
         android:focusable="true"
-        android:gravity="center"
         android:background="@drawable/border_top"
         android:textColor="@color/colorPrimary"
         android:text="&lt;"
@@ -128,7 +130,6 @@
     <androidx.appcompat.widget.AppCompatTextView
         style="@style/BottomSheetTextView"
         android:id="@+id/date_picker"
-        android:gravity="center"
         android:text="Janvier 2000"
         android:background="@drawable/border_top"
         app:layout_constraintHorizontal_weight="4"
@@ -140,8 +141,6 @@
         style="@style/BottomSheetTextView"
         android:id="@+id/right"
         android:focusable="true"
-        android:gravity="center"
-        android:onClick="onRightClick"
         android:background="@drawable/border_top"
         android:textColor="@color/colorPrimary"
         android:text="&gt;"
@@ -165,7 +164,6 @@
         style="@style/BottomSheetTextView"
         android:id="@+id/expand"
         android:background="@drawable/border_top_left"
-        android:gravity="center"
         android:text="Voir la photo"
         app:layout_constraintHorizontal_weight="5"
         app:layout_constraintBottom_toBottomOf="parent"

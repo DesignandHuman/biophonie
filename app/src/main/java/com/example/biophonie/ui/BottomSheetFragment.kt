@@ -153,7 +153,7 @@ class BottomSheetFragment : Fragment() {
                             if (imageDisplayed) {
                                 displayWaveForm()
                             }
-                            waveForm.apply{requestLayout()}.layoutParams.height = dpToPx(100)
+                            waveForm.apply{requestLayout()}.layoutParams.height = dpToPx(150)
                             //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_EXPANDED -> {
