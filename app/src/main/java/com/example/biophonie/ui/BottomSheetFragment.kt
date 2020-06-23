@@ -63,6 +63,7 @@ class BottomSheetFragment : Fragment() {
         parentView = inflater.inflate(R.layout.bottom_sheet_layout, container, false)
         bottomSheetBehavior = BottomSheetBehavior.from(parentView)
 
+        /* Trying to make fitsSystemWindow work */
         activity!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
         location = parentView.findViewById(R.id.location)
@@ -77,10 +78,12 @@ class BottomSheetFragment : Fragment() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         }
 
-        waveForm = parentView.findViewById(R.id.wave_form)
         image = parentView.findViewById(R.id.sound_image)
         image.setOnClickListener {
-            Toast.makeText(parentView.context, "Click sur l'image", Toast.LENGTH_SHORT).show() }
+            /*fitsSystemWindow = true on Fragment not working as expected. Use this empty listener to avoid map dragging while dragging fragment*/
+        }
+
+        waveForm = parentView.findViewById(R.id.wave_form)
         waveForm.setOnClickListener { Toast.makeText(parentView.context, "Lecture du son", Toast.LENGTH_SHORT).show() }
 
         left = parentView.findViewById(R.id.left)
@@ -101,22 +104,12 @@ class BottomSheetFragment : Fragment() {
 
         expand = parentView.findViewById(R.id.expand)
         expand.setOnClickListener {
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             if (!imageDisplayed){
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                image.visibility = View.VISIBLE
-                imageDisplayed = true
-                waveForm.visibility = View.GONE
-                expand.text = "Voir le son"
-                parentView.fitsSystemWindows = false
-                parentView.fitsSystemWindows = true
+                displayImage()
             }
             else{
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-                image.visibility = View.GONE
-                imageDisplayed = false
-                waveForm.visibility = View.VISIBLE
-                waveForm.layoutParams.height = 0
-                expand.text = "Voir l'image"
+                displayWaveForm()
             }
         }
         progressBar = parentView.findViewById(R.id.progress_bar)
@@ -126,10 +119,7 @@ class BottomSheetFragment : Fragment() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         parentView.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                bottomSheetBehavior.peekHeight = pin.height*2
-                val screenHeight: Int = DisplayMetrics().also { activity!!.windowManager.defaultDisplay.getMetrics(it) }.heightPixels
-                heightExpanded = 2*parentView.height - parentView.top // A bit mysterious but it works
-                bottomSheetBehavior.halfExpandedRatio = (pin.height*2 + waveForm.height).toFloat() / screenHeight.toFloat()
+                measure()
 
                 val obs: ViewTreeObserver = parentView.viewTreeObserver
                 obs.removeOnGlobalLayoutListener(this)
@@ -157,12 +147,9 @@ class BottomSheetFragment : Fragment() {
                             state = BottomSheetBehavior.STATE_HALF_EXPANDED
                             close.setImageResource(R.drawable.ic_marker)
                             if (imageDisplayed) {
-                                image.visibility = View.GONE
-                                waveForm.visibility = View.VISIBLE
-                                expand.text = "Voir l'image"
-                                imageDisplayed = false
+                                displayWaveForm()
                             }
-                            waveForm.apply{requestLayout()}.layoutParams.height = 100*(context!!.resources.displayMetrics.density).toInt()
+                            waveForm.apply{requestLayout()}.layoutParams.height = dpToPx(100)
                             //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_EXPANDED -> {
@@ -178,7 +165,12 @@ class BottomSheetFragment : Fragment() {
                     }
                 }
             })
+
         return parentView
+    }
+
+    private fun dpToPx(dp: Int): Int {
+        return dp*(context!!.resources.displayMetrics.density).toInt()
     }
 
     interface SoundSheetListener{
@@ -250,6 +242,28 @@ class BottomSheetFragment : Fragment() {
         coords.text = geoPoint.coordinatesToString()
         datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
         changeWidgetsVisibility(true)
+    }
+
+    private fun displayImage(){
+        image.visibility = View.VISIBLE
+        imageDisplayed = true
+        waveForm.visibility = View.GONE
+        expand.text = "Voir le son"
+    }
+
+    private fun displayWaveForm(){
+        image.visibility = View.GONE
+        imageDisplayed = false
+        waveForm.visibility = View.VISIBLE
+        waveForm.layoutParams.height = 0
+        expand.text = "Voir l'image"
+    }
+
+    private fun measure() {
+        bottomSheetBehavior.peekHeight = pin.height*2
+        val screenHeight: Int = DisplayMetrics().also { activity!!.windowManager.defaultDisplay.getMetrics(it) }.heightPixels
+        heightExpanded = 2*parentView.height - parentView.top // A bit mysterious but it works
+        bottomSheetBehavior.halfExpandedRatio = (pin.height*2 + waveForm.height).toFloat() / screenHeight.toFloat()
     }
 
     private fun checkClickability(sounds: List<Sound>){
