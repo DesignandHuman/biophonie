@@ -1,4 +1,4 @@
-package com.example.biophonie.api
+package com.example.biophonie.network
 
 class ApiError {
     val statusCode = 0

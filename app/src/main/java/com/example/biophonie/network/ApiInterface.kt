@@ -1,6 +1,6 @@
-package com.example.biophonie.api
+package com.example.biophonie.network
 
-import com.example.biophonie.classes.GeoPointResponse
+import com.example.biophonie.domain.GeoPointResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

@@ -1,4 +1,4 @@
-package com.example.biophonie.api
+package com.example.biophonie.network
 
 import android.os.SystemClock
 import okhttp3.*

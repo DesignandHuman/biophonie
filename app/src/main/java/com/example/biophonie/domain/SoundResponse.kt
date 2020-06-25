@@ -1,4 +1,4 @@
-package com.example.biophonie.classes
+package com.example.biophonie.domain
 
 class SoundResponse {
 

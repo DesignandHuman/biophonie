@@ -1,6 +1,6 @@
 @file:Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 
-package com.example.biophonie.classes
+package com.example.biophonie.domain
 
 import java.text.ParseException
 import java.text.SimpleDateFormat

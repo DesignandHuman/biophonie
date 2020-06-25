@@ -1,4 +1,4 @@
-package com.example.biophonie.api
+package com.example.biophonie.network
 
 import okhttp3.ResponseBody
 import retrofit2.Converter

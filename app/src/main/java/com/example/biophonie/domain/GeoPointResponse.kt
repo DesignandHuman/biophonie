@@ -1,7 +1,5 @@
-package com.example.biophonie.classes
+package com.example.biophonie.domain
 
-import android.content.ContentValues.TAG
-import android.util.Log
 import com.google.gson.annotations.SerializedName
 
 class GeoPointResponse {
