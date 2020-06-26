@@ -5,19 +5,19 @@ import android.util.Log
 import androidx.lifecycle.*
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Sound
+import com.example.biophonie.domain.dateAsCalendar
 import com.example.biophonie.repositories.GeoPointRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class BottomSheetViewModel(private val repository: GeoPointRepository) : ViewModel() {
 
-    private lateinit var soundsIterator: MutableLiveData<ListIterator<Sound>>
+    private lateinit var soundsIterator: ListIterator<Sound>
     var sound: Sound? = null
 
     private val _bottomSheetState = MutableLiveData<Int>()
@@ -44,22 +44,25 @@ class BottomSheetViewModel(private val repository: GeoPointRepository) : ViewMod
     val rightClickable: LiveData<Boolean>
         get() = _rightClickable
 
+    val date: MutableLiveData<String> = MutableLiveData()
+    val datePicker: MutableLiveData<String> = MutableLiveData()
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = repository.geoPoint
+
 
     fun onNetworkErrorShown() {
         _isNetworkErrorShown.value = true
     }
 
     fun onLeftClick(){
-        soundsIterator.value?.previous()
-        sound = soundsIterator.value!!.previous()
+        soundsIterator.previous()
+        sound = soundsIterator.previous()
         displaySound(sound!!)
     }
 
     fun onRightClick(){
-        sound = soundsIterator.value!!.next()
+        sound = soundsIterator.next()
         displaySound(sound!!)
     }
 
@@ -67,13 +70,13 @@ class BottomSheetViewModel(private val repository: GeoPointRepository) : ViewMod
         // A bit of a hack due to ListIterators' behavior.
         // The index is between two elements.
         try {
-            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.value!!.previousIndex()-1].urlAudio)
+            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].urlAudio)
             _leftClickable.value = true
         } catch (e: IndexOutOfBoundsException){
             _leftClickable.value = false
         }
         try {
-            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.value!!.nextIndex()].urlAudio)
+            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
             _rightClickable.value = true
         } catch (e: IndexOutOfBoundsException){
             _rightClickable.value = false
@@ -82,12 +85,9 @@ class BottomSheetViewModel(private val repository: GeoPointRepository) : ViewMod
 
     private fun displaySound(sound: Sound) {
         checkClickability(geoPoint.value?.sounds!!)
-        /*binding.apply {
-            location.text = geoPoint.name
-            date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
-            coordinates.text = geoPoint.coordinatesToString()
-            datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
-        }*/
+        val calendar: Calendar = sound.dateAsCalendar()
+        date.value = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE).format(calendar.time)
+        datePicker.value = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(calendar.time)
         _visibility.value = true
     }
 
@@ -99,8 +99,8 @@ class BottomSheetViewModel(private val repository: GeoPointRepository) : ViewMod
         viewModelScope.launch {
             try {
                 repository.fetchGeoPoint(id, name, coordinates)
-                soundsIterator.value = geoPoint.value!!.sounds?.listIterator()
-                sound = soundsIterator.value!!.next()
+                soundsIterator = geoPoint.value!!.sounds!!.listIterator()
+                sound = soundsIterator.next()
                 displaySound(sound!!)
                 _eventNetworkError.value = false
                 _isNetworkErrorShown.value = false

@@ -5,6 +5,7 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
@@ -48,8 +49,6 @@ class BottomSheetFragment : Fragment() {
             false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
-        binding.sound = viewModel.sound
-        binding.geoPoint = viewModel.geoPoint.value
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
         /* Trying to make fitsSystemWindow work */
@@ -147,9 +146,10 @@ class BottomSheetFragment : Fragment() {
         viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
             if (isNetworkError) onNetworkError()
         })
-        viewModel.geoPoint.observe(viewLifecycleOwner, Observer<GeoPoint>{
-            binding.invalidateAll()
-        })
+        /*viewModel.geoPoint.observe(viewLifecycleOwner, Observer<GeoPoint>{
+            Log.d(TAG, "setUpObservers: ${viewModel.geoPoint.value!!.name}")
+            //binding.invalidateAll()
+        })*/
     }
 
     private fun setArrowClickable(view: TextView, clickable: Boolean) {

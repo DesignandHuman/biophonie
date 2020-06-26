@@ -1,5 +1,7 @@
 package com.example.biophonie.repositories
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -18,7 +20,9 @@ class GeoPointRepository {
         withContext(Dispatchers.IO){
             val response: Response<NetworkGeoPoint> = GeoPointWeb.geopoints.getGeoPoint(id)
             if (response.isSuccessful && response.body() != null)
-                geoPoint.postValue(response.body()?.asDomainModel(name, coordinates))
+                withContext(Dispatchers.Main){
+                    geoPoint.value = response.body()?.asDomainModel(name, coordinates)
+                }
         }
     }
     var geoPoint: MutableLiveData<GeoPoint> = MutableLiveData()

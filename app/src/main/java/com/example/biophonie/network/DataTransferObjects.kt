@@ -3,6 +3,7 @@ package com.example.biophonie.network
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.util.LocationConverter
+import com.example.biophonie.util.coordinatesToString
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -19,8 +20,7 @@ data class NetworkGeoPoint(var id: String,
 
 fun NetworkGeoPoint.asDomainModel(name: String, coordinates: LatLng): GeoPoint{
     return GeoPoint(id, name,
-        LocationConverter.latitudeAsDMS(coordinates.latitude, 4) +
-            LocationConverter.longitudeAsDMS(coordinates.longitude, 4),
+        coordinatesToString(coordinates),
         sounds.map {
             Sound(
                 date = it.date,

@@ -8,12 +8,6 @@
         <variable
             name="viewModel"
             type="com.example.biophonie.viewmodels.BottomSheetViewModel" />
-        <variable
-            name="geoPoint"
-            type="com.example.biophonie.domain.GeoPoint" />
-        <variable
-            name="sound"
-            type="com.example.biophonie.domain.Sound" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -46,7 +40,7 @@
             android:gravity="center_vertical"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
-            android:text="@={geoPoint.name}"
+            android:text="@={viewModel.geoPoint.name}"
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toStartOf="@id/date"
             app:layout_constraintHorizontal_weight="4"
@@ -57,8 +51,8 @@
             style="@style/BottomSheetTextView"
             android:id="@+id/date"
             android:layout_height="30dp"
-            android:text=".??/??/??"
             android:background="@drawable/border_bottom_top"
+            android:text="@={viewModel.date}"
             app:layout_constraintEnd_toStartOf="@id/coordinates"
             app:layout_constraintHorizontal_weight="3"
             app:layout_constraintStart_toEndOf="@id/location"
@@ -67,11 +61,11 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/BottomSheetTextView"
             android:id="@+id/coordinates"
-            android:text=".??°E ??°N"
+            android:text="@={viewModel.geoPoint.coordinates}"
             android:gravity="center"
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toEndOf="@+id/close"
-            app:layout_constraintHorizontal_weight="5"
+            app:layout_constraintHorizontal_weight="4"
             app:layout_constraintStart_toEndOf="@id/date"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -146,8 +140,8 @@
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/BottomSheetTextView"
                 android:id="@+id/date_picker"
-                android:text="Janvier 2000"
                 android:background="@drawable/border_top"
+                android:text="@={viewModel.datePicker}"
                 app:layout_constraintHorizontal_weight="4"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/left"

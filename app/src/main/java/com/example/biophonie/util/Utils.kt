@@ -2,7 +2,9 @@
 
 package com.example.biophonie.util
 
+import com.example.biophonie.domain.Sound
 import com.mapbox.mapboxsdk.geometry.LatLng
+import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -13,8 +15,20 @@ fun coordinatesToString(coordinates: LatLng): String{
     ) + LocationConverter.longitudeAsDMS(coordinates.longitude, 4)
 }
 
-fun dateToCalendar(date: String): Calendar{
-    return Calendar.getInstance().apply { time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.FRANCE).parse(date)}
+fun dateAsCalendar(date: String?): Calendar{
+    return if (date != null){
+        try {
+            Calendar.getInstance().apply {
+                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+                time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.FRANCE).parse(date)
+            }
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            Calendar.getInstance().apply { time = Date(0) }
+        }
+    } else{
+        Calendar.getInstance().apply { time = Date(0) }
+    }
 }
 
 enum class Status {
