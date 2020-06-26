@@ -5,41 +5,33 @@ import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
 import com.example.biophonie.databinding.BottomSheetLayoutBinding
-import com.example.biophonie.network.ApiClient
-import com.example.biophonie.network.ApiError
-import com.example.biophonie.network.ApiInterface
-import com.example.biophonie.network.ErrorUtils
 import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.domain.GeoPointResponse
-import com.example.biophonie.domain.Sound
+import com.example.biophonie.viewmodels.BottomSheetViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
-import java.io.IOException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class BottomSheetFragment : Fragment() {
 
     private val TAG: String? = "BottomSheetFragment:"
-    private lateinit var soundsIterator: ListIterator<Sound>
-    private lateinit var geoPoint: GeoPoint
     private var heightExpanded: Int = 400
     private var imageDisplayed: Boolean = false
     private var state: Int = 0
     private var shortAnimationDuration: Int = 0
 
+    private val viewModel: BottomSheetViewModel by lazy {
+        ViewModelProvider(this, BottomSheetViewModel.ViewModelFactory()).get(BottomSheetViewModel::class.java)
+    }
     private lateinit var binding: BottomSheetLayoutBinding
     private lateinit var mListener: SoundSheetListener
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
@@ -54,35 +46,22 @@ class BottomSheetFragment : Fragment() {
             R.layout.bottom_sheet_layout,
             container,
             false)
+        binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+        binding.sound = viewModel.sound
+        binding.geoPoint = viewModel.geoPoint.value
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
         /* Trying to make fitsSystemWindow work */
-        activity!!.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
-        binding.close.setOnClickListener {
-            if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-            else
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-        }
+        binding.close.setOnClickListener {onClose()}
 
         binding.soundImage.setOnClickListener {
-            /*fitsSystemWindow = true on Fragment not working as expected. Use this empty listener to avoid map dragging while dragging fragment*/
+            //"fitsSystemWindow = true" on Fragment not working as expected. Use this empty listener to avoid map dragging while dragging fragment
         }
 
         binding.waveForm.setOnClickListener { Toast.makeText(activity, "Lecture du son", Toast.LENGTH_SHORT).show() }
-
-        binding.left.setOnClickListener {
-            soundsIterator.previous()
-            val sound: Sound = soundsIterator.previous()
-            displaySound(sound)
-        }
-
-        binding.right.setOnClickListener {
-            val sound: Sound = soundsIterator.next()
-            displaySound(sound)
-        }
-
 
         binding.expand.setOnClickListener {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
@@ -144,12 +123,55 @@ class BottomSheetFragment : Fragment() {
                     }
                 }
             })
-
+        setUpObservers()
         shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
         return binding.root
     }
 
-    private fun crossfade(fadeIn: View, fadeOut: View) {
+    private fun onNetworkError() {
+        if(!viewModel.isNetworkErrorShown.value!!) {
+            Toast.makeText(activity, "Network Error", Toast.LENGTH_LONG).show()
+            viewModel.onNetworkErrorShown()
+        }
+    }
+
+    fun clickOnGeoPoint(id: String, name: String, coordinates: LatLng){
+        viewModel.getGeoPoint(id, name, coordinates)
+    }
+
+    private fun setUpObservers() {
+        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {setArrowClickable(binding.left,it)})
+        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {setArrowClickable(binding.right,it)})
+        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean>{changeWidgetsVisibility(it)})
+        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int>{bottomSheetBehavior.state = it})
+        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
+            if (isNetworkError) onNetworkError()
+        })
+        viewModel.geoPoint.observe(viewLifecycleOwner, Observer<GeoPoint>{
+            binding.invalidateAll()
+        })
+    }
+
+    private fun setArrowClickable(view: TextView, clickable: Boolean) {
+        if (clickable) {
+            view.setTextColor(ContextCompat.getColor(requireContext(),
+                R.color.colorPrimaryDark))
+            view.isClickable = true
+        }
+        else{
+            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
+            view.isClickable = false
+        }
+    }
+
+    private fun onClose() {
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+        else
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    }
+
+    private fun crossFade(fadeIn: View, fadeOut: View) {
         fadeIn.apply {
             // Set the content view to 0% opacity but visible
             alpha = 0f
@@ -176,7 +198,7 @@ class BottomSheetFragment : Fragment() {
     }
 
     private fun dpToPx(dp: Int): Int {
-        return dp*(context!!.resources.displayMetrics.density).toInt()
+        return dp*(requireContext().resources.displayMetrics.density).toInt()
     }
 
     interface SoundSheetListener{
@@ -190,75 +212,16 @@ class BottomSheetFragment : Fragment() {
         } catch (e: ClassCastException){
             throw kotlin.ClassCastException("$context must implement BottomSheetListener")
         }
-
-    }
-
-    /**
-     * Display the sound inside the fragment
-     *
-     * @param id id of the sound to show
-     * @param name name of the sound
-     * @param coordinates coordinates of the location
-     */
-    fun show(id: String, name: String, coordinates: LatLng){
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-        if (this::geoPoint.isInitialized && geoPoint.id == id)
-            return
-        changeWidgetsVisibility(false)
-        val api: ApiInterface = ApiClient().createService(ApiInterface::class.java)
-        val call: Call<GeoPointResponse> = api.getGeoPoint(id)
-        call.enqueue(object: Callback<GeoPointResponse>{
-            override fun onResponse(call: Call<GeoPointResponse>, response: Response<GeoPointResponse>) {
-                if (response.isSuccessful){
-                    geoPoint = response.body()!!.toGeoPoint().apply {
-                        this.name = name
-                        this.coordinates = coordinates
-                    }
-                    geoPoint.sounds?.let {
-                        soundsIterator = it.listIterator()
-                        val sound = soundsIterator.next()
-                        displaySound(sound)
-                        // TODO(build the waveForm corresponding to the urlAudio)
-                    }
-                } else {
-                    val error: ApiError? = ErrorUtils().parseError(response)
-                    if (error == null)
-                        Toast.makeText(context, "Erreur : " + response.code(), Toast.LENGTH_SHORT).show()
-                    else
-                        Toast.makeText(context, "Erreur : " + error.statusCode + " " + error.message, Toast.LENGTH_SHORT).show()
-                }
-            }
-
-            override fun onFailure(call: Call<GeoPointResponse>, t: Throwable) {
-                if (t is IOException) {
-                    Toast.makeText(context, "Problème réseau. Assurez-vous d'avoir une connection Internet suffisante", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    Toast.makeText(context, "Erreur de conversion des données", Toast.LENGTH_SHORT).show();
-                }
-            }
-        })
-    }
-
-    private fun displaySound(sound: Sound) {
-        checkClickability(geoPoint.sounds!!)
-        binding.apply {
-            location.text = geoPoint.name
-            date.text = SimpleDateFormat("dd/MM/yy", Locale.FRANCE).format(sound.date.time)
-            coordinates.text = geoPoint.coordinatesToString()
-            datePicker.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(sound.date.time)
-        }
-        changeWidgetsVisibility(true)
     }
 
     private fun displayImage(){
-        crossfade(binding.soundImage, binding.waveForm)
+        crossFade(binding.soundImage, binding.waveForm)
         binding.expand.text = "Voir le son"
         imageDisplayed = true
     }
 
     private fun displayWaveForm(){
-        crossfade(binding.waveForm, binding.soundImage)
+        crossFade(binding.waveForm, binding.soundImage)
         binding.waveForm.layoutParams.height = 0
         binding.expand.text = "Voir l'image"
         imageDisplayed = false
@@ -267,32 +230,9 @@ class BottomSheetFragment : Fragment() {
     private fun measure() {
         binding.apply{
             bottomSheetBehavior.peekHeight = pin.height*2
-            val screenHeight: Int = DisplayMetrics().also { activity!!.windowManager.defaultDisplay.getMetrics(it) }.heightPixels
+            val screenHeight: Int = DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
             heightExpanded = 2*container.height - container.top // A bit mysterious but it works
             bottomSheetBehavior.halfExpandedRatio = (pin.height*2 + waveForm.height).toFloat() / screenHeight.toFloat()
-        }
-    }
-
-    private fun checkClickability(sounds: List<Sound>){
-        // A bit of a hack due to ListIterators' behavior.
-        // The index is between two elements.
-        binding.apply {
-            try {
-                Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].urlAudio)
-                left.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
-                left.isClickable = true
-            } catch (e: IndexOutOfBoundsException){
-                left.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
-                left.isClickable = false
-            }
-            try{
-                Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
-                right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimaryDark))
-                right.isClickable = true
-            } catch (e: IndexOutOfBoundsException){
-                right.setTextColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
-                right.isClickable = false
-            }
         }
     }
 
