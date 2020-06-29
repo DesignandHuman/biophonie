@@ -17,14 +17,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
 import com.example.biophonie.databinding.BottomSheetLayoutBinding
-import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.viewmodels.BottomSheetViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 
 class BottomSheetFragment : Fragment() {
 
-    private val TAG: String? = "BottomSheetFragment:"
     private var heightExpanded: Int = 400
     private var imageDisplayed: Boolean = false
     private var state: Int = 0
@@ -71,13 +69,11 @@ class BottomSheetFragment : Fragment() {
                 displayWaveForm()
             }
         }
-        binding.pin.translationY = 0F
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 measure()
-
                 val obs: ViewTreeObserver = binding.root.viewTreeObserver
                 obs.removeOnGlobalLayoutListener(this)
             }
@@ -86,8 +82,7 @@ class BottomSheetFragment : Fragment() {
         bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             // No other solution was found to pin a view to the bottom of the BottomSheet
                 override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    val bottomSheetVisibleHeight = bottomSheet.height - bottomSheet.top
-                binding.pin.translationY = (bottomSheetVisibleHeight - heightExpanded).toFloat()
+                    binding.pin.translationY = (heightExpanded - bottomSheet.top).toFloat()
                 }
 
                 override fun onStateChanged(bottomSheet: View, newState: Int) {
@@ -205,15 +200,6 @@ class BottomSheetFragment : Fragment() {
         fun onButtonClicked(text: String)
     }
 
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        try {
-            mListener = context as SoundSheetListener
-        } catch (e: ClassCastException){
-            throw kotlin.ClassCastException("$context must implement BottomSheetListener")
-        }
-    }
-
     private fun displayImage(){
         crossFade(binding.soundImage, binding.waveForm)
         binding.expand.text = "Voir le son"
@@ -231,7 +217,7 @@ class BottomSheetFragment : Fragment() {
         binding.apply{
             bottomSheetBehavior.peekHeight = pin.height*2
             val screenHeight: Int = DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
-            heightExpanded = 2*container.height - container.top // A bit mysterious but it works
+            heightExpanded = container.top - container.height // A bit mysterious but it works
             bottomSheetBehavior.halfExpandedRatio = (pin.height*2 + waveForm.height).toFloat() / screenHeight.toFloat()
         }
     }
