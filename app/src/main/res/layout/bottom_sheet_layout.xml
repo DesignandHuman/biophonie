@@ -115,17 +115,6 @@
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/BottomSheetTextView"
-                android:id="@+id/empty_left"
-                android:text=" "
-                android:visibility="gone"
-                android:background="@drawable/border_top"
-                app:layout_constraintHorizontal_weight="0"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/left"/>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
                 android:id="@+id/left"
                 android:focusable="true"
                 android:onClick="@{() -> viewModel.onLeftClick()}"
@@ -134,7 +123,7 @@
                 android:text="&lt;"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/empty_left"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/date_picker"/>
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -158,17 +147,6 @@
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/date_picker"
-                app:layout_constraintEnd_toStartOf="@id/empty_right"/>
-
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
-                android:id="@+id/empty_right"
-                android:background="@drawable/border_top"
-                android:text=" "
-                android:visibility="gone"
-                app:layout_constraintHorizontal_weight="0"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/right"
                 app:layout_constraintEnd_toStartOf="@id/expand"/>
 
             <androidx.appcompat.widget.AppCompatTextView
@@ -179,7 +157,7 @@
                 app:layout_constraintHorizontal_weight="5"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/empty_right" />
+                app:layout_constraintStart_toEndOf="@+id/right" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
