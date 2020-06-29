@@ -2,6 +2,7 @@ package com.example.biophonie.ui
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.os.Bundle
 import android.util.DisplayMetrics
@@ -32,7 +33,6 @@ class BottomSheetFragment : Fragment() {
         ViewModelProvider(this, BottomSheetViewModel.ViewModelFactory()).get(BottomSheetViewModel::class.java)
     }
     private lateinit var binding: BottomSheetLayoutBinding
-    private lateinit var mListener: SoundSheetListener
     private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
@@ -89,11 +89,9 @@ class BottomSheetFragment : Fragment() {
                     when(newState){
                         BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
                             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_COLLAPSED -> {
                             state = BottomSheetBehavior.STATE_COLLAPSED
-                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                         BottomSheetBehavior.STATE_HALF_EXPANDED -> {
                             state = BottomSheetBehavior.STATE_HALF_EXPANDED
@@ -102,17 +100,14 @@ class BottomSheetFragment : Fragment() {
                                 displayWaveForm()
                             }
                             binding.waveForm.apply{requestLayout()}.layoutParams.height = dpToPx(150)
-                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.lock()
                         }
                         BottomSheetBehavior.STATE_EXPANDED -> {
                             state = BottomSheetBehavior.STATE_EXPANDED
                             binding.close.setImageResource(R.drawable.arrow_down)
                             binding.waveForm.apply{requestLayout()}.layoutParams.height = 0
-                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                         else -> {
                             binding.close.setImageResource(R.drawable.ic_marker)
-                            //(bottomSheetBehavior as? LockableBottomSheetBehavior<*>)?.unlock()
                         }
                     }
                 }
@@ -141,10 +136,6 @@ class BottomSheetFragment : Fragment() {
         viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
             if (isNetworkError) onNetworkError()
         })
-        /*viewModel.geoPoint.observe(viewLifecycleOwner, Observer<GeoPoint>{
-            Log.d(TAG, "setUpObservers: ${viewModel.geoPoint.value!!.name}")
-            //binding.invalidateAll()
-        })*/
     }
 
     private fun setArrowClickable(view: TextView, clickable: Boolean) {
@@ -186,18 +177,12 @@ class BottomSheetFragment : Fragment() {
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
                     fadeOut.visibility = View.GONE
-                    /*waveForm.apply{ requestLayout() }
-                    image.apply { requestLayout() }*/
                 }
             })
     }
 
     private fun dpToPx(dp: Int): Int {
         return dp*(requireContext().resources.displayMetrics.density).toInt()
-    }
-
-    interface SoundSheetListener{
-        fun onButtonClicked(text: String)
     }
 
     private fun displayImage(){
