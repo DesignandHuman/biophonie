@@ -128,7 +128,7 @@
                 style="@style/BottomSheetTextView"
                 android:id="@+id/left"
                 android:focusable="true"
-                android:onClick="@{() -> viewModel.onLeftClick()"
+                android:onClick="@{() -> viewModel.onLeftClick()}"
                 android:background="@drawable/border_top"
                 android:textColor="@color/colorPrimary"
                 android:text="&lt;"
@@ -150,7 +150,7 @@
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/BottomSheetTextView"
                 android:id="@+id/right"
-                android:onClick="@{() -> viewModel.onRightClick()"
+                android:onClick="@{() -> viewModel.onRightClick()}"
                 android:focusable="true"
                 android:background="@drawable/border_top"
                 android:textColor="@color/colorPrimary"
