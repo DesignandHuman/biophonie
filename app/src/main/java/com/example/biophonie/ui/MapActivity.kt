@@ -31,7 +31,7 @@ private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
 private const val FRAGMENT_TAG: String = "bottomSheet"
 
-class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback, BottomSheetFragment.SoundSheetListener {
+class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback{
 
     private var mapView: MapView? = null
     private var mapboxMap: MapboxMap? = null
@@ -184,9 +184,5 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         super.onDestroy()
         mapboxMap?.removeOnMapClickListener(this);
         mapView?.onDestroy()
-    }
-
-    override fun onButtonClicked(text: String) {
-        Toast.makeText(this, text, Toast.LENGTH_SHORT).show()
     }
 }
