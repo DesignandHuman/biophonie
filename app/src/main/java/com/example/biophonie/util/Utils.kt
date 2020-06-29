@@ -2,6 +2,7 @@
 
 package com.example.biophonie.util
 
+import android.content.Context
 import com.example.biophonie.domain.Sound
 import com.mapbox.mapboxsdk.geometry.LatLng
 import java.text.ParseException
@@ -29,6 +30,10 @@ fun dateAsCalendar(date: String?): Calendar{
     } else{
         Calendar.getInstance().apply { time = Date(0) }
     }
+}
+
+private fun dpToPx(context: Context, dp: Int): Int {
+    return dp*(context.resources.displayMetrics.density).toInt()
 }
 
 enum class Status {

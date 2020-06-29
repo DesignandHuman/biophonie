@@ -52,25 +52,37 @@ class BottomSheetFragment : Fragment() {
         /* Trying to make fitsSystemWindow work */
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
 
-        binding.close.setOnClickListener {onClose()}
+        setUpOnClickListeners()
+        addListenerForMeasurement()
+        addCallbackOnBottomSheet()
+        setUpObservers()
 
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        return binding.root
+    }
+
+    private fun setUpOnClickListeners() {
+        binding.close.setOnClickListener { onClose() }
         binding.soundImage.setOnClickListener {
             //"fitsSystemWindow = true" on Fragment not working as expected. Use this empty listener to avoid map dragging while dragging fragment
         }
-
-        binding.waveForm.setOnClickListener { Toast.makeText(activity, "Lecture du son", Toast.LENGTH_SHORT).show() }
-
-        binding.expand.setOnClickListener {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-            if (!imageDisplayed){
-                displayImage()
-            }
-            else{
-                displayWaveForm()
-            }
+        binding.waveForm.setOnClickListener {
+            Toast.makeText(activity,"Lecture du son", Toast.LENGTH_SHORT).show()
         }
+        binding.expand.setOnClickListener { onExpand() }
+    }
 
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+    private fun onExpand() {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        if (!imageDisplayed) {
+            displayImage()
+        } else {
+            displayWaveForm()
+        }
+    }
+
+    private fun addListenerForMeasurement() {
         binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 measure()
@@ -78,43 +90,43 @@ class BottomSheetFragment : Fragment() {
                 obs.removeOnGlobalLayoutListener(this)
             }
         })
+    }
 
-        bottomSheetBehavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
+    private fun addCallbackOnBottomSheet() {
+        bottomSheetBehavior.addBottomSheetCallback(object :
+            BottomSheetBehavior.BottomSheetCallback() {
             // No other solution was found to pin a view to the bottom of the BottomSheet
-                override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                    binding.pin.translationY = (heightExpanded - bottomSheet.top).toFloat()
-                }
+            override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                binding.pin.translationY = (heightExpanded - bottomSheet.top).toFloat()
+            }
 
-                override fun onStateChanged(bottomSheet: View, newState: Int) {
-                    when(newState){
-                        BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
-                            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            override fun onStateChanged(bottomSheet: View, newState: Int) {
+                when (newState) {
+                    BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
+                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                    }
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
+                        state = BottomSheetBehavior.STATE_COLLAPSED
+                    }
+                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
+                        state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                        binding.close.setImageResource(R.drawable.ic_marker)
+                        if (imageDisplayed) {
+                            displayWaveForm()
                         }
-                        BottomSheetBehavior.STATE_COLLAPSED -> {
-                            state = BottomSheetBehavior.STATE_COLLAPSED
-                        }
-                        BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-                            state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                            binding.close.setImageResource(R.drawable.ic_marker)
-                            if (imageDisplayed) {
-                                displayWaveForm()
-                            }
-                            binding.waveForm.apply{requestLayout()}.layoutParams.height = dpToPx(150)
-                        }
-                        BottomSheetBehavior.STATE_EXPANDED -> {
-                            state = BottomSheetBehavior.STATE_EXPANDED
-                            binding.close.setImageResource(R.drawable.arrow_down)
-                            binding.waveForm.apply{requestLayout()}.layoutParams.height = 0
-                        }
-                        else -> {
-                            binding.close.setImageResource(R.drawable.ic_marker)
-                        }
+                        binding.waveForm.apply { requestLayout() }.layoutParams.height = resources.getDimensionPixelSize(R.dimen.wave_form)
+                    }
+                    BottomSheetBehavior.STATE_EXPANDED -> {
+                        state = BottomSheetBehavior.STATE_EXPANDED
+                        binding.close.setImageResource(R.drawable.arrow_down)
+                        binding.waveForm.apply { requestLayout() }.layoutParams.height = 0
+                    }
+                    else -> {
+                        binding.close.setImageResource(R.drawable.ic_marker)
                     }
                 }
-            })
-        setUpObservers()
-        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
-        return binding.root
+            }
+        })
     }
 
     private fun onNetworkError() {
@@ -179,10 +191,6 @@ class BottomSheetFragment : Fragment() {
                     fadeOut.visibility = View.GONE
                 }
             })
-    }
-
-    private fun dpToPx(dp: Int): Int {
-        return dp*(requireContext().resources.displayMetrics.density).toInt()
     }
 
     private fun displayImage(){
