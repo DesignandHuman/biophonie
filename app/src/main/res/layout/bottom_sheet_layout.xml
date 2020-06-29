@@ -11,13 +11,14 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:fitsSystemWindows="true"
+        android:focusable="true"
+        android:clickable="true"
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:background="@color/design_default_color_background"
         app:behavior_hideable="true"
-        app:behavior_skipCollapsed="false"
+        app:behavior_skipCollapsed="true"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
         <ProgressBar

@@ -64,9 +64,6 @@ class BottomSheetFragment : Fragment() {
 
     private fun setUpOnClickListeners() {
         binding.close.setOnClickListener { onClose() }
-        binding.soundImage.setOnClickListener {
-            //"fitsSystemWindow = true" on Fragment not working as expected. Use this empty listener to avoid map dragging while dragging fragment
-        }
         binding.waveForm.setOnClickListener {
             Toast.makeText(activity,"Lecture du son", Toast.LENGTH_SHORT).show()
         }
@@ -102,11 +99,10 @@ class BottomSheetFragment : Fragment() {
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
+                    //easier with setFitToContent = false
+                    // Maybe try with a collapsing toolbar ? or a motion layout ?
                     BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
                         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                    }
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        state = BottomSheetBehavior.STATE_COLLAPSED
                     }
                     BottomSheetBehavior.STATE_HALF_EXPANDED -> {
                         state = BottomSheetBehavior.STATE_HALF_EXPANDED
