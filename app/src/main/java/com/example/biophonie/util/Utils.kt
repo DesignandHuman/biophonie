@@ -3,7 +3,6 @@
 package com.example.biophonie.util
 
 import android.content.Context
-import com.example.biophonie.domain.Sound
 import com.mapbox.mapboxsdk.geometry.LatLng
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -34,21 +33,4 @@ fun dateAsCalendar(date: String?): Calendar{
 
 private fun dpToPx(context: Context, dp: Int): Int {
     return dp*(context.resources.displayMetrics.density).toInt()
-}
-
-enum class Status {
-    SUCCESS,
-    ERROR,
-    LOADING
-}
-
-data class Resource<out T>(val status: Status, val data: T?, val message: String?) {
-    companion object {
-        fun <T> success(data: T): Resource<T> = Resource(status = Status.SUCCESS, data = data, message = null)
-
-        fun <T> error(data: T?, message: String): Resource<T> =
-            Resource(status = Status.ERROR, data = data, message = message)
-
-        fun <T> loading(data: T?): Resource<T> = Resource(status = Status.LOADING, data = data, message = null)
-    }
 }
