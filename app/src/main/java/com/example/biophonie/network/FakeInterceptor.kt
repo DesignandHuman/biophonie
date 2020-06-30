@@ -1,4 +1,4 @@
-package com.example.biophonie.api
+package com.example.biophonie.network
 
 import android.os.SystemClock
 import okhttp3.*
@@ -6,9 +6,9 @@ import java.io.IOException
 import java.net.URI
 
 // FAKE RESPONSES
-private const val SoundId1 = "{\"id\":1,\"sounds\":[{\"date\":\"2017-06-24T09:32:55Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"urlPhoto\":\"https://biophonie.fr/photos/1\",\"urlAudio\":\"https://biophonie.fr/audios/1\"}]}"
-private const val SoundId2 = "{\"id\":2,\"sounds\":[{\"date\":\"2018-09-22T11:21:32Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"urlPhoto\":\"https://biophonie.fr/photos/2\",\"urlAudio\":\"https://biophonie.fr/audios/2\"}," +
-        "{\"date\":\"2018-12-22T23:15:30Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"urlPhoto\":\"https://biophonie.fr/photos/3\",\"urlAudio\":\"https://biophonie.fr/audios/3\"}]}"
+private const val SoundId1 = "{\"id\":1,\"sounds\":[{\"date\":\"2017-06-24T09:32:55Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"url_photo\":\"https://biophonie.fr/photos/1\",\"url_audio\":\"https://biophonie.fr/audios/1\"}]}"
+private const val SoundId2 = "{\"id\":2,\"sounds\":[{\"date\":\"2018-09-22T11:21:32Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"url_photo\":\"https://biophonie.fr/photos/2\",\"url_audio\":\"https://biophonie.fr/audios/2\"}," +
+        "{\"date\":\"2018-12-22T23:15:30Z\",\"amplitudes\":[0,1,2,3,4,5,6],\"url_photo\":\"https://biophonie.fr/photos/3\",\"url_audio\":\"https://biophonie.fr/audios/3\"}]}"
 
 // Only for testing purpose. Use a MockWebServer for more complete tests
 class FakeInterceptor : Interceptor {
