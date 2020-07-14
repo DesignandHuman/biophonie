@@ -93,7 +93,7 @@ class BottomSheetViewModel(private val repository: GeoPointRepository) : ViewMod
     }
 
     fun getGeoPoint(id: String, name: String, coordinates: LatLng){
-        _bottomSheetState.value = BottomSheetBehavior.STATE_HALF_EXPANDED
+        _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         if (geoPoint.value?.id == id)
             return
         _visibility.value = false
