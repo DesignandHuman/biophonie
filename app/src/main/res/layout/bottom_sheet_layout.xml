@@ -40,21 +40,13 @@
             android:gravity="center_vertical"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
+            android:textSize="16sp"
+            android:textStyle="bold"
             android:text="@={viewModel.geoPoint.name}"
             android:background="@drawable/border_bottom_top"
-            app:layout_constraintEnd_toStartOf="@id/date"
-            app:layout_constraintHorizontal_weight="4"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomSheetTextView"
-            android:id="@+id/date"
-            android:background="@drawable/border_bottom_top"
-            android:text="@={viewModel.date}"
             app:layout_constraintEnd_toStartOf="@id/coordinates"
-            app:layout_constraintHorizontal_weight="3"
-            app:layout_constraintStart_toEndOf="@id/location"
+            app:layout_constraintHorizontal_weight="6"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
@@ -65,12 +57,12 @@
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toEndOf="@+id/close"
             app:layout_constraintHorizontal_weight="4"
-            app:layout_constraintStart_toEndOf="@id/date"
+            app:layout_constraintStart_toEndOf="@id/location"
             app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/close"
-            android:padding="5dp"
+            android:padding="4dp"
             android:layout_width="@dimen/pinnable"
             android:layout_height="0dp"
             android:clickable="true"
@@ -79,21 +71,23 @@
             android:src="@drawable/ic_marker"
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_weight="0"
+            app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/coordinates"
             app:layout_constraintBottom_toBottomOf="@id/coordinates"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
-            android:id="@+id/wave_form"
+        <fr.haran.soundwave.ui.PlayerView
+            android:id="@+id/player_view"
             android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:background="@drawable/spectre"
-            android:visibility="visible"
-            app:layout_constraintBottom_toTopOf="@+id/pin"
+            android:layout_height="@dimen/wave_form"
+            android:paddingBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@id/pin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/location"
-            app:layout_constraintVertical_bias="0.0" />
+            app:layout_constraintVertical_bias="0.0"
+            app:mainColor="@android:color/black"
+            app:secondaryColor="@android:color/darker_gray"
+            app:title="Music Title" />
 
         <ImageView
             android:id="@+id/sound_image"
