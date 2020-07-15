@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.FragmentActivity
 import com.example.biophonie.R
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -48,7 +49,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 R.id.containerMap, bottomSheet,
                 FRAGMENT_TAG
             )
-            .addToBackStack(FRAGMENT_TAG)
             .commit()
 
         mapView = findViewById(R.id.mapView)
@@ -122,9 +122,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             val clickedFeature: Feature? = features.first { it.geometry() is Point }
             val clickedPoint: Point? = clickedFeature?.geometry() as Point?
             clickedPoint?.let {
-                bottomSheet.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(
-                    PROPERTY_NAME
-                ), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
+                bottomSheet.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
+                    clickedFeature.getStringProperty(PROPERTY_NAME),
+                    LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
                 return true
             }
             return false
@@ -147,6 +147,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         this.draw(canvas)
 
         return bitmap
+    }
+
+    override fun onBackPressed() {
+        if (bottomSheet.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN)
+            bottomSheet.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        else
+            super.onBackPressed()
     }
 
     override fun onStart() {

@@ -4,7 +4,9 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.ContentValues.TAG
 import android.content.Context
+import android.net.Uri
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.*
@@ -12,6 +14,7 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.content.ContextCompat
+import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -21,19 +24,20 @@ import com.example.biophonie.databinding.BottomSheetLayoutBinding
 import com.example.biophonie.viewmodels.BottomSheetViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
+import fr.haran.soundwave.controller.DefaultPlayerController
+import java.io.IOException
 
 class BottomSheetFragment : Fragment() {
 
     private var heightExpanded: Int = 400
     private var imageDisplayed: Boolean = false
-    private var state: Int = 0
     private var shortAnimationDuration: Int = 0
 
     private val viewModel: BottomSheetViewModel by lazy {
         ViewModelProvider(this, BottomSheetViewModel.ViewModelFactory()).get(BottomSheetViewModel::class.java)
     }
     private lateinit var binding: BottomSheetLayoutBinding
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,12 +49,12 @@ class BottomSheetFragment : Fragment() {
             R.layout.bottom_sheet_layout,
             container,
             false)
-        binding.viewModel = viewModel
+        binding.viewModel = viewModel.apply {
+            //TODO(run that somehow on another thread)
+            setPlayerController(requireContext(), binding.playerView) }
         binding.lifecycleOwner = this
-        bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
-        /* Trying to make fitsSystemWindow work */
-        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+        bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
         setUpOnClickListeners()
         addListenerForMeasurement()
@@ -64,9 +68,6 @@ class BottomSheetFragment : Fragment() {
 
     private fun setUpOnClickListeners() {
         binding.close.setOnClickListener { onClose() }
-        binding.waveForm.setOnClickListener {
-            Toast.makeText(activity,"Lecture du son", Toast.LENGTH_SHORT).show()
-        }
         binding.expand.setOnClickListener { onExpand() }
     }
 
@@ -101,21 +102,16 @@ class BottomSheetFragment : Fragment() {
                 when (newState) {
                     //easier with setFitToContent = false
                     // Maybe try with a collapsing toolbar ? or a motion layout ?
-                    BottomSheetBehavior.STATE_DRAGGING -> if (state != BottomSheetBehavior.STATE_HALF_EXPANDED) {
-                        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
-                    }
-                    BottomSheetBehavior.STATE_HALF_EXPANDED -> {
-                        state = BottomSheetBehavior.STATE_HALF_EXPANDED
+                    BottomSheetBehavior.STATE_COLLAPSED -> {
                         binding.close.setImageResource(R.drawable.ic_marker)
                         if (imageDisplayed) {
                             displayWaveForm()
                         }
-                        binding.waveForm.apply { requestLayout() }.layoutParams.height = resources.getDimensionPixelSize(R.dimen.wave_form)
+                        binding.playerView.apply { requestLayout() }.layoutParams.height = resources.getDimensionPixelSize(R.dimen.wave_form)
                     }
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        state = BottomSheetBehavior.STATE_EXPANDED
                         binding.close.setImageResource(R.drawable.arrow_down)
-                        binding.waveForm.apply { requestLayout() }.layoutParams.height = 0
+                        binding.playerView.apply { requestLayout() }.layoutParams.height = 0
                     }
                     else -> {
                         binding.close.setImageResource(R.drawable.ic_marker)
@@ -144,6 +140,11 @@ class BottomSheetFragment : Fragment() {
         viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
             if (isNetworkError) onNetworkError()
         })
+        viewModel.date.observe(viewLifecycleOwner, Observer<String>{
+            viewModel.playerController.setTitle(SpannableStringBuilder()
+                .bold { append("Le : ") }
+                .append(it))
+        })
     }
 
     private fun setArrowClickable(view: TextView, clickable: Boolean) {
@@ -160,7 +161,7 @@ class BottomSheetFragment : Fragment() {
 
     private fun onClose() {
         if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         else
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
     }
@@ -190,14 +191,14 @@ class BottomSheetFragment : Fragment() {
     }
 
     private fun displayImage(){
-        crossFade(binding.soundImage, binding.waveForm)
+        crossFade(binding.soundImage, binding.playerView)
         binding.expand.text = "Voir le son"
         imageDisplayed = true
     }
 
     private fun displayWaveForm(){
-        crossFade(binding.waveForm, binding.soundImage)
-        binding.waveForm.layoutParams.height = 0
+        crossFade(binding.playerView, binding.soundImage)
+        binding.playerView.layoutParams.height = 0
         binding.expand.text = "Voir l'image"
         imageDisplayed = false
     }
@@ -205,9 +206,8 @@ class BottomSheetFragment : Fragment() {
     private fun measure() {
         binding.apply{
             bottomSheetBehavior.peekHeight = pin.height*2
-            val screenHeight: Int = DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
             heightExpanded = container.top - container.height // A bit mysterious but it works
-            bottomSheetBehavior.halfExpandedRatio = (pin.height*2 + waveForm.height).toFloat() / screenHeight.toFloat()
+            bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
         }
     }
 
@@ -215,25 +215,32 @@ class BottomSheetFragment : Fragment() {
         binding.apply {
             if (makeVisible){
                 location.visibility = View.VISIBLE
-                date.visibility = View.VISIBLE
-                coordinates.visibility = View.VISIBLE
                 close.visibility = View.VISIBLE
-                waveForm.visibility = View.VISIBLE
+                playerView.visibility = View.VISIBLE
                 pin.visibility = View.VISIBLE
+                coordinates.visibility = View.VISIBLE
 
                 progressBar.visibility = View.GONE
             }
             else{
                 location.visibility = View.GONE
-                date.visibility = View.GONE
-                coordinates.visibility = View.GONE
                 close.visibility = View.GONE
-                waveForm.visibility = View.GONE
+                playerView.visibility = View.GONE
                 pin.visibility = View.GONE
+                coordinates.visibility = View.GONE
 
                 progressBar.visibility = View.VISIBLE
             }
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        viewModel.playerController.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.playerController.destroyPlayer()
+    }
 }
