@@ -37,9 +37,7 @@ class BottomSheetFragment : Fragment() {
         ViewModelProvider(this, BottomSheetViewModel.ViewModelFactory()).get(BottomSheetViewModel::class.java)
     }
     private lateinit var binding: BottomSheetLayoutBinding
-    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
-
-    //TODO(release the MediaPlayer onDestroy and pause onPause)
+    lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -208,7 +206,6 @@ class BottomSheetFragment : Fragment() {
     private fun measure() {
         binding.apply{
             bottomSheetBehavior.peekHeight = pin.height*2
-            val screenHeight: Int = DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
             heightExpanded = container.top - container.height // A bit mysterious but it works
             bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
         }
@@ -237,4 +234,13 @@ class BottomSheetFragment : Fragment() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        viewModel.playerController.pause()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        viewModel.playerController.destroyPlayer()
+    }
 }

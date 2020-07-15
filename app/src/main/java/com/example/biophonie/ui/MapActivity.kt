@@ -122,9 +122,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             val clickedFeature: Feature? = features.first { it.geometry() is Point }
             val clickedPoint: Point? = clickedFeature?.geometry() as Point?
             clickedPoint?.let {
-                bottomSheet.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID), clickedFeature.getStringProperty(
-                    PROPERTY_NAME
-                ), LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
+                bottomSheet.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
+                    clickedFeature.getStringProperty(PROPERTY_NAME),
+                    LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
                 return true
             }
             return false
