@@ -23,7 +23,16 @@
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="@color/design_default_color_background"
-        android:src="@drawable/pine"/>
+        android:backgroundTint="@android:color/white"
+        android:src="@drawable/pine"
+        android:layout_gravity="top|start"
+        android:clickable="true"
+        android:layout_margin="15dp"
+        android:foreground="@drawable/border"
+        android:focusable="true"
+        android:scaleType="center"
+        app:maxImageSize="22dp"
+        app:fabCustomSize="40dp"
+        app:shapeAppearanceOverlay="@style/fab_square" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
