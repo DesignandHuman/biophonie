@@ -2,42 +2,107 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:focusable="true"
-        android:clickable="true"
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:focusable="true"
+        android:clickable="true"
+        android:orientation="vertical"
         android:layout_margin="10dp"
-        android:padding="10dp"
         android:background="@color/design_default_color_background"
         android:elevation="8dp">
 
-        <androidx.appcompat.widget.AppCompatTextView
-            android:id="@+id/title"
-            android:textSize="15sp"
-            android:padding="10dp"
-            android:textStyle="bold"
-            android:layout_width="0dp"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/topPanel"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="start"
-            android:text="À propos de Biophonie"
-            app:layout_constraintEnd_toStartOf="@id/close"
-            app:layout_constraintTop_toTopOf="@id/title"
-            app:layout_constraintBottom_toTopOf="@id/title"
-            app:layout_constraintStart_toStartOf="parent"
-            style="@style/BottomSheetTextView"/>
+            android:orientation="horizontal">
 
-        <ImageView
-            android:id="@+id/close"
-            android:padding="4dp"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:gravity="center"
-            android:src="@drawable/ic_marker"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"/>
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/title"
+                android:textSize="15sp"
+                android:paddingHorizontal="20dp"
+                android:paddingVertical="15dp"
+                android:textStyle="bold"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:gravity="center|start"
+                android:background="@drawable/border_bottom"
+                android:text="À propos de Biophonie"
+                app:layout_constraintHorizontal_weight="6"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/close"
+                style="@style/BottomSheetTextView"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <ImageView
+                android:id="@+id/close"
+                android:padding="8dp"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:background="@drawable/border_bottom"
+                android:src="@drawable/ic_marker"
+                app:layout_constraintHorizontal_weight="1"
+                app:layout_constraintStart_toEndOf="@id/title"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/about_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/lorem_ipsum"
+                    android:background="@drawable/border_bottom"
+                    android:padding="15dp" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/pine"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="20dp"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="LICENCE"
+                    android:layout_gravity="center"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="GNU GPL v3.0"
+                    android:layout_gravity="center"/>
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="réalisé ici : 121°E 33°N"
+                    android:layout_gravity="center"/>
+
+                <androidx.appcompat.widget.AppCompatButton
+                    android:id="@+id/link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Retrouvez Labo.mg"
+                    android:layout_gravity="center"
+                    android:layout_marginBottom="20dp"/>
+            </androidx.appcompat.widget.LinearLayoutCompat>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </androidx.appcompat.widget.LinearLayoutCompat>
 </layout>

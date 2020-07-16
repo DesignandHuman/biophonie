@@ -38,6 +38,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var mapboxMap: MapboxMap
     private var bottomSheet: BottomSheetFragment =
         BottomSheetFragment()
+    private var about: AboutFragment = AboutFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +53,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
             supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, AboutFragment(), FRAGMENT_TAG+"about")
+                .add(R.id.containerMap, about, FRAGMENT_TAG+"about")
                 .addToBackStack(null)
                 .commit()
         }
@@ -166,7 +167,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     override fun onBackPressed() {
-        if (bottomSheet.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN)
+        if (bottomSheet.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN
+            && !supportFragmentManager.fragments.contains(about))
             bottomSheet.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         else
             super.onBackPressed()

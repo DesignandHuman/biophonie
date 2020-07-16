@@ -1,5 +1,7 @@
 package com.example.biophonie.ui
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +10,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.example.biophonie.R
 import com.example.biophonie.databinding.AboutLayoutBinding
-import com.example.biophonie.databinding.BottomSheetLayoutBinding
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+
 
 class AboutFragment : Fragment() {
 
@@ -26,6 +27,12 @@ class AboutFragment : Fragment() {
             container,
             false)
         binding.lifecycleOwner = this
+        binding.link.setOnClickListener {
+            val uriUrl: Uri = Uri.parse("http://labo.mg")
+            val launchBrowser = Intent(Intent.ACTION_VIEW, uriUrl)
+            startActivity(launchBrowser) }
+        binding.close.setOnClickListener { activity?.supportFragmentManager?.beginTransaction()
+            ?.remove(this)?.commitAllowingStateLoss() }
         return binding.root
     }
 }
