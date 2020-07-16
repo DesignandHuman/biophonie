@@ -5,20 +5,39 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:focusable="true"
         android:clickable="true"
-        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_margin="15dp"
+        android:layout_margin="10dp"
+        android:padding="10dp"
         android:background="@color/design_default_color_background"
         android:elevation="8dp">
 
         <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
+            android:id="@+id/title"
+            android:textSize="15sp"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="ABOUT"
-            app:layout_constraintTop_toTopOf="parent"
+            android:gravity="start"
+            android:text="À propos de Biophonie"
+            app:layout_constraintEnd_toStartOf="@id/close"
+            app:layout_constraintTop_toTopOf="@id/title"
+            app:layout_constraintBottom_toTopOf="@id/title"
             app:layout_constraintStart_toStartOf="parent"
             style="@style/BottomSheetTextView"/>
+
+        <ImageView
+            android:id="@+id/close"
+            android:padding="4dp"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center"
+            android:src="@drawable/ic_marker"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
