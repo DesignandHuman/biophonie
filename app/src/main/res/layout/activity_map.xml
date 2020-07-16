@@ -1,23 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    tools:context=".ui.MapActivity"
-    android:id="@+id/containerMap">
 
-    <com.mapbox.mapboxsdk.maps.MapView
-        android:id="@+id/mapView"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        xmlns:mapbox="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        mapbox:mapbox_cameraTargetLat="47.516218"
-        mapbox:mapbox_cameraTargetLng="-1.803165"
-        mapbox:mapbox_cameraZoom="10"/>
+        android:layout_height="wrap_content"
+        tools:context=".ui.MapActivity"
+        android:id="@+id/containerMap">
+
+        <com.mapbox.mapboxsdk.maps.MapView
+            android:id="@+id/mapView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            mapbox:mapbox_cameraTargetLat="47.516218"
+            mapbox:mapbox_cameraTargetLng="-1.803165"
+            mapbox:mapbox_cameraZoom="10"/>
         <!--mapbox:mapbox_cameraBearing="34.33"
         mapbox:mapbox_cameraTilt="50.25"
         mapbox:mapbox_cameraZoomMax="12.41"
         mapbox:mapbox_cameraZoomMin="6"-->
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/about"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/white"
+            android:src="@drawable/pine"
+            android:layout_gravity="top|start"
+            android:clickable="true"
+            android:layout_margin="15dp"
+            android:foreground="@drawable/border"
+            android:focusable="true"
+            android:scaleType="center"
+            app:maxImageSize="22dp"
+            app:fabCustomSize="40dp"
+            app:shapeAppearanceOverlay="@style/fab_square" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+</layout>

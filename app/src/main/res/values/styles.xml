@@ -32,4 +32,9 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="fab_square" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">0dp</item>
+    </style>
+
 </resources>
