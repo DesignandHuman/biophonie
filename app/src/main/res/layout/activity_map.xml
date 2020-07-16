@@ -20,4 +20,10 @@
         mapbox:mapbox_cameraZoomMax="12.41"
         mapbox:mapbox_cameraZoomMin="6"-->
 
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/design_default_color_background"
+        android:src="@drawable/pine"/>
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
