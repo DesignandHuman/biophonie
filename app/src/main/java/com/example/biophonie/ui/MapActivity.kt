@@ -7,16 +7,16 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import com.example.biophonie.R
+import com.example.biophonie.databinding.ActivityMapBinding
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.maps.MapView
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
@@ -34,26 +34,41 @@ private const val FRAGMENT_TAG: String = "bottomSheet"
 
 class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback{
 
-    private var mapView: MapView? = null
-    private var mapboxMap: MapboxMap? = null
+    private lateinit var binding: ActivityMapBinding
+    private lateinit var mapboxMap: MapboxMap
     private var bottomSheet: BottomSheetFragment =
         BottomSheetFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
-        setContentView(R.layout.activity_map)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
 
+        addBottomSheetFragment()
+        bindMap(savedInstanceState)
+        setOnClickListeners()
+    }
+
+    private fun setOnClickListeners() {
+        binding.about.setOnClickListener {
+            supportFragmentManager.beginTransaction()
+                .add(R.id.containerMap, bottomSheet, FRAGMENT_TAG)
+                .commit()
+        }
+    }
+
+    private fun bindMap(savedInstanceState: Bundle?) {
+        binding.mapView.onCreate(savedInstanceState)
+        binding.mapView.getMapAsync(this)
+    }
+
+    private fun addBottomSheetFragment() {
         supportFragmentManager.beginTransaction()
             .add(
                 R.id.containerMap, bottomSheet,
                 FRAGMENT_TAG
             )
             .commit()
-
-        mapView = findViewById(R.id.mapView)
-        mapView?.onCreate(savedInstanceState)
-        mapView?.getMapAsync(this)
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
@@ -105,7 +120,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     override fun onMapClick(point: LatLng): Boolean {
-        return handleClickIcon(mapboxMap?.projection?.toScreenLocation(point));
+        return handleClickIcon(mapboxMap.projection.toScreenLocation(point));
     }
 
     private fun handleClickIcon(screenPoint: PointF?): Boolean {
@@ -114,7 +129,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 50, screenPoint.y + 10) }
 
         val features: List<Feature> =
-            rectF?.let { mapboxMap?.queryRenderedFeatures(it,
+            rectF?.let { mapboxMap.queryRenderedFeatures(it,
                 ID_LAYER
             ) } as List<Feature>
         return if (features.isEmpty()) false
@@ -158,38 +173,38 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onStart() {
         super.onStart()
-        mapView?.onStart()
+        binding.mapView.onStart()
     }
 
 
     override fun onResume() {
         super.onResume()
-        mapView?.onResume()
+        binding.mapView.onResume()
     }
 
     override fun onPause() {
         super.onPause()
-        mapView?.onPause()
+        binding.mapView.onPause()
     }
 
     override fun onStop() {
         super.onStop()
-        mapView?.onStop()
+        binding.mapView.onStop()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        mapView?.onSaveInstanceState(outState)
+        binding.mapView.onSaveInstanceState(outState)
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        mapView?.onLowMemory()
+        binding.mapView.onLowMemory()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        mapboxMap?.removeOnMapClickListener(this);
-        mapView?.onDestroy()
+        mapboxMap.removeOnMapClickListener(this)
+        binding.mapView.onDestroy()
     }
 }

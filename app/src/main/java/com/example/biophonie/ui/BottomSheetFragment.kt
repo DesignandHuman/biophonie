@@ -2,13 +2,8 @@ package com.example.biophonie.ui
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.ContentValues.TAG
-import android.content.Context
-import android.net.Uri
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.util.DisplayMetrics
-import android.util.Log
 import android.view.*
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
@@ -24,8 +19,6 @@ import com.example.biophonie.databinding.BottomSheetLayoutBinding
 import com.example.biophonie.viewmodels.BottomSheetViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
-import fr.haran.soundwave.controller.DefaultPlayerController
-import java.io.IOException
 
 class BottomSheetFragment : Fragment() {
 
@@ -56,7 +49,7 @@ class BottomSheetFragment : Fragment() {
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
-        setUpOnClickListeners()
+        setUpClickListeners()
         addListenerForMeasurement()
         addCallbackOnBottomSheet()
         setUpObservers()
@@ -66,7 +59,7 @@ class BottomSheetFragment : Fragment() {
         return binding.root
     }
 
-    private fun setUpOnClickListeners() {
+    private fun setUpClickListeners() {
         binding.close.setOnClickListener { onClose() }
         binding.expand.setOnClickListener { onExpand() }
     }
