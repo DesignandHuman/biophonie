@@ -27,12 +27,19 @@ class AboutFragment : Fragment() {
             container,
             false)
         binding.lifecycleOwner = this
+        setUpClickListeners()
+        return binding.root
+    }
+
+    private fun setUpClickListeners() {
         binding.link.setOnClickListener {
             val uriUrl: Uri = Uri.parse("http://labo.mg")
             val launchBrowser = Intent(Intent.ACTION_VIEW, uriUrl)
-            startActivity(launchBrowser) }
-        binding.close.setOnClickListener { activity?.supportFragmentManager?.beginTransaction()
-            ?.remove(this)?.commitAllowingStateLoss() }
-        return binding.root
+            startActivity(launchBrowser)
+        }
+        binding.close.setOnClickListener {
+            activity?.supportFragmentManager?.beginTransaction()
+                ?.remove(this)?.commitAllowingStateLoss()
+        }
     }
 }
