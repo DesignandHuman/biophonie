@@ -30,7 +30,7 @@ private const val PROPERTY_ID: String = "id"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
-private const val FRAGMENT_TAG: String = "bottomSheet"
+private const val FRAGMENT_TAG: String = "fragment"
 
 class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback{
 
@@ -52,7 +52,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
             supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, bottomSheet, FRAGMENT_TAG)
+                .add(R.id.containerMap, AboutFragment(), FRAGMENT_TAG+"about")
+                .addToBackStack(null)
                 .commit()
         }
     }
@@ -66,7 +67,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         supportFragmentManager.beginTransaction()
             .add(
                 R.id.containerMap, bottomSheet,
-                FRAGMENT_TAG
+                FRAGMENT_TAG+"bottomSheet"
             )
             .commit()
     }
