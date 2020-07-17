@@ -14,23 +14,25 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val buttonToMap: Button = findViewById(R.id.toMap)
-        buttonToMap.setOnClickListener {
+        findViewById<Button>(R.id.toMap).setOnClickListener {
             startActivity(Intent(this, MapActivity::class.java))
         }
-        checkTutorial()
+        findViewById<Button>(R.id.toTutorial).setOnClickListener {
+            startActivity(Intent(this, TutorialActivity::class.java))
+        }
+        //checkTutorial()
     }
 
-    private fun checkTutorial() {
+    /*private fun checkTutorial() {
         val sp = getSharedPreferences(myPrefs, Context.MODE_PRIVATE)
-        //if (!sp.getBoolean("first", false)) {
+        if (!sp.getBoolean("first", false)) {
             val editor = sp.edit()
             editor.putBoolean("first", true)
             editor.apply()
             Toast.makeText(this, "First", Toast.LENGTH_SHORT).show()
-            /*val intent =
-                Intent(this, SampleCirclesDefault::class.java) //call your ViewPager class*/
+            val intent =
+                Intent(this, ViePager::class.java) //call your ViewPager class
             startActivity(intent)
-        //}
-    }
+        }
+    }*/
 }
