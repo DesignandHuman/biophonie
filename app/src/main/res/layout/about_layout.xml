@@ -97,9 +97,15 @@
                     android:id="@+id/link"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:paddingHorizontal="10dp"
+                    android:textAllCaps="false"
                     android:text="Retrouvez Labo.mg"
                     android:layout_gravity="center"
-                    android:layout_marginBottom="20dp"/>
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    android:background="@drawable/button_border"
+                    android:textColor="@color/colorPrimaryDark"
+                    style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
             </androidx.appcompat.widget.LinearLayoutCompat>
 
         </androidx.core.widget.NestedScrollView>
