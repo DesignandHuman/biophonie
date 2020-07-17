@@ -36,8 +36,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
-    private var bottomSheet: BottomSheetFragment =
-        BottomSheetFragment()
+    private var bottomPlayer: BottomPlayerFragment =
+        BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +67,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun addBottomSheetFragment() {
         supportFragmentManager.beginTransaction()
             .add(
-                R.id.containerMap, bottomSheet,
+                R.id.containerMap, bottomPlayer,
                 FRAGMENT_TAG+"bottomSheet"
             )
             .commit()
@@ -139,7 +139,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             val clickedFeature: Feature? = features.first { it.geometry() is Point }
             val clickedPoint: Point? = clickedFeature?.geometry() as Point?
             clickedPoint?.let {
-                bottomSheet.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
+                bottomPlayer.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
                     clickedFeature.getStringProperty(PROPERTY_NAME),
                     LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
                 return true
@@ -167,9 +167,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     override fun onBackPressed() {
-        if (bottomSheet.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN
+        if (bottomPlayer.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN
             && !supportFragmentManager.fragments.contains(about))
-            bottomSheet.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            bottomPlayer.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         else
             super.onBackPressed()
     }

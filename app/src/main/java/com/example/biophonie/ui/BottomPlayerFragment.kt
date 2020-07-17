@@ -15,12 +15,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
-import com.example.biophonie.databinding.BottomSheetLayoutBinding
+import com.example.biophonie.databinding.FragmentBottomPlayerBinding
 import com.example.biophonie.viewmodels.BottomSheetViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 
-class BottomSheetFragment : Fragment() {
+class BottomPlayerFragment : Fragment() {
 
     private var heightExpanded: Int = 400
     private var imageDisplayed: Boolean = false
@@ -29,7 +29,7 @@ class BottomSheetFragment : Fragment() {
     private val viewModel: BottomSheetViewModel by lazy {
         ViewModelProvider(this, BottomSheetViewModel.ViewModelFactory()).get(BottomSheetViewModel::class.java)
     }
-    private lateinit var binding: BottomSheetLayoutBinding
+    private lateinit var binding: FragmentBottomPlayerBinding
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
@@ -39,7 +39,7 @@ class BottomSheetFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.bottom_sheet_layout,
+            R.layout.fragment_bottom_player,
             container,
             false)
         binding.viewModel = viewModel.apply {
