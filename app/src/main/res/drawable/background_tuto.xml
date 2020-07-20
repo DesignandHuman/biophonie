@@ -8,7 +8,6 @@
     <item android:gravity="center">
         <shape android:shape="oval">
             <solid android:color="@color/design_default_color_background"/>
-            <size android:width="200dp" android:height="200dp"/>
         </shape>
     </item>
 </layer-list>
