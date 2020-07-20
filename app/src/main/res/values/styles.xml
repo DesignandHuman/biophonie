@@ -1,7 +1,6 @@
 <resources>
     <!-- Base application theme. -->
     <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -15,8 +14,37 @@
         <item name="android:minWidth">150dp</item>
     </style>
 
+    <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button">
+        <item name="android:textAppearance">@style/MyTextAppearance</item>
+    </style>
+
+    <style name="ButtonStyleDark" parent="@style/Widget.AppCompat.Button">
+        <item name="android:textAppearance">@style/MyTextAppearance.Dark</item>
+    </style>
+
     <style name="DefaultTextView" parent="Widget.AppCompat.TextView">
         <item name="android:textAppearance">@style/MyTextAppearance</item>
+    </style>
+
+    <style name="MyTextAppearance" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:fontFamily">@font/ibm_plex_mono</item>
+        <item name="fontFamily">@font/ibm_plex_mono</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="MyTextAppearance.Dark" parent="MyTextAppearance">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Title" parent="MyTextAppearance">
+        <item name="android:textStyle">italic</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="Title.Dark" parent="Title">
+        <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
     <style name="BottomSheetTextView" parent="DefaultTextView">
@@ -24,12 +52,6 @@
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">@dimen/pinnable</item>
         <item name="android:gravity">center</item>
-    </style>
-
-    <style name="MyTextAppearance" parent="TextAppearance.AppCompat.Medium">
-        <item name="android:fontFamily">@font/ibm_plex_mono</item>
-        <item name="fontFamily">@font/ibm_plex_mono</item>
-        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="fab_square" parent="ShapeAppearance.MaterialComponents.SmallComponent">

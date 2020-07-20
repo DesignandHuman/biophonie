@@ -9,12 +9,12 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.example.biophonie.R
-import com.example.biophonie.databinding.AboutLayoutBinding
+import com.example.biophonie.databinding.FragmentAboutBinding
 
 
 class AboutFragment : Fragment() {
 
-    private lateinit var binding: AboutLayoutBinding
+    private lateinit var binding: FragmentAboutBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -23,7 +23,7 @@ class AboutFragment : Fragment() {
     ): View? {
         binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.about_layout,
+            R.layout.fragment_about,
             container,
             false)
         binding.lifecycleOwner = this
