@@ -3,6 +3,7 @@ package com.example.biophonie.ui
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.util.TypedValue
 import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -38,7 +39,7 @@ class TutorialActivity : FragmentActivity() {
                     if (position == NUM_PAGES - 1){
                         next.setOnClickListener { startMapActivity() }
                         next.text = getString(R.string.done)
-                        next.textSize = 15F
+                        next.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.button_font_size))
                         skip.visibility = View.INVISIBLE
                     } else {
                         next.setOnClickListener { pager.currentItem++ }

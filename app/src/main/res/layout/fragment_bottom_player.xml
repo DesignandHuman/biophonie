@@ -35,7 +35,7 @@
             app:layout_constraintVertical_bias="0.17" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomSheetTextView"
+            style="@style/BottomPlayerTextView"
             android:id="@+id/location"
             android:gravity="center_vertical"
             android:paddingStart="15dp"
@@ -50,7 +50,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomSheetTextView"
+            style="@style/BottomPlayerTextView"
             android:id="@+id/coordinates"
             android:text="@={viewModel.geoPoint.coordinates}"
             android:gravity="center"
@@ -108,7 +108,7 @@
             app:layout_constraintStart_toStartOf="parent">
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+                style="@style/BottomPlayerTextView"
                 android:id="@+id/left"
                 android:focusable="true"
                 android:onClick="@{() -> viewModel.onLeftClick()}"
@@ -121,7 +121,7 @@
                 app:layout_constraintEnd_toStartOf="@id/date_picker"/>
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+                style="@style/BottomPlayerTextView"
                 android:id="@+id/date_picker"
                 android:background="@drawable/border_top"
                 android:text="@={viewModel.datePicker}"
@@ -131,7 +131,7 @@
                 app:layout_constraintEnd_toStartOf="@id/right"/>
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+                style="@style/BottomPlayerTextView"
                 android:id="@+id/right"
                 android:onClick="@{() -> viewModel.onRightClick()}"
                 android:focusable="true"
@@ -144,7 +144,7 @@
                 app:layout_constraintEnd_toStartOf="@id/expand"/>
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+                style="@style/BottomPlayerTextView"
                 android:id="@+id/expand"
                 android:background="@drawable/border_top_left"
                 android:text="Voir la photo"

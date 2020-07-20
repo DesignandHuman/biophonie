@@ -57,11 +57,12 @@
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            android:gravity="center"
             app:layout_constraintTop_toBottomOf="@id/pager"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/tab_layout"
-            style="@style/ButtonStyleDark"/>
+            style="@style/ButtonStyle.Dark"/>
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/tab_layout"
@@ -73,7 +74,6 @@
             app:tabMode="fixed"
             app:tabIndicatorHeight="0dp"
             app:tabIndicatorFullWidth="false"
-            app:tabPadding="15dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/skip"
             app:layout_constraintEnd_toStartOf="@id/next"
@@ -85,11 +85,12 @@
             android:layout_height="wrap_content"
             android:text="@string/done"
             android:background="@android:color/transparent"
+            android:gravity="center"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toBottomOf="@id/pager"
             app:layout_constraintStart_toEndOf="@id/tab_layout"
             app:layout_constraintEnd_toEndOf="parent"
-            style="@style/ButtonStyleDark"/>
+            style="@style/ButtonStyle.Dark"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

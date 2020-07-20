@@ -15,10 +15,11 @@
     </style>
 
     <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button">
+        <item name="android:textSize">@dimen/button_font_size</item>
         <item name="android:textAppearance">@style/MyTextAppearance</item>
     </style>
 
-    <style name="ButtonStyleDark" parent="@style/Widget.AppCompat.Button">
+    <style name="ButtonStyle.Dark" parent="ButtonStyle">
         <item name="android:textAppearance">@style/MyTextAppearance.Dark</item>
     </style>
 
@@ -29,7 +30,7 @@
     <style name="MyTextAppearance" parent="TextAppearance.AppCompat.Medium">
         <item name="android:fontFamily">@font/ibm_plex_mono</item>
         <item name="fontFamily">@font/ibm_plex_mono</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">@dimen/default_font_size</item>
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
@@ -40,21 +41,21 @@
     <style name="Title" parent="MyTextAppearance">
         <item name="android:textStyle">italic</item>
         <item name="android:gravity">center</item>
-        <item name="android:textSize">25sp</item>
+        <item name="android:textSize">@dimen/title_size</item>
     </style>
 
     <style name="Title.Dark" parent="Title">
         <item name="android:textColor">@color/colorPrimary</item>
     </style>
 
-    <style name="BottomSheetTextView" parent="DefaultTextView">
+    <style name="BottomPlayerTextView" parent="DefaultTextView">
         <item name="android:textAppearance">@style/MyTextAppearance</item>
         <item name="android:layout_width">0dp</item>
         <item name="android:layout_height">@dimen/pinnable</item>
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="fab_square" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+    <style name="FabSquare" parent="ShapeAppearance.MaterialComponents.SmallComponent">
         <item name="cornerFamily">cut</item>
         <item name="cornerSize">0dp</item>
     </style>
