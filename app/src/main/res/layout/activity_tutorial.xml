@@ -8,8 +8,39 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="20dp"
-        android:background="@drawable/background_tuto"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:background="@drawable/background_tuto">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/pine"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:tint="@color/colorPrimary"
+            android:src="@drawable/pine"
+            android:layout_marginTop="20dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textAppearance="@style/Title.Dark"
+            app:layout_constraintTop_toBottomOf="@id/pine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/subtitle"
+            android:textAppearance="@style/MyTextAppearance.Dark"
+            android:gravity="center"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/pager"

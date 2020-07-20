@@ -19,7 +19,7 @@
     </style>
 
     <style name="ButtonStyleDark" parent="@style/Widget.AppCompat.Button">
-        <item name="android:textAppearance">@style/TextAppearanceDark</item>
+        <item name="android:textAppearance">@style/MyTextAppearance.Dark</item>
     </style>
 
     <style name="DefaultTextView" parent="Widget.AppCompat.TextView">
@@ -33,7 +33,17 @@
         <item name="android:textColor">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="TextAppearanceDark" parent="MyTextAppearance">
+    <style name="MyTextAppearance.Dark" parent="MyTextAppearance">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Title" parent="MyTextAppearance">
+        <item name="android:textStyle">italic</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="Title.Dark" parent="Title">
         <item name="android:textColor">@color/colorPrimary</item>
     </style>
 

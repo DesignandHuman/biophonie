@@ -5,4 +5,6 @@
     <string name="skip">Passer</string>
     <string name="done">Commencer</string>
     <string name="next"><![CDATA[>]]></string>
+    <string name="explication">Ici, il y aura une illustration qui explique à quoi ça sert et comment ça marche.</string>
+    <string name="subtitle"><![CDATA[Écoutons & préservons les paysages sonores de notre planète]]></string>
 </resources>
