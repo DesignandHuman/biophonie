@@ -2,16 +2,19 @@ package com.example.biophonie.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
+import android.view.View
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import androidx.viewpager2.widget.ViewPager2
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityTutorialBinding
-import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
 private const val NUM_PAGES = 3
+private const val TAG = "TutorialActivity"
 
 class TutorialActivity : FragmentActivity() {
 
@@ -22,12 +25,31 @@ class TutorialActivity : FragmentActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_tutorial)
 
         setUpViewPager()
-        setUpClickListeners()
+        setUpListeners()
     }
 
-    private fun setUpClickListeners() {
-        binding.skip.setOnClickListener { startMapActivity() }
-        binding.end.setOnClickListener {startMapActivity() }
+    private fun setUpListeners() {
+        binding.apply {
+            skip.setOnClickListener { startMapActivity() }
+            pager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    if (position == NUM_PAGES - 1){
+                        next.setOnClickListener { startMapActivity() }
+                        next.text = getString(R.string.done)
+                        next.textSize = 15F
+                        skip.visibility = View.INVISIBLE
+                    } else {
+                        next.setOnClickListener { pager.currentItem++ }
+                        next.text = getString(R.string.next)
+                        next.textSize = 30F
+                        skip.visibility = View.VISIBLE
+                    }
+                }
+
+            })
+        }
     }
 
     private fun startMapActivity() {
@@ -49,7 +71,7 @@ class TutorialActivity : FragmentActivity() {
         if (binding.pager.currentItem == 0) {
             super.onBackPressed()
         } else {
-            binding.pager.currentItem = binding.pager.currentItem - 1
+            binding.pager.currentItem--
         }
     }
 
