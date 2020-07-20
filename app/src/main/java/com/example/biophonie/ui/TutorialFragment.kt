@@ -14,5 +14,4 @@ class TutorialFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? = inflater.inflate(R.layout.fragment_tutorial, container, false)
-
 }
