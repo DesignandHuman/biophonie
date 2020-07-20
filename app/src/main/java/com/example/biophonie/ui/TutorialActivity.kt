@@ -1,12 +1,13 @@
 package com.example.biophonie.ui
 
+import android.content.Intent
 import android.os.Bundle
-import android.view.View
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import androidx.viewpager2.widget.ViewPager2
 import com.example.biophonie.R
+import com.example.biophonie.databinding.ActivityTutorialBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 
@@ -14,29 +15,41 @@ private const val NUM_PAGES = 3
 
 class TutorialActivity : FragmentActivity() {
 
-    private lateinit var viewPager: ViewPager2
+    private lateinit var binding: ActivityTutorialBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_tutorial)
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_tutorial)
 
-        // Instantiate a ViewPager and a PagerAdapter.
-        viewPager = findViewById(R.id.pager)
-        // The pager adapter, which provides the pages to the view pager widget.
+        setUpViewPager()
+        setUpClickListeners()
+    }
+
+    private fun setUpClickListeners() {
+        binding.skip.setOnClickListener { startMapActivity() }
+        binding.end.setOnClickListener {startMapActivity() }
+    }
+
+    private fun startMapActivity() {
+        startActivity(
+            Intent(this, MapActivity::class.java)
+                .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) })
+    }
+
+    private fun setUpViewPager() {
         val pagerAdapter = TutorialPagerAdapter(this)
-        viewPager.adapter = pagerAdapter
+        binding.pager.adapter = pagerAdapter
 
-        val tabLayout: TabLayout = findViewById(R.id.tab_layout)
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+        TabLayoutMediator(binding.tabLayout, binding.pager) { tab, position ->
             //tab.view.isClickable = false
         }.attach()
     }
 
     override fun onBackPressed() {
-        if (viewPager.currentItem == 0) {
+        if (binding.pager.currentItem == 0) {
             super.onBackPressed()
         } else {
-            viewPager.currentItem = viewPager.currentItem - 1
+            binding.pager.currentItem = binding.pager.currentItem - 1
         }
     }
 
