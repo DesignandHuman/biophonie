@@ -35,9 +35,11 @@
             android:foreground="@drawable/border"
             android:focusable="true"
             android:scaleType="center"
+            android:theme="@style/ClickableButton"
             app:maxImageSize="22dp"
             app:fabCustomSize="40dp"
-            app:shapeAppearanceOverlay="@style/FabSquare" />
+            app:shapeAppearanceOverlay="@style/FabSquare"
+            style="@style/ButtonStyle"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

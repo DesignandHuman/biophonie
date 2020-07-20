@@ -16,7 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
-import com.example.biophonie.viewmodels.BottomSheetViewModel
+import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 
@@ -26,8 +26,8 @@ class BottomPlayerFragment : Fragment() {
     private var imageDisplayed: Boolean = false
     private var shortAnimationDuration: Int = 0
 
-    private val viewModel: BottomSheetViewModel by lazy {
-        ViewModelProvider(this, BottomSheetViewModel.ViewModelFactory()).get(BottomSheetViewModel::class.java)
+    private val viewModel: BottomPlayerViewModel by lazy {
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory()).get(BottomPlayerViewModel::class.java)
     }
     private lateinit var binding: FragmentBottomPlayerBinding
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
