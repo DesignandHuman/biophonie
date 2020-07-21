@@ -1,5 +1,8 @@
 package com.example.biophonie.ui
 
+import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.IntentSender
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
@@ -7,16 +10,28 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.provider.Settings
+import android.util.Log
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.*
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.mapbox.android.core.permissions.PermissionsListener
+import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.location.LocationComponent
+import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
@@ -25,16 +40,19 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.activity_map.*
 
-
+private const val TAG = "MapActivity"
 private const val PROPERTY_NAME: String = "name"
 private const val PROPERTY_ID: String = "id"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
 private const val FRAGMENT_TAG: String = "fragment"
+private const val REQUEST_CHECK_SETTINGS = 0x1
 
-class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback{
+class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback,
+    PermissionsListener {
 
+    private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private var bottomPlayer: BottomPlayerFragment =
@@ -57,6 +75,99 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 .add(R.id.containerMap, about, FRAGMENT_TAG+"about")
                 .addToBackStack(null)
                 .commit()
+        }
+        binding.locationFab.setOnClickListener {
+            //askLocationSettings()
+            activateLocationSettings()
+        }
+    }
+
+    private fun createLocationRequest(): LocationRequest? =
+        LocationRequest.create()?.apply {
+            interval = 10000
+            fastestInterval = 5000
+            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        }
+
+    private fun activateLocationSettings(){
+        val builder = createLocationRequest()?.let {
+            LocationSettingsRequest.Builder()
+                .addLocationRequest(it)
+        }
+        val client: SettingsClient = LocationServices.getSettingsClient(this)
+        client.checkLocationSettings(builder?.build()).apply {
+            addOnSuccessListener {
+                mapboxMap.getStyle {
+                    enableLocationComponent(it)
+                }
+            }
+            addOnFailureListener {
+                if (exception is ResolvableApiException){
+                    try {
+                        // Show the dialog by calling startResolutionForResult(),
+                        // and check the result in onActivityResult().
+                        (exception as ResolvableApiException).startResolutionForResult(this@MapActivity,
+                            REQUEST_CHECK_SETTINGS)
+                    } catch (sendEx: IntentSender.SendIntentException) {
+                        // Ignore the error.
+                    }
+                }
+            }
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun enableLocationComponent(loadedMapStyle: Style) {
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            Log.d(TAG, "enableLocationComponent: truc")
+            val locationComponent: LocationComponent = mapboxMap.locationComponent
+
+            // Activate with options
+            locationComponent.activateLocationComponent(
+                LocationComponentActivationOptions.builder(this, loadedMapStyle).build()
+            )
+
+            // Enable to make component visible
+            locationComponent.isLocationComponentEnabled = true
+            locationComponent.cameraMode = CameraMode.TRACKING
+            locationComponent.renderMode = RenderMode.COMPASS
+        } else {
+            permissionsManager = PermissionsManager(this)
+            permissionsManager.requestLocationPermissions(this)
+        }
+    }
+
+    private fun askLocationSettings(){
+        AlertDialog.Builder(this).apply {
+            setTitle("GPS is settings")
+            setMessage("GPS is not enabled. Do you want to go to settings menu?")
+            setPositiveButton("Settings") { _, _ ->
+                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+            }
+
+            setNegativeButton("Cancel") {dialog, _ -> dialog.cancel()}
+            show()
+        }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int,
+                                   permissions: Array<String?>,
+                                   grantResults: IntArray
+    ) {
+        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    }
+
+    override fun onExplanationNeeded(permissionsToExplain: List<String?>?) {
+        Toast.makeText(this, R.string.location_permission_explanation, Toast.LENGTH_LONG)
+            .show()
+    }
+
+    override fun onPermissionResult(granted: Boolean) {
+        if (granted) {
+            mapboxMap.getStyle { style -> enableLocationComponent(style) }
+        } else {
+            Toast.makeText(this, R.string.location_permission_not_granted, Toast.LENGTH_LONG)
+                .show()
         }
     }
 
