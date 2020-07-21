@@ -136,7 +136,9 @@ class BottomPlayerFragment : Fragment() {
         viewModel.date.observe(viewLifecycleOwner, Observer<String>{
             viewModel.playerController.setTitle(SpannableStringBuilder()
                 .bold { append("Le : ") }
-                .append(it))
+                .append(it.split("\\s".toRegex())[0])
+                .bold { append( " à ") }
+                .append(it.split("\\s".toRegex())[1]))
         })
     }
 

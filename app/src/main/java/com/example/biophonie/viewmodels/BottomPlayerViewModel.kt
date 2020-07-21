@@ -103,7 +103,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     private fun displaySound(sound: Sound) {
         checkClickability(geoPoint.value?.sounds!!)
         val calendar: Calendar = sound.dateAsCalendar()
-        date.value = SimpleDateFormat("dd/MM/yyyy", Locale.FRANCE).format(calendar.time)
+        date.value = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(calendar.time)
         datePicker.value = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(calendar.time)
         _visibility.value = true
     }
