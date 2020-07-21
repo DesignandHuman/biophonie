@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.biophonie.viewmodels.BottomSheetViewModel" />
+            type="com.example.biophonie.viewmodels.BottomPlayerViewModel" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -35,7 +35,7 @@
             app:layout_constraintVertical_bias="0.17" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomSheetTextView"
+            style="@style/BottomPlayerTextView"
             android:id="@+id/location"
             android:gravity="center_vertical"
             android:paddingStart="15dp"
@@ -50,7 +50,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomSheetTextView"
+            style="@style/BottomPlayerTextView"
             android:id="@+id/coordinates"
             android:text="@={viewModel.geoPoint.coordinates}"
             android:gravity="center"
@@ -60,7 +60,7 @@
             app:layout_constraintStart_toEndOf="@id/location"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/close"
             android:padding="4dp"
             android:layout_width="@dimen/pinnable"
@@ -69,12 +69,15 @@
             android:focusable="true"
             android:gravity="center"
             android:src="@drawable/ic_marker"
+            android:elevation="0dp"
             android:background="@drawable/border_bottom_top"
+            android:theme="@style/ClickableButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/coordinates"
             app:layout_constraintBottom_toBottomOf="@id/coordinates"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            style="@style/ButtonStyle"/>
 
         <fr.haran.soundwave.ui.PlayerView
             android:id="@+id/player_view"
@@ -107,21 +110,22 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/left"
                 android:focusable="true"
                 android:onClick="@{() -> viewModel.onLeftClick()}"
                 android:background="@drawable/border_top"
                 android:textColor="@color/colorPrimary"
                 android:text="&lt;"
+                android:theme="@style/ClickableButton"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/date_picker"/>
+                app:layout_constraintEnd_toStartOf="@id/date_picker"
+                style="@style/ButtonStyle.BottomPlayer"/>
 
             <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+                style="@style/BottomPlayerTextView"
                 android:id="@+id/date_picker"
                 android:background="@drawable/border_top"
                 android:text="@={viewModel.datePicker}"
@@ -130,28 +134,30 @@
                 app:layout_constraintStart_toEndOf="@id/left"
                 app:layout_constraintEnd_toStartOf="@id/right"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/right"
                 android:onClick="@{() -> viewModel.onRightClick()}"
-                android:focusable="true"
+                android:clickable="true"
                 android:background="@drawable/border_top"
                 android:textColor="@color/colorPrimary"
                 android:text="&gt;"
+                android:theme="@style/ClickableButton"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/date_picker"
-                app:layout_constraintEnd_toStartOf="@id/expand"/>
+                app:layout_constraintEnd_toStartOf="@id/expand"
+                style="@style/ButtonStyle.BottomPlayer"/>
 
-            <androidx.appcompat.widget.AppCompatTextView
-                style="@style/BottomSheetTextView"
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/expand"
                 android:background="@drawable/border_top_left"
                 android:text="Voir la photo"
+                android:theme="@style/ClickableButton"
                 app:layout_constraintHorizontal_weight="5"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/right" />
+                app:layout_constraintStart_toEndOf="@+id/right"
+                style="@style/ButtonStyle.BottomPlayer"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
