@@ -7,4 +7,6 @@
     <string name="next"><![CDATA[>]]></string>
     <string name="explication">Ici, il y aura une illustration qui explique à quoi ça sert et comment ça marche.</string>
     <string name="subtitle"><![CDATA[Écoutons & préservons les paysages sonores de notre planète]]></string>
+    <string name="asking_name">Chez Labo.mg, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
+    <string name="georges">Georges</string>
 </resources>
