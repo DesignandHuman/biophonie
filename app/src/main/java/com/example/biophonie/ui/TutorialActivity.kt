@@ -3,12 +3,14 @@ package com.example.biophonie.ui
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.biophonie.R
@@ -75,8 +77,11 @@ class TutorialActivity : FragmentActivity() {
     }
 
     private fun setUpViewPager() {
-        binding.pager.adapter = adapter
-
+        binding.pager.apply {
+            adapter = adapter
+            //Get rid of overscrolling effect
+            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+        }
         TabLayoutMediator(binding.tabLayout, binding.pager) { tab, position ->
             //tab.view.isClickable = false
         }.attach()
