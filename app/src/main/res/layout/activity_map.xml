@@ -29,7 +29,7 @@
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/white"
             android:src="@drawable/pine"
-            android:layout_gravity="top|start"
+            android:layout_gravity="top|end"
             android:clickable="true"
             android:layout_margin="15dp"
             android:foreground="@drawable/border"
