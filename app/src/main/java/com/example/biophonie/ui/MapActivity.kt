@@ -23,8 +23,7 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.pluginscalebar.ScaleBarOptions
-import com.mapbox.pluginscalebar.ScaleBarPlugin
+import kotlinx.android.synthetic.main.activity_map.*
 
 
 private const val PROPERTY_NAME: String = "name"
@@ -64,6 +63,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun bindMap(savedInstanceState: Bundle?) {
         binding.mapView.onCreate(savedInstanceState)
         binding.mapView.getMapAsync(this)
+        binding.scaleView.metersOnly()
     }
 
     private fun addBottomSheetFragment() {
@@ -77,6 +77,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
+        mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
+        mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
         val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
         symbolLayerIconFeatureList.add(
             Feature.fromGeometry(
@@ -120,17 +122,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             )) {
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
-            val scaleBarPlugin = ScaleBarPlugin(binding.mapView, mapboxMap)
-            scaleBarPlugin.create(ScaleBarOptions(this)
-                .setBarHeight(10F)
-                .setMarginLeft(50F)
-                .setMarginTop(20F)
-                .setTextColor(R.color.colorPrimaryDark)
-                .setPrimaryColor(R.color.colorPrimary)
-                .setSecondaryColor(R.color.colorPrimaryDark)
-                .setTextBarMargin(10F)
-                .setBorderWidth(3F))
         }
+    }
+
+    private fun updateScaleBar(mapboxMap: MapboxMap) {
+        val cameraPosition = mapboxMap.cameraPosition
+        scaleView.update(cameraPosition.zoom.toFloat(), cameraPosition.target.latitude)
     }
 
     override fun onMapClick(point: LatLng): Boolean {

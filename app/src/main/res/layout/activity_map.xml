@@ -23,13 +23,23 @@
         mapbox:mapbox_cameraZoomMax="12.41"
         mapbox:mapbox_cameraZoomMin="6"-->
 
+        <com.github.pengrad.mapscaleview.MapScaleView
+            android:id="@+id/scaleView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="15dp"
+            app:scale_miles="false"
+            app:scale_outline="false"
+            app:scale_expandRtl="true"/>
+
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:backgroundTint="@android:color/white"
             android:src="@drawable/pine"
-            android:layout_gravity="top|end"
+            android:layout_gravity="top|start"
             android:clickable="true"
             android:layout_margin="15dp"
             android:foreground="@drawable/border"
