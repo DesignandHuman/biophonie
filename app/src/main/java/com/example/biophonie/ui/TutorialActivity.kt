@@ -78,7 +78,7 @@ class TutorialActivity : FragmentActivity() {
 
     private fun setUpViewPager() {
         binding.pager.apply {
-            adapter = adapter
+            adapter = this@TutorialActivity.adapter
             //Get rid of overscrolling effect
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
