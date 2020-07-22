@@ -11,9 +11,9 @@ import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import com.example.biophonie.R
@@ -30,6 +30,8 @@ import com.mapbox.mapboxsdk.Mapbox
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponent
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
+import com.mapbox.mapboxsdk.location.LocationComponentOptions
+import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
 import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
@@ -78,7 +80,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
         binding.locationFab.setOnClickListener {
             //askLocationSettings()
-            activateLocationSettings()
+            mapboxMap.locationComponent.apply {
+                if (this.isLocationComponentActivated)
+                    this.cameraMode = CameraMode.TRACKING
+                else
+                    activateLocationSettings()
+            }
         }
     }
 
@@ -119,23 +126,70 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     @SuppressLint("MissingPermission")
     private fun enableLocationComponent(loadedMapStyle: Style) {
         if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            Log.d(TAG, "enableLocationComponent: truc")
             val locationComponent: LocationComponent = mapboxMap.locationComponent
-
             // Activate with options
             locationComponent.activateLocationComponent(
-                LocationComponentActivationOptions.builder(this, loadedMapStyle).build()
+                LocationComponentActivationOptions.builder(this, loadedMapStyle)
+                    .locationComponentOptions(styleLocation())
+                    .build()
             )
+
+            locationComponent.addOnCameraTrackingChangedListener(object :
+                OnCameraTrackingChangedListener {
+                override fun onCameraTrackingChanged(currentMode: Int) {
+                    when(currentMode){
+                        CameraMode.TRACKING -> binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
+                        else -> binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
+                    }
+                }
+
+                override fun onCameraTrackingDismissed() {
+                }})
 
             // Enable to make component visible
             locationComponent.isLocationComponentEnabled = true
             locationComponent.cameraMode = CameraMode.TRACKING
-            locationComponent.renderMode = RenderMode.COMPASS
+
         } else {
             permissionsManager = PermissionsManager(this)
             permissionsManager.requestLocationPermissions(this)
         }
     }
+
+    private fun styleLocation(): LocationComponentOptions =
+        LocationComponentOptions.builder(this)
+            .foregroundTintColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.design_default_color_background,
+                    theme
+                )
+            )
+            .backgroundTintColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.colorPrimaryDark,
+                    theme
+                )
+            )
+            .foregroundStaleTintColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.design_default_color_background,
+                    theme
+                )
+            )
+            .backgroundStaleTintColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.colorPrimary,
+                    theme
+                )
+            )
+            .elevation(0F)
+            .bearingTintColor(ResourcesCompat.getColor(resources, R.color.colorPrimaryDark, theme))
+            .trackingGesturesManagement(true)
+            .build()
 
     private fun askLocationSettings(){
         AlertDialog.Builder(this).apply {
