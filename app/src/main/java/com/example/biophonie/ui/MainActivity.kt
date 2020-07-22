@@ -12,6 +12,7 @@ import com.example.biophonie.R
 class MainActivity : AppCompatActivity() {
     private val myPrefs = "Preferences"
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         findViewById<Button>(R.id.toMap).setOnClickListener {
