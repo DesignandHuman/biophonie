@@ -9,4 +9,6 @@
     <string name="subtitle"><![CDATA[Écoutons & préservons les paysages sonores de notre planète]]></string>
     <string name="asking_name">Chez Labo.mg, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
     <string name="georges">Georges</string>
+    <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
+    <string name="location_permission_not_granted">Permission refusée, retour</string>
 </resources>
