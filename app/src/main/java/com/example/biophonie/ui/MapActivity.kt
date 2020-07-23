@@ -10,6 +10,9 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
+import android.net.Uri
+import android.net.Uri.fromFile
+import android.net.Uri.parse
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -17,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
@@ -51,6 +55,7 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.activity_map.*
+import java.net.URI
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
@@ -88,13 +93,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
-        setUpFab()
+        setUpFabResource()
         addBottomSheetFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
     }
 
-    private fun setUpFab(){
+    private fun setUpFabResource(){
         if (isGPSEnabled(applicationContext))
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
         else
@@ -309,15 +314,22 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             .commit()
     }
 
+    // For a future research function...
+    fun setFeaturesListener(){
+        viewModel.features.observe(this, Observer<List<Feature>>{features ->
+            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(features))) }
+        })
+    }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
-        val symbolLayerIconFeatureList: MutableList<Feature> = viewModel.features.value as MutableList<Feature>
         val d = resources.getDrawable(R.drawable.ic_marker, theme)
+        //val url: URI = URI.create("https://biophonie.fr/geojson")
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
             .withImage(ID_ICON, d.toBitmap())
-            .withSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)))
+            .withSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
             .withLayer(SymbolLayer(
                 ID_LAYER,
                 ID_SOURCE
@@ -347,7 +359,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     override fun onMapClick(point: LatLng): Boolean {
-        return handleClickIcon(mapboxMap.projection.toScreenLocation(point));
+        return handleClickIcon(mapboxMap.projection.toScreenLocation(point))
     }
 
     /**
