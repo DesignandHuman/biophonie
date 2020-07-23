@@ -26,7 +26,7 @@
     </style>
 
     <style name="ClickableButton">
-        <item name="colorControlHighlight">@color/colorPrimaryDark</item>
+        <item name="colorControlHighlight">#ddd</item>
     </style>
 
     <style name="ClickableButton.Dark">
