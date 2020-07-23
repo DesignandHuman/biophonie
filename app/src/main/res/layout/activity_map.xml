@@ -6,7 +6,7 @@
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         tools:context=".ui.MapActivity"
         android:id="@+id/containerMap">
 
@@ -40,7 +40,7 @@
             android:src="@drawable/pine"
             android:layout_gravity="top|start"
             android:layout_margin="15dp"
-            android:foreground="@drawable/border"
+            android:foreground="@drawable/button_border_rect"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="center"
@@ -60,7 +60,31 @@
             android:layout_marginVertical="50dp"
             android:layout_marginHorizontal="15dp"
             android:focusable="true"
-            android:clickable="true"/>
+            android:clickable="true"
+            app:borderWidth="1dp"/>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/rec"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="50dp"
+            android:backgroundTint="@color/design_default_color_background"
+            android:src="@drawable/button_rec"
+            android:focusable="true"
+            android:clickable="true"
+            app:fabCustomSize="80dp"
+            app:maxImageSize="52dp"
+            app:borderWidth="1dp"/>
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center"
+            android:layout_marginBottom="82dp"
+            android:text="Rec."
+            android:textColor="@color/design_default_color_background"
+            android:elevation="14dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
