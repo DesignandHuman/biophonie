@@ -6,10 +6,16 @@ import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import com.example.biophonie.R
+import java.lang.Thread.sleep
 
 
 class MainActivity : AppCompatActivity() {
+
+    init {
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+    }
     private val myPrefs = "Preferences"
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
