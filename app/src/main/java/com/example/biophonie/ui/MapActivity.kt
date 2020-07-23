@@ -3,7 +3,6 @@ package com.example.biophonie.ui
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.*
-import android.content.Context.LOCATION_SERVICE
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
@@ -11,19 +10,25 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
+import android.net.Uri
+import android.net.Uri.fromFile
+import android.net.Uri.parse
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
+import com.example.biophonie.viewmodels.MapViewModel
+import com.example.biophonie.viewmodels.PROPERTY_ID
+import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -50,10 +55,9 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.activity_map.*
+import java.net.URI
 
 private const val TAG = "MapActivity"
-private const val PROPERTY_NAME: String = "name"
-private const val PROPERTY_ID: String = "id"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
@@ -63,6 +67,9 @@ private const val REQUEST_CHECK_SETTINGS = 0x1
 class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback,
     PermissionsListener {
 
+    private val viewModel: MapViewModel by lazy {
+        ViewModelProvider(this, MapViewModel.ViewModelFactory()).get(MapViewModel::class.java)
+    }
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
@@ -85,14 +92,14 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         super.onCreate(savedInstanceState)
         Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
-
-        setUpFab()
+        binding.viewModel = viewModel
+        setUpFabResource()
         addBottomSheetFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
     }
 
-    private fun setUpFab(){
+    private fun setUpFabResource(){
         if (isGPSEnabled(applicationContext))
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
         else
@@ -235,6 +242,30 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
     }
 
+    private fun handleClickIcon(screenPoint: PointF?): Boolean {
+        var rectF: RectF? = null
+        // This is a hack. It does not allow for a real hitbox of the size of the text
+        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 50, screenPoint.y + 10) }
+
+        val features: List<Feature> =
+            rectF?.let { mapboxMap.queryRenderedFeatures(it,
+                ID_LAYER
+            ) } as List<Feature>
+        return if (features.isEmpty()) false
+        else {
+            val clickedFeature: Feature? = features.first { it.geometry() is Point }
+            val clickedPoint: Point? = clickedFeature?.geometry() as Point?
+            clickedPoint?.let {
+                bottomPlayer.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
+                    clickedFeature.getStringProperty(PROPERTY_NAME),
+                    LatLng(clickedPoint.latitude(), clickedPoint.longitude())
+                )
+                return true
+            }
+            return false
+        }
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode){
@@ -283,15 +314,22 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             .commit()
     }
 
+    // For a future research function...
+    fun setFeaturesListener(){
+        viewModel.features.observe(this, Observer<List<Feature>>{features ->
+            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(features))) }
+        })
+    }
+
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
-        val symbolLayerIconFeatureList: MutableList<Feature> = createTestLayers()
         val d = resources.getDrawable(R.drawable.ic_marker, theme)
+        //val url: URI = URI.create("https://biophonie.fr/geojson")
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
             .withImage(ID_ICON, d.toBitmap())
-            .withSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(symbolLayerIconFeatureList)))
+            .withSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
             .withLayer(SymbolLayer(
                 ID_LAYER,
                 ID_SOURCE
@@ -315,65 +353,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
     }
 
-    private fun createTestLayers(): MutableList<Feature> {
-        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-        symbolLayerIconFeatureList.add(
-            Feature.fromGeometry(
-                Point.fromLngLat(-1.803165, 47.516218)
-            ).apply {
-                addStringProperty(PROPERTY_NAME, "Point 1")
-                addStringProperty(PROPERTY_ID, "1")
-            }
-        )
-        symbolLayerIconFeatureList.add(
-            Feature.fromGeometry(
-                Point.fromLngLat(-1.814496, 47.534516)
-            ).apply {
-                addStringProperty(PROPERTY_NAME, "Point 2")
-                addStringProperty(PROPERTY_ID, "2")
-            }
-        )
-        symbolLayerIconFeatureList.add(
-            Feature.fromGeometry(
-                Point.fromLngLat(-1.778381, 47.512238)
-            ).apply {
-                addStringProperty(PROPERTY_NAME, "Point 3")
-                addStringProperty(PROPERTY_ID, "3")
-            }
-        )
-        return symbolLayerIconFeatureList
-    }
-
     private fun updateScaleBar(mapboxMap: MapboxMap) {
         val cameraPosition = mapboxMap.cameraPosition
         scaleView.update(cameraPosition.zoom.toFloat(), cameraPosition.target.latitude)
     }
 
     override fun onMapClick(point: LatLng): Boolean {
-        return handleClickIcon(mapboxMap.projection.toScreenLocation(point));
-    }
-
-    private fun handleClickIcon(screenPoint: PointF?): Boolean {
-        var rectF: RectF? = null
-        // This is a hack. It does not allow for a real hitbox of the size of the text
-        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 50, screenPoint.y + 10) }
-
-        val features: List<Feature> =
-            rectF?.let { mapboxMap.queryRenderedFeatures(it,
-                ID_LAYER
-            ) } as List<Feature>
-        return if (features.isEmpty()) false
-        else {
-            val clickedFeature: Feature? = features.first { it.geometry() is Point }
-            val clickedPoint: Point? = clickedFeature?.geometry() as Point?
-            clickedPoint?.let {
-                bottomPlayer.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
-                    clickedFeature.getStringProperty(PROPERTY_NAME),
-                    LatLng(clickedPoint.latitude(), clickedPoint.longitude()))
-                return true
-            }
-            return false
-        }
+        return handleClickIcon(mapboxMap.projection.toScreenLocation(point))
     }
 
     /**
