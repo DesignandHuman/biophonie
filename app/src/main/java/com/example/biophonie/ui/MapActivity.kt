@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
+import com.example.biophonie.RecSoundActivity
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
@@ -124,6 +125,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 }
             }
         }
+        binding.rec.setOnClickListener { startActivity(Intent(this, RecSoundActivity::class.java)) }
     }
 
     private fun createLocationRequest(): LocationRequest? =
