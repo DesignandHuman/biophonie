@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+    android:opacity="opaque">
+    <item android:drawable="@color/colorAccent"/>
+    <item android:gravity="center" android:drawable="@drawable/pine_vector"/>
+    <item android:gravity="center" android:top="100dp" android:drawable="@drawable/title"/>
+    <item android:gravity="center" android:top="155dp" android:drawable="@drawable/subtitle"/>
+</layer-list>
