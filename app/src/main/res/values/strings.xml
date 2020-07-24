@@ -7,11 +7,9 @@
     <string name="next"><![CDATA[>]]></string>
     <string name="explication">Ici, il y aura une illustration qui explique à quoi ça sert et comment ça marche.</string>
     <string name="subtitle"><![CDATA[Écoutons & préservons les paysages sonores de notre planète]]></string>
-    <string name="asking_name">Chez Labo.mg, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
+    <string name="asking_name"><b>Chez Labo.mg</b>, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
     <string name="georges">Georges</string>
     <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
     <string name="location_permission_not_granted">Permission refusée, retour</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="validation">Je valide</string>
 </resources>
