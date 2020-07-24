@@ -63,6 +63,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+                <!--TODO add biophonie logo -->
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"

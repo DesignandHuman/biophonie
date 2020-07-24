@@ -11,11 +11,8 @@ import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentRecordingBinding
 
 class RecordingFragment : Fragment() {
-    private lateinit var binding: FragmentRecordingBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private lateinit var binding: FragmentRecordingBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -26,9 +23,15 @@ class RecordingFragment : Fragment() {
             R.layout.fragment_recording,
             container,
             false)
-        binding.next.setOnClickListener { view : View ->
-            view.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment) }
-        // Inflate the layout for this fragment
+        setClickListeners()
         return binding.root
+    }
+
+    private fun setClickListeners() {
+        binding.okButton.ok.setOnClickListener { view: View ->
+            view.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
+        }
+        binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
+        binding.topPanel.close.setOnClickListener { activity?.finish() }
     }
 }

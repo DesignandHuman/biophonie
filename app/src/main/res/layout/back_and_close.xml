@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/previous"
+        android:padding="10dp"
+        android:layout_width="@dimen/close_button"
+        android:layout_height="@dimen/close_button"
+        android:layout_margin="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:background="@drawable/chevron_left"
+        android:elevation="0dp"
+        android:theme="@style/ClickableButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/ButtonStyle"/>
+
+    <androidx.appcompat.widget.AppCompatImageButton
+        android:id="@+id/close"
+        android:padding="10dp"
+        android:layout_width="@dimen/close_button"
+        android:layout_height="@dimen/close_button"
+        android:layout_margin="20dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:background="@drawable/ic_marker"
+        android:elevation="0dp"
+        android:theme="@style/ClickableButton"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        style="@style/ButtonStyle"/>
+</merge>
+</layout>

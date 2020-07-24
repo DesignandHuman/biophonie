@@ -75,13 +75,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:layout_marginBottom="50dp"
-            android:backgroundTint="@color/design_default_color_background"
             android:src="@drawable/button_rec"
-            android:focusable="true"
-            android:clickable="true"
-            app:fabCustomSize="80dp"
-            app:maxImageSize="52dp"
-            app:borderWidth="1dp"/>
+            style="@style/BiggerFab"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"

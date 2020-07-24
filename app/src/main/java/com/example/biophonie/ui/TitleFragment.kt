@@ -6,15 +6,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.navigation.findNavController
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
 
 class TitleFragment : Fragment() {
     private lateinit var binding: FragmentTitleBinding
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,8 +22,13 @@ class TitleFragment : Fragment() {
             R.layout.fragment_title,
             container,
             false)
-        binding.next.setOnClickListener { activity?.finish() }
-        // Inflate the layout for this fragment
+        setClickListeners()
         return binding.root
+    }
+
+    private fun setClickListeners() {
+        binding.ok.setOnClickListener { activity?.finish() }
+        binding.topPanel.close.setOnClickListener { activity?.finish() }
+        binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
     }
 }
