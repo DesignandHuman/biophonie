@@ -11,4 +11,6 @@
     <string name="georges">Georges</string>
     <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
     <string name="location_permission_not_granted">Permission refusée, retour</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

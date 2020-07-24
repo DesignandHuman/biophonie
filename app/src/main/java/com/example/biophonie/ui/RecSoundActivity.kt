@@ -1,7 +1,8 @@
-package com.example.biophonie
+package com.example.biophonie.ui
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.example.biophonie.R
 
 class RecSoundActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

@@ -10,9 +10,6 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
-import android.net.Uri
-import android.net.Uri.fromFile
-import android.net.Uri.parse
 import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
@@ -23,7 +20,6 @@ import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
-import com.example.biophonie.RecSoundActivity
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
@@ -56,7 +52,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.activity_map.*
-import java.net.URI
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
