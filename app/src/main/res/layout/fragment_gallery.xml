@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:tools="http://schemas.android.com/tools">
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -10,6 +9,15 @@
         <include layout="@layout/back_and_close" android:id="@+id/top_panel"/>
 
         <include layout="@layout/ok_button" android:id="@+id/ok_button"/>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="vertical"
+            app:layout_constraintTop_toBottomOf="@+id/close"
+            app:layout_constraintBottom_toTopOf="@+id/ok"
+            tools:ignore="UnknownIdInLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -14,4 +14,5 @@
     <string name="location_permission_not_granted">Permission refusée, retour</string>
     <string name="validation">Je valide</string>
     <string name="description_title"><b>Pour finir</b>, donnez un titre à votre enregistrement</string>
+    <string name="title">Titre</string>
 </resources>
