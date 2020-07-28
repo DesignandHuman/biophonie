@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.TutorialActivity" android:windowSoftInputMode="adjustNothing"/>
+        <activity android:name=".ui.TutorialActivity" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.MapActivity"/>
         <activity android:name=".ui.MainActivity" android:theme="@style/SplashTheme">
             <intent-filter>
