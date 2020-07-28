@@ -16,10 +16,11 @@
             tools:srcCompat="@tools:sample/backgrounds/scenic" />
 
         <FrameLayout
+            android:id="@+id/background"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:background="#4D000000"
+            android:background="@drawable/background_color"
             android:layout_gravity="center_horizontal"
             />
 

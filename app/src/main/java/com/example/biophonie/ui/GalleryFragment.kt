@@ -65,6 +65,6 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
     }
 
     override fun onLandscapeClick(position: Int) {
-        Toast.makeText(activity, "${listLandscapes[position]} selected !", Toast.LENGTH_SHORT).show()
+        //Might be useless
     }
 }
