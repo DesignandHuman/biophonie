@@ -46,7 +46,7 @@
             android:src="@drawable/pine"
             android:layout_gravity="top|start"
             android:layout_margin="15dp"
-            android:foreground="@drawable/button_border_rect"
+            android:foreground="@drawable/border_rect"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="center"

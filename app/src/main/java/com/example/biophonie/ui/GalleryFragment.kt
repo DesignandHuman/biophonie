@@ -1,20 +1,20 @@
 package com.example.biophonie.ui
 
-import android.graphics.drawable.Drawable
+import android.content.Context
+import android.graphics.Rect
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
-import androidx.core.view.KeyEventDispatcher.dispatchKeyEvent
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.Landscape
+import com.example.biophonie.util.dpToPx
 
 class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
     private lateinit var binding: FragmentGalleryBinding
@@ -49,6 +49,7 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
+            addItemDecoration(GridItemDecoration(requireActivity(), 20, 2))
         }
     }
 
@@ -66,5 +67,29 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
 
     override fun onLandscapeClick(position: Int) {
         binding.landscape.setImageDrawable(listLandscapes[position].image)
+    }
+
+    class GridItemDecoration(context: Context, space: Int = 10, private val spanCount: Int) : RecyclerView.ItemDecoration() {
+
+        private val spaceInDp = dpToPx(context, space)
+
+        override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
+
+            outRect.left = spaceInDp
+            outRect.right = spaceInDp
+            outRect.bottom = 0
+            // Add top margin only for the first item to avoid double space between items
+            if (parent.getChildAdapterPosition(view) < spanCount)
+                outRect.top = 0
+            else
+                outRect.top = spaceInDp
+            if(parent.getChildAdapterPosition(view) % spanCount == 0) {
+                outRect.right = spaceInDp/2
+                outRect.left = spaceInDp
+            } else {
+                outRect.right = spaceInDp
+                outRect.left = spaceInDp/2
+            }
+        }
     }
 }
