@@ -14,7 +14,9 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -297,9 +299,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun bindMap(savedInstanceState: Bundle?) {
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync(this)
-        binding.scaleView.metersOnly()
+        binding.apply {
+            mapView.onCreate(savedInstanceState)
+            mapView.getMapAsync(this@MapActivity)
+            scaleView.metersOnly()
+            scaleView.setTextFont(getFont(this@MapActivity, R.font.ibm_plex_mono))
+        }
     }
 
     private fun addBottomSheetFragment() {
