@@ -16,7 +16,7 @@ import com.example.biophonie.domain.Landscape
 class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLandscapeListener: OnLandscapeListener) :
     RecyclerView.Adapter<LandscapesAdapter.LandscapeViewHolder>(){
 
-    var selectedPosition = RecyclerView.NO_POSITION
+    var selectedPosition = 0
 
     override fun onCreateViewHolder(
         parent: ViewGroup,

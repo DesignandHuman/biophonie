@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="wave_form">150dp</dimen>
-    <dimen name="close_button">50dp</dimen>
+    <dimen name="close_button">30dp</dimen>
     <dimen name="pinnable">30dp</dimen>
     <dimen name="default_font_size">14sp</dimen>
     <dimen name="title_size">25sp</dimen>

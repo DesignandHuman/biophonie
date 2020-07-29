@@ -65,6 +65,6 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
     }
 
     override fun onLandscapeClick(position: Int) {
-        //Might be useless
+        binding.landscape.setImageDrawable(listLandscapes[position].image)
     }
 }
