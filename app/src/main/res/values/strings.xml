@@ -15,4 +15,5 @@
     <string name="validation">Je valide</string>
     <string name="description_title"><b>Pour finir</b>, donnez un titre à votre enregistrement</string>
     <string name="title">Titre</string>
+    <string name="import_picture">J\'importe une photo</string>
 </resources>
