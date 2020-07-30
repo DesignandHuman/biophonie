@@ -1,12 +1,17 @@
 package com.example.biophonie.ui
 
+import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.Rect
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +33,8 @@ import com.example.biophonie.domain.Landscape
 import com.example.biophonie.util.dpToPx
 
 private const val TAG = "GalleryFragment"
+private const val REQUEST_CAMERA = 0
+private const val REQUEST_GALLERY = 1
 class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
     private lateinit var binding: FragmentGalleryBinding
     private lateinit var viewManager: GridLayoutManager
@@ -80,6 +87,19 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
+        if (resultCode == RESULT_OK){
+            when(requestCode){
+                REQUEST_CAMERA -> {
+                    val imageBitmap = imageIntent?.extras?.get("data") as Bitmap
+                    binding.landscape.setImageBitmap(imageBitmap)
+                }
+                REQUEST_GALLERY -> binding.landscape.setImageURI(imageIntent?.data)
+            }
+        }
+    }
+
+
     class DialogListAdapter(private val adapterContext: Context,
                             dialogLayout: Int,
                             private val textLayout: Int,
@@ -106,11 +126,21 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
             items)
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-            return activity?.let {
+            return activity?.let { it ->
                 val builder = AlertDialog.Builder(it, R.style.AlertDialogIBM)
                 builder.setTitle("Importer depuis")
                 builder.setAdapter(adapter){ _: DialogInterface, choice: Int ->
-                    //TODO(not implemented yet)
+                    when(choice){
+                        REQUEST_CAMERA -> Intent(MediaStore.ACTION_IMAGE_CAPTURE).also { takePictureIntent ->
+                            takePictureIntent.resolveActivity(requireActivity().packageManager)?.also {
+                                startActivityForResult(takePictureIntent, REQUEST_CAMERA)
+                            }
+                        }
+                        REQUEST_GALLERY -> Intent(
+                            Intent.ACTION_PICK,
+                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+                        ).also { startActivityForResult(it, REQUEST_GALLERY) }
+                    }
                 }
                 builder.create()
             } ?: throw IllegalStateException("Activity cannot be null")
@@ -118,9 +148,16 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
     }
 
     private fun setUpDialog() {
-        val items = arrayOf(DialogAdapterItem("Galerie", R.drawable.photo_library),
-            DialogAdapterItem("Appareil photo", R.drawable.photo_camera))
-        activity?.supportFragmentManager?.let { ChooseMeanDialog(requireContext(),items).show(it, "dialog") }
+        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+            Intent(
+                Intent.ACTION_PICK,
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            ).also { startActivityForResult(it, REQUEST_GALLERY) }
+        } else {
+            val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.photo_camera),
+                DialogAdapterItem("Galerie", R.drawable.photo_library))
+            activity?.supportFragmentManager?.let { ChooseMeanDialog(requireContext(),items).show(it, "dialog") }
+        }
     }
 
     override fun onLandscapeClick(position: Int) {
