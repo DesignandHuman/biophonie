@@ -27,6 +27,22 @@
             app:layout_constraintEnd_toEndOf="parent"
             tools:ignore="UnknownIdInLayout" />
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_marginHorizontal="10dp"
+            android:background="@drawable/border_rect"
+            android:cropToPadding="true"
+            android:scaleType="centerCrop"
+            android:padding="1dp"
+            android:visibility="invisible"
+            app:layout_constraintDimensionRatio="H,1:1"
+            app:layout_constraintTop_toBottomOf="@id/landscape"
+            app:layout_constraintBottom_toTopOf="@id/recycler_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/import_picture"/>
+
         <androidx.appcompat.widget.AppCompatButton
             android:id="@+id/import_picture"
             android:text="@string/import_picture"
@@ -42,7 +58,7 @@
             style="@style/ButtonStyle"
             app:layout_constraintTop_toBottomOf="@id/landscape"
             app:layout_constraintBottom_toTopOf="@id/recycler_view"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toStartOf="@id/thumbnail"
             app:layout_constraintEnd_toEndOf="parent"/>
 
         <androidx.recyclerview.widget.RecyclerView
