@@ -23,6 +23,10 @@ data class GeoPoint(var id: String?,
 data class Landscape(var image: Drawable,
                      var titre: String)
 
+data class DialogAdapterItem(var text: String, var icon: Int){
+    override fun toString(): String = text
+}
+
 fun Sound.dateAsCalendar(): Calendar{
     return if (date != null){
         try {

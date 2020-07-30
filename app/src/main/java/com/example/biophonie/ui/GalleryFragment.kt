@@ -1,21 +1,33 @@
 package com.example.biophonie.ui
 
+import android.app.Dialog
 import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
+import android.provider.MediaStore
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.ListAdapter
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentGalleryBinding
+import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
 import com.example.biophonie.util.dpToPx
 
+private const val TAG = "GalleryFragment"
 class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
     private lateinit var binding: FragmentGalleryBinding
     private lateinit var viewManager: GridLayoutManager
@@ -63,6 +75,52 @@ class GalleryFragment : Fragment(), LandscapesAdapter.OnLandscapeListener {
         binding.topPanel.previous.setOnClickListener {
             activity?.onBackPressed()
         }
+        binding.importPicture.setOnClickListener {
+            setUpDialog()
+        }
+    }
+
+    class DialogListAdapter(private val adapterContext: Context,
+                            dialogLayout: Int,
+                            private val textLayout: Int,
+                            private val items: Array<DialogAdapterItem>) :
+        ArrayAdapter<DialogAdapterItem>(adapterContext, dialogLayout, textLayout, items) {
+
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val v = super.getView(position, convertView, parent)
+            v.findViewById<TextView>(textLayout).apply{
+                setCompoundDrawablesWithIntrinsicBounds(items[position].icon, 0, 0, 0)
+                compoundDrawablePadding = (10 * adapterContext.resources.displayMetrics.density + 0.5f).toInt()
+                setTextAppearance(R.style.MyTextAppearance)
+                setTextSize(TypedValue.COMPLEX_UNIT_PX, adapterContext.resources.getDimension(R.dimen.button_font_size))
+            }
+            return v
+        }
+    }
+
+    class ChooseMeanDialog(context: Context, items: Array<DialogAdapterItem>) : DialogFragment() {
+        private val adapter: ListAdapter = DialogListAdapter(
+            context,
+            android.R.layout.select_dialog_item,
+            android.R.id.text1,
+            items)
+
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val builder = AlertDialog.Builder(it, R.style.AlertDialogIBM)
+                builder.setTitle("Importer depuis")
+                builder.setAdapter(adapter){ _: DialogInterface, choice: Int ->
+                    //TODO(not implemented yet)
+                }
+                builder.create()
+            } ?: throw IllegalStateException("Activity cannot be null")
+        }
+    }
+
+    private fun setUpDialog() {
+        val items = arrayOf(DialogAdapterItem("Galerie", R.drawable.photo_library),
+            DialogAdapterItem("Appareil photo", R.drawable.photo_camera))
+        activity?.supportFragmentManager?.let { ChooseMeanDialog(requireContext(),items).show(it, "dialog") }
     }
 
     override fun onLandscapeClick(position: Int) {
