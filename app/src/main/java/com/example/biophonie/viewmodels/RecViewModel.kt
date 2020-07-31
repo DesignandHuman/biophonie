@@ -37,13 +37,12 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     fun activityResult(requestCode: Int, imageIntent: Intent?){
         when(requestCode){
             REQUEST_CAMERA -> {
-                landscapeUri.value = Uri.parse(currentPhotoPath)
+                landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
             }
             REQUEST_GALLERY -> {
                 landscapeUri.value = imageIntent?.data
             }
         }
-        // TODO thumbnail.visibility = View.VISIBLE
     }
 
     @Throws(IOException::class)

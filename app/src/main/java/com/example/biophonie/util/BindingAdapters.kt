@@ -36,22 +36,16 @@ fun TextView.setDate(date: String?) {
 private const val TAG = "BindingAdapters"
 @BindingAdapter("uri")
 fun setImageUri(view: AppCompatImageView, imageUri: Uri){
-    if (imageUri.isAbsolute)
-        Glide.with(view.context)
-            .load(imageUri)
-            .thumbnail(0.1F)
-            .into(view)
-    else
-        Glide.with(view.context)
-            .load(imageUri.path)
-            .thumbnail(0.1F)
-            .into(view)
+    Glide.with(view.context)
+        .load(imageUri)
+        .thumbnail(0.1F)
+        .into(view)
 }
 
 @BindingAdapter("uri_thumbnail")
 fun setImageUriThumbnail(view: AppCompatImageView, imageUri: Uri){
     if (imageUri != Uri.parse("android.resource://com.example.biophonie/drawable/france")){
-        setImageUri(view, imageUri)
         view.visibility = View.VISIBLE
+        setImageUri(view, imageUri)
     }
 }
