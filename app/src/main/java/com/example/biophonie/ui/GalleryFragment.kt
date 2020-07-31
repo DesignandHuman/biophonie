@@ -70,8 +70,11 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setLiveDataObservers() {
-        viewModel.activityIntent.observe(viewLifecycleOwner, Observer<RecViewModel.ActivityIntent>{
-            startActivityForResult(it.intent, it.requestCode)
+        viewModel.activityIntent.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                startActivityForResult(it.intent, it.requestCode)
+                viewModel.onRequestActivityStarted()
+            }
         })
     }
 
@@ -118,8 +121,8 @@ class GalleryFragment : Fragment(),
         }
     }
 
-    //TODO onActivityResult called twice
     override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
+        Log.d(TAG, "onActivityResult: $resultCode")
         viewModel.activityResult(requestCode, resultCode, imageIntent) // Might be bad practice
     }
 

@@ -25,8 +25,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
 
     val landscapeUri = MutableLiveData<Uri>()
 
-    private val _activityIntent = MutableLiveData<ActivityIntent>()
-    val activityIntent: LiveData<ActivityIntent>
+    private val _activityIntent = MutableLiveData<ActivityIntent?>()
+    val activityIntent: LiveData<ActivityIntent?>
         get() = _activityIntent
 
     init {
@@ -67,6 +67,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun dispatchTakePictureIntent(choice: Int){
+        Log.d(TAG, "dispatchTakePictureIntent: $choice")
         when(choice){
             REQUEST_CAMERA -> {
                 Intent(MediaStore.ACTION_IMAGE_CAPTURE).let { takePictureIntent ->
@@ -97,6 +98,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
                 _activityIntent.value = ActivityIntent(it, REQUEST_GALLERY)
                 }
         }
+    }
+
+    fun onRequestActivityStarted(){
+        _activityIntent.value = null
     }
 
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
