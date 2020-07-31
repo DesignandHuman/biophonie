@@ -1,9 +1,11 @@
 package com.example.biophonie.util
 
 import android.content.ContentValues.TAG
+import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
 import com.example.biophonie.domain.dateAsCalendar
 import java.text.SimpleDateFormat
@@ -29,3 +31,8 @@ fun TextView.setDate(date: String?) {
         Log.d(TAG, "setDate: $text")
     }
 }*/
+
+@BindingAdapter("uri")
+fun setImageUri(view: AppCompatImageView, imageUri: Uri){
+    view.setImageURI(imageUri)
+}

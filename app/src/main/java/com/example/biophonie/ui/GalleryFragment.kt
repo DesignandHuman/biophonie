@@ -1,18 +1,14 @@
 package com.example.biophonie.ui
 
-import android.app.Activity.RESULT_OK
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Rect
-import android.graphics.drawable.Drawable
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -26,29 +22,27 @@ import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
-import com.example.biophonie.util.dpToPx
+import com.example.biophonie.viewmodels.REQUEST_CAMERA
+import com.example.biophonie.viewmodels.REQUEST_GALLERY
+import com.example.biophonie.viewmodels.RecViewModel
 import java.io.File
 import java.io.IOException
 import java.util.*
 
 private const val TAG = "GalleryFragment"
-private const val REQUEST_CAMERA = 0
-private const val REQUEST_GALLERY = 1
-private const val REQUEST_PERMISSION_STORAGE = 0
 class GalleryFragment : Fragment(),
     LandscapesAdapter.OnLandscapeListener,
     ChooseMeanDialog.ChooseMeanListener {
 
-    //TODO have currentPhotoPath inside ViewModel
-    private var currentPhotoPath: String? = null
-    private var currentUri: Uri? = null
+    private val viewModel: RecViewModel by activityViewModels()
+
     private lateinit var binding: FragmentGalleryBinding
     private lateinit var viewManager: GridLayoutManager
     private lateinit var viewAdapter: LandscapesAdapter
@@ -63,6 +57,7 @@ class GalleryFragment : Fragment(),
             R.layout.fragment_gallery,
             container,
             false)
+        binding.viewModel = viewModel
         setClickListeners()
         setUpRecyclerView()
         return binding.root
@@ -97,9 +92,9 @@ class GalleryFragment : Fragment(),
                 activity?.onBackPressed()
             }
             importPicture.setOnClickListener {
-                setUpDialog()
+                getOriginOfLandscape()
             }
-            thumbnail.setOnClickListener {
+            /*thumbnail.setOnClickListener {
                 //TODO fix selected photo inside recyclerview
                 if (currentPhotoPath != null) {
                     landscape.setImageDrawable(Drawable.createFromPath(currentPhotoPath))
@@ -107,33 +102,16 @@ class GalleryFragment : Fragment(),
                 }
                 if (currentUri != null)
                     landscape.setImageURI(currentUri)
-            }
+            }*/
         }
     }
 
+    //TODO onActivityResult called twice
     override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
-        if (resultCode == RESULT_OK){
-            binding.apply {
-                when(requestCode){
-                    REQUEST_CAMERA -> {
-                        landscape.setImageDrawable(Drawable.createFromPath(currentPhotoPath))
-                        //thumbnail.setImageDrawable(Drawable.createFromPath(currentPhotoPath))
-                        currentUri = null
-                    }
-                    REQUEST_GALLERY -> {
-                        landscape.setImageURI(imageIntent?.data)
-                        thumbnail.setImageURI(imageIntent?.data)
-                        currentUri = imageIntent?.data
-                        currentPhotoPath = null
-                    }
-                }
-                thumbnail.visibility = View.VISIBLE
-            }
-
-        }
+        viewModel.activityResult(requestCode, resultCode, imageIntent)
     }
 
-    private fun setUpDialog() {
+    private fun getOriginOfLandscape() {
         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
             dispatchTakePictureIntent(REQUEST_GALLERY)
         } else {
@@ -141,33 +119,6 @@ class GalleryFragment : Fragment(),
                 DialogAdapterItem("Galerie", R.drawable.photo_library))
             activity?.supportFragmentManager?.let { ChooseMeanDialog(requireContext(),items,this).show(it, "dialog") }
         }
-    }
-
-    override fun onLandscapeClick(position: Int) {
-        binding.landscape.setImageDrawable(listLandscapes[position].image)
-    }
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File? {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(Date())
-        val storageDir: File? = File(requireContext().externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
-        return if (storageDir == null){
-            Toast.makeText(
-                requireContext(),
-                "Veuillez accorder la permission d'accès au stockage du téléphone",
-                Toast.LENGTH_LONG
-            ).show()
-            null
-        } else {
-            if (!storageDir.exists())
-                storageDir.mkdir()
-            File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
-                .apply { currentPhotoPath = absolutePath }
-        }
-    }
-
-    override fun onChoiceClick(choice: Int) {
-        dispatchTakePictureIntent(choice)
     }
 
     private fun dispatchTakePictureIntent(choice: Int){
@@ -198,6 +149,33 @@ class GalleryFragment : Fragment(),
                 MediaStore.Images.Media.EXTERNAL_CONTENT_URI
             ).also { startActivityForResult(it, REQUEST_GALLERY) }
         }
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File? {
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(Date())
+        val storageDir: File? = File(requireContext().externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
+        return if (storageDir == null){
+            Toast.makeText(
+                requireContext(),
+                "Veuillez accorder la permission d'accès au stockage du téléphone",
+                Toast.LENGTH_LONG
+            ).show()
+            null
+        } else {
+            if (!storageDir.exists())
+                storageDir.mkdir()
+            File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
+                .apply { viewModel.currentPhotoPath = absolutePath }
+        }
+    }
+
+    override fun onLandscapeClick(position: Int) {
+        binding.landscape.setImageDrawable(listLandscapes[position].image)
+    }
+
+    override fun onChoiceClick(choice: Int) {
+        dispatchTakePictureIntent(choice)
     }
 }
 

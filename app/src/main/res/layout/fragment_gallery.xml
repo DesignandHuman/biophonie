@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.biophonie.viewmodels.RecViewModel" />
+    </data>
     <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -20,7 +25,7 @@
             android:cropToPadding="true"
             android:scaleType="centerCrop"
             android:padding="1dp"
-            app:srcCompat="@drawable/france"
+            app:uri="@{viewModel.landscapeUri}"
             app:layout_constraintTop_toBottomOf="@+id/close"
             app:layout_constraintBottom_toTopOf="@id/import_picture"
             app:layout_constraintStart_toStartOf="parent"
