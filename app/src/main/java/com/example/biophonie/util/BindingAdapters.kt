@@ -39,13 +39,12 @@ fun setImageUri(view: AppCompatImageView, imageUri: Uri){
     if (imageUri.isAbsolute)
         Glide.with(view.context)
             .load(imageUri)
-            //Very ugly placeholder
-            .placeholder(R.drawable.pine_vector)
+            .thumbnail(0.1F)
             .into(view)
     else
         Glide.with(view.context)
             .load(imageUri.path)
-            .placeholder(R.drawable.pine_vector)
+            .thumbnail(0.1F)
             .into(view)
 }
 
