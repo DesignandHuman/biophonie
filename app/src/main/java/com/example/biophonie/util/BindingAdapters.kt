@@ -34,5 +34,12 @@ fun TextView.setDate(date: String?) {
 
 @BindingAdapter("uri")
 fun setImageUri(view: AppCompatImageView, imageUri: Uri){
+    //TODO display a preview instead of the full picture
+    view.setImageURI(imageUri)
+}
+
+@BindingAdapter("uri_preview")
+fun setImageUriPreview(view: AppCompatImageView, imageUri: Uri){
+    //TODO display a preview instead of the full picture
     view.setImageURI(imageUri)
 }

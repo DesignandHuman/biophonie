@@ -1,5 +1,6 @@
 package com.example.biophonie.ui
 
+import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
@@ -76,6 +77,12 @@ class GalleryFragment : Fragment(),
                 viewModel.onRequestActivityStarted()
             }
         })
+        viewModel.toast.observe(viewLifecycleOwner, Observer {
+            it?.let {
+                Toast.makeText(requireContext(), it.message, it.length).show()
+                viewModel.onToastDisplayed()
+            }
+        })
     }
 
     private fun setUpRecyclerView(){
@@ -122,8 +129,8 @@ class GalleryFragment : Fragment(),
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
-        Log.d(TAG, "onActivityResult: $resultCode")
-        viewModel.activityResult(requestCode, resultCode, imageIntent) // Might be bad practice
+        if (resultCode == Activity.RESULT_OK)
+            viewModel.activityResult(requestCode, imageIntent)
     }
 
     private fun getOriginOfLandscape() {

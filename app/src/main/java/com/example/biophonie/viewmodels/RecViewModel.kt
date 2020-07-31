@@ -7,6 +7,7 @@ import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.lifecycle.*
 import java.io.File
@@ -29,34 +30,32 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     val activityIntent: LiveData<ActivityIntent?>
         get() = _activityIntent
 
+    private val _toast = MutableLiveData<ToastModel?>()
+    val toast: LiveData<ToastModel?>
+        get() = _toast
+
     init {
         landscapeUri.value = Uri.parse("android.resource://com.example.biophonie/drawable/france")
     }
 
-    fun activityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?){
-        if (resultCode == Activity.RESULT_OK){
-                when(requestCode){
-                    REQUEST_CAMERA -> {
-                        landscapeUri.value = Uri.parse(currentPhotoPath)
-                    }
-                    REQUEST_GALLERY -> {
-                        landscapeUri.value = imageIntent?.data
-                    }
-                }
-                // TODO thumbnail.visibility = View.VISIBLE
+    fun activityResult(requestCode: Int, imageIntent: Intent?){
+        when(requestCode){
+            REQUEST_CAMERA -> {
+                landscapeUri.value = Uri.parse(currentPhotoPath)
+            }
+            REQUEST_GALLERY -> {
+                landscapeUri.value = imageIntent?.data
             }
         }
+        // TODO thumbnail.visibility = View.VISIBLE
+    }
 
     @Throws(IOException::class)
     private fun createImageFile(): File? {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(Date())
         val storageDir: File? = File(context.externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
         return if (storageDir == null){
-            /* TODO Toast.makeText(
-                requireContext(),
-                "Veuillez accorder la permission d'accès au stockage du téléphone",
-                Toast.LENGTH_LONG
-            ).show()*/
+            _toast.value = ToastModel("Veuillez accorder la permission d'accès au stockage du téléphone", Toast.LENGTH_LONG)
             null
         } else {
             if (!storageDir.exists())
@@ -75,8 +74,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
                         val photoFile: File? = try {
                             createImageFile()
                         } catch (ex: IOException) {
-                            /*TODO Toast.makeText(requireContext(), "Impossible d'écrire dans le stockage",
-                                Toast.LENGTH_SHORT).show()*/
+                            _toast.value = ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
                             null
                         }
                         photoFile?.let {
@@ -86,7 +84,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
                                 photoFile
                             )
                             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                            //TODO startActivityForResult(takePictureIntent, REQUEST_CAMERA)
                         }
                     }
                 } ?.also { _activityIntent.value = ActivityIntent(it, REQUEST_CAMERA) }
@@ -104,6 +101,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
         _activityIntent.value = null
     }
 
+    fun onToastDisplayed(){
+        _toast.value = null
+    }
+
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -116,4 +117,5 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     data class ActivityIntent(var intent: Intent, var requestCode: Int)
+    data class ToastModel(var message: String, var length: Int)
 }
