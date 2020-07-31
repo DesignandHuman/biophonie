@@ -23,7 +23,7 @@
             android:layout_marginHorizontal="10dp"
             android:background="@drawable/border_rect"
             android:cropToPadding="true"
-            android:scaleType="centerCrop"
+            android:scaleType="center"
             android:padding="1dp"
             app:uri="@{viewModel.landscapeUri}"
             app:layout_constraintTop_toBottomOf="@+id/close"
