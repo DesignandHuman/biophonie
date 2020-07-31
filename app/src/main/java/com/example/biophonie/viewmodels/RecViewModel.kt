@@ -7,11 +7,13 @@ import android.net.Uri
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
 import androidx.lifecycle.*
 import java.io.File
 import java.io.IOException
 import java.util.*
+import com.example.biophonie.R
 
 private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0
@@ -21,27 +23,29 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
     private lateinit var currentPhotoPath: String
-
+    @DrawableRes private var currentId: Int = R.drawable.france
     val landscapeUri = MutableLiveData<Uri>(
         Uri.parse("android.resource://com.example.biophonie/drawable/france"))
+    val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
+    val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
 
-    private val _activityIntent = MutableLiveData<ActivityIntent?>()
-    val activityIntent: LiveData<ActivityIntent?>
+    private val _activityIntent = MutableLiveData<ActivityIntent>()
+    val activityIntent: LiveData<ActivityIntent>
         get() = _activityIntent
 
-    private val _toast = MutableLiveData<ToastModel?>()
-    val toast: LiveData<ToastModel?>
+    private val _toast = MutableLiveData<ToastModel>()
+    val toast: LiveData<ToastModel>
         get() = _toast
 
+    private val _fromDefault = MutableLiveData<Boolean>(true)
+    val fromDefault: LiveData<Boolean>
+        get() = _fromDefault
 
     fun activityResult(requestCode: Int, imageIntent: Intent?){
+        updateFromDefault(false)
         when(requestCode){
-            REQUEST_CAMERA -> {
-                landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
-            }
-            REQUEST_GALLERY -> {
-                landscapeUri.value = imageIntent?.data
-            }
+            REQUEST_CAMERA -> landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
+            REQUEST_GALLERY -> landscapeUri.value = imageIntent?.data
         }
     }
 
@@ -101,7 +105,25 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun restorePreviewFromThumbnail() {
+        updateFromDefault(false)
         landscapeUri.value = landscapeUri.value
+    }
+
+    fun onClickDefault(i: Int) {
+        updateFromDefault(true)
+        currentId = defaultDrawableIds[i]
+    }
+
+    private fun updateFromDefault(fromDefault: Boolean){
+        if (fromDefault != _fromDefault.value)
+            _fromDefault.value = fromDefault
+        /*if (fromDefault){
+            if (!_fromDefault.value!!)
+                _fromDefault.value = true
+        } else {
+            if (_fromDefault.value!!)
+                _fromDefault.value = false
+        }*/
     }
 
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {

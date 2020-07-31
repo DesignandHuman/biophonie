@@ -6,10 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.icu.text.SimpleDateFormat
-import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
 import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -20,7 +17,6 @@ import android.widget.ListAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -28,16 +24,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
-import com.example.biophonie.viewmodels.REQUEST_CAMERA
 import com.example.biophonie.viewmodels.REQUEST_GALLERY
 import com.example.biophonie.viewmodels.RecViewModel
-import java.io.File
-import java.io.IOException
-import java.util.*
 
 private const val TAG = "GalleryFragment"
 class GalleryFragment : Fragment(),
@@ -47,11 +40,10 @@ class GalleryFragment : Fragment(),
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
-
     private lateinit var binding: FragmentGalleryBinding
     private lateinit var viewManager: GridLayoutManager
     private lateinit var viewAdapter: LandscapesAdapter
-    private lateinit var listLandscapes: List<Landscape>
+    private lateinit var defaultLandscapes: List<Landscape>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -83,16 +75,23 @@ class GalleryFragment : Fragment(),
                 viewModel.onToastDisplayed()
             }
         })
+        viewModel.fromDefault.observe(viewLifecycleOwner, Observer {
+            if (!it){
+                viewAdapter.apply {
+                    val previousPosition = selectedPosition
+                    selectedPosition = RecyclerView.NO_POSITION
+                    notifyItemChanged(previousPosition)
+                }
+            }
+        })
     }
 
     private fun setUpRecyclerView(){
-        listLandscapes = listOf(Landscape(resources.getDrawable(R.drawable.france, activity?.theme), "Forêt"),
-            Landscape(resources.getDrawable(R.drawable.gabon, activity?.theme), "Plaine"),
-                Landscape(resources.getDrawable(R.drawable.japon, activity?.theme), "Montagne"),
-                Landscape(resources.getDrawable(R.drawable.russie, activity?.theme), "Rivière")
-        )
+        defaultLandscapes = viewModel.defaultDrawableIds.mapIndexed { index, id ->
+            Landscape(resources.getDrawable(id, activity?.theme), viewModel.defaultLandscapeTitle[index])
+        }
         viewManager = GridLayoutManager(context,2)
-        viewAdapter = LandscapesAdapter(listLandscapes, this)
+        viewAdapter = LandscapesAdapter(defaultLandscapes, this)
 
         binding.recyclerView.apply {
             setHasFixedSize(true)
@@ -147,7 +146,8 @@ class GalleryFragment : Fragment(),
     }
 
     override fun onLandscapeClick(position: Int) {
-        binding.landscape.setImageDrawable(listLandscapes[position].image)
+        binding.landscape.setImageDrawable(defaultLandscapes[position].image)
+        viewModel.onClickDefault(position)
     }
 
     override fun onChoiceClick(choice: Int) {
