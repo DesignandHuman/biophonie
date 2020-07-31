@@ -116,6 +116,9 @@ class GalleryFragment : Fragment(),
             importPicture.setOnClickListener {
                 getOriginOfLandscape()
             }
+            thumbnail.setOnClickListener {
+                viewModel?.restorePreviewFromThumbnail()
+            }
             /*thumbnail.setOnClickListener {
                 //TODO fix selected photo inside recyclerview
                 if (currentPhotoPath != null) {

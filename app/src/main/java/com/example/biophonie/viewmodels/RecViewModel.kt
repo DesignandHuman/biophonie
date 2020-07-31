@@ -101,6 +101,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
         _toast.value = null
     }
 
+    fun restorePreviewFromThumbnail() {
+        landscapeUri.value = landscapeUri.value
+    }
+
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
