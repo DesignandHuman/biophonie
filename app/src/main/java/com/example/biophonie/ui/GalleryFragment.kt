@@ -9,6 +9,7 @@ import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +24,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.biophonie.R
@@ -41,7 +43,9 @@ class GalleryFragment : Fragment(),
     LandscapesAdapter.OnLandscapeListener,
     ChooseMeanDialog.ChooseMeanListener {
 
-    private val viewModel: RecViewModel by activityViewModels()
+    private val viewModel: RecViewModel by activityViewModels{
+        RecViewModel.ViewModelFactory(requireActivity().application!!)
+    }
 
     private lateinit var binding: FragmentGalleryBinding
     private lateinit var viewManager: GridLayoutManager
@@ -58,9 +62,17 @@ class GalleryFragment : Fragment(),
             container,
             false)
         binding.viewModel = viewModel
+        binding.lifecycleOwner = this
+        setLiveDataObservers()
         setClickListeners()
         setUpRecyclerView()
         return binding.root
+    }
+
+    private fun setLiveDataObservers() {
+        viewModel.activityIntent.observe(viewLifecycleOwner, Observer<RecViewModel.ActivityIntent>{
+            startActivityForResult(it.intent, it.requestCode)
+        })
     }
 
     private fun setUpRecyclerView(){
@@ -108,65 +120,16 @@ class GalleryFragment : Fragment(),
 
     //TODO onActivityResult called twice
     override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
-        viewModel.activityResult(requestCode, resultCode, imageIntent)
+        viewModel.activityResult(requestCode, resultCode, imageIntent) // Might be bad practice
     }
 
     private fun getOriginOfLandscape() {
         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
-            dispatchTakePictureIntent(REQUEST_GALLERY)
+            viewModel.dispatchTakePictureIntent(REQUEST_GALLERY)
         } else {
             val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.photo_camera),
                 DialogAdapterItem("Galerie", R.drawable.photo_library))
             activity?.supportFragmentManager?.let { ChooseMeanDialog(requireContext(),items,this).show(it, "dialog") }
-        }
-    }
-
-    private fun dispatchTakePictureIntent(choice: Int){
-        when(choice){
-            REQUEST_CAMERA -> Intent(MediaStore.ACTION_IMAGE_CAPTURE).also {
-                    takePictureIntent -> takePictureIntent
-                .resolveActivity(requireActivity().packageManager)?.also {
-                    val photoFile: File? = try {
-                        createImageFile()
-                    } catch (ex: IOException) {
-                        Toast.makeText(requireContext(), "Impossible d'écrire dans le stockage",
-                            Toast.LENGTH_SHORT).show()
-                        null
-                    }
-                    photoFile?.also {
-                        val photoURI: Uri = FileProvider.getUriForFile(
-                            requireContext(),
-                            "com.example.biophonie.fileprovider",
-                            it
-                        )
-                        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                        startActivityForResult(takePictureIntent, REQUEST_CAMERA)
-                    }
-                }
-            }
-            REQUEST_GALLERY -> Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            ).also { startActivityForResult(it, REQUEST_GALLERY) }
-        }
-    }
-
-    @Throws(IOException::class)
-    private fun createImageFile(): File? {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(Date())
-        val storageDir: File? = File(requireContext().externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
-        return if (storageDir == null){
-            Toast.makeText(
-                requireContext(),
-                "Veuillez accorder la permission d'accès au stockage du téléphone",
-                Toast.LENGTH_LONG
-            ).show()
-            null
-        } else {
-            if (!storageDir.exists())
-                storageDir.mkdir()
-            File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
-                .apply { viewModel.currentPhotoPath = absolutePath }
         }
     }
 
@@ -175,7 +138,7 @@ class GalleryFragment : Fragment(),
     }
 
     override fun onChoiceClick(choice: Int) {
-        dispatchTakePictureIntent(choice)
+        viewModel.dispatchTakePictureIntent(choice)
     }
 }
 
