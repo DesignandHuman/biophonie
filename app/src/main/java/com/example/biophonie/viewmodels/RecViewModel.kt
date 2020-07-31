@@ -1,6 +1,5 @@
 package com.example.biophonie.viewmodels
 
-import android.app.Activity
 import android.app.Application
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
@@ -17,14 +16,14 @@ import java.util.*
 private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0
 const val REQUEST_GALLERY = 1
-const val REQUEST_PERMISSION_STORAGE = 0
 class RecViewModel(application: Application) : AndroidViewModel(application) {
 
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
     private lateinit var currentPhotoPath: String
 
-    val landscapeUri = MutableLiveData<Uri>()
+    val landscapeUri = MutableLiveData<Uri>(
+        Uri.parse("android.resource://com.example.biophonie/drawable/france"))
 
     private val _activityIntent = MutableLiveData<ActivityIntent?>()
     val activityIntent: LiveData<ActivityIntent?>
@@ -34,9 +33,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     val toast: LiveData<ToastModel?>
         get() = _toast
 
-    init {
-        landscapeUri.value = Uri.parse("android.resource://com.example.biophonie/drawable/france")
-    }
 
     fun activityResult(requestCode: Int, imageIntent: Intent?){
         when(requestCode){

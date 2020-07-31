@@ -1,15 +1,16 @@
 package com.example.biophonie.util
 
-import android.content.ContentValues.TAG
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.view.View
-import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
-import com.example.biophonie.domain.dateAsCalendar
-import java.text.SimpleDateFormat
-import java.util.*
+import com.bumptech.glide.Glide
+import com.bumptech.glide.GlideBuilder
+import com.bumptech.glide.module.AppGlideModule
+import com.example.biophonie.R
+
 
 //TODO(use?)
 /*
@@ -32,14 +33,26 @@ fun TextView.setDate(date: String?) {
     }
 }*/
 
+private const val TAG = "BindingAdapters"
 @BindingAdapter("uri")
 fun setImageUri(view: AppCompatImageView, imageUri: Uri){
-    //TODO display a preview instead of the full picture
-    view.setImageURI(imageUri)
+    if (imageUri.isAbsolute)
+        Glide.with(view.context)
+            .load(imageUri)
+            //Very ugly placeholder
+            .placeholder(R.drawable.pine_vector)
+            .into(view)
+    else
+        Glide.with(view.context)
+            .load(imageUri.path)
+            .placeholder(R.drawable.pine_vector)
+            .into(view)
 }
 
-@BindingAdapter("uri_preview")
-fun setImageUriPreview(view: AppCompatImageView, imageUri: Uri){
-    //TODO display a preview instead of the full picture
-    view.setImageURI(imageUri)
+@BindingAdapter("uri_thumbnail")
+fun setImageUriThumbnail(view: AppCompatImageView, imageUri: Uri){
+    if (imageUri != Uri.parse("android.resource://com.example.biophonie/drawable/france")){
+        setImageUri(view, imageUri)
+        view.visibility = View.VISIBLE
+    }
 }
