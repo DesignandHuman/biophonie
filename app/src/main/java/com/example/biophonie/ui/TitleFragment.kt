@@ -1,10 +1,13 @@
 package com.example.biophonie.ui
 
+import android.app.Service
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.example.biophonie.R
@@ -27,8 +30,15 @@ class TitleFragment : Fragment() {
     }
 
     private fun setClickListeners() {
-        binding.ok.setOnClickListener { activity?.finish() }
-        binding.topPanel.close.setOnClickListener { activity?.finish() }
-        binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
+        binding.apply {
+            ok.setOnClickListener { activity?.finish() }
+            topPanel.close.setOnClickListener { activity?.finish() }
+            topPanel.previous.setOnClickListener {
+                activity?.onBackPressed()
+                //Hide keyboard
+                val imm: InputMethodManager = requireContext().getSystemService(Service.INPUT_METHOD_SERVICE) as InputMethodManager
+                imm.hideSoftInputFromWindow(root.windowToken, 0)
+            }
+        }
     }
 }
