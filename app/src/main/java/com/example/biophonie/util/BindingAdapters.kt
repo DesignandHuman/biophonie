@@ -8,6 +8,7 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.GlideBuilder
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.bumptech.glide.module.AppGlideModule
 import com.example.biophonie.R
 
@@ -38,7 +39,8 @@ private const val TAG = "BindingAdapters"
 fun setImageUri(view: AppCompatImageView, imageUri: Uri){
     Glide.with(view.context)
         .load(imageUri)
-        .placeholder(R.drawable.pine)
+        /*.placeholder(R.drawable.pine)*/
+        .transition(DrawableTransitionOptions.withCrossFade())
         .into(view)
 }
 
