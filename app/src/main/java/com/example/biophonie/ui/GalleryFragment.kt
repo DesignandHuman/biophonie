@@ -81,12 +81,14 @@ class GalleryFragment : Fragment(),
                     selectedPosition = viewModel.currentId
                     notifyItemChanged(selectedPosition)
                 }
+                binding.thumbnail.isSelected = false
             } else {
                 viewAdapter.apply {
                     val previousPosition = selectedPosition
                     selectedPosition = RecyclerView.NO_POSITION
                     notifyItemChanged(previousPosition)
                 }
+                binding.thumbnail.isSelected = true
             }
         })
     }
