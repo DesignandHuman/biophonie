@@ -81,24 +81,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
         Log.d(TAG, "dispatchTakePictureIntent: $choice")
         when(choice){
             REQUEST_CAMERA -> {
-                Intent(MediaStore.ACTION_IMAGE_CAPTURE).let { takePictureIntent ->
-                    takePictureIntent.resolveActivity(context.packageManager)?.let {
-                        val photoFile: File? = try {
-                            createImageFile()
-                        } catch (ex: IOException) {
-                            _toast.value = ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
-                            null
-                        }
-                        photoFile?.let {
-                            val photoURI: Uri = FileProvider.getUriForFile(
-                                context,
-                                "com.example.biophonie.fileprovider",
-                                photoFile
-                            )
-                            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                        }
-                    }
-                } ?.also { _activityIntent.value = ActivityIntent(it, REQUEST_CAMERA) }
+                captureImage()?.also { _activityIntent.value = ActivityIntent(it, REQUEST_CAMERA) }
             }
             REQUEST_GALLERY -> Intent(
                 Intent.ACTION_PICK,
@@ -108,6 +91,36 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
                 }
         }
     }
+
+    /**
+     * Takes a picture from a camera.
+     * It is to be noted that the picture will be stored inside the external
+     * cache directory but also at the default location. This only applies on some smartphones.
+     * TODO: To overcome this issue, it is advised to implement your own camera module.
+     * See https://stackoverflow.com/questions/6390163/deleting-a-gallery-image-after-camera-intent-photo-taken
+     *
+     */
+    private fun captureImage() : Intent? =
+        Intent(MediaStore.ACTION_IMAGE_CAPTURE).let { takePictureIntent ->
+            takePictureIntent.resolveActivity(context.packageManager)?.let {
+                val photoFile: File? = try {
+                    createImageFile()
+                } catch (ex: IOException) {
+                    _toast.value =
+                        ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
+                    null
+                }
+                photoFile?.let {
+                    val photoURI: Uri = FileProvider.getUriForFile(
+                        context,
+                        "com.example.biophonie.fileprovider",
+                        photoFile
+                    )
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+                }
+            }
+        }
+
 
     fun onRequestActivityStarted(){
         _activityIntent.value = null
