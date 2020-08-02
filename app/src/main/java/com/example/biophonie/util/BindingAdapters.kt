@@ -43,9 +43,7 @@ fun setImageUri(view: AppCompatImageView, imageUri: Uri){
 }
 
 @BindingAdapter("uri_thumbnail")
-fun setImageUriThumbnail(view: AppCompatImageView, imageUri: Uri){
-    if (imageUri != Uri.parse("android.resource://com.example.biophonie/drawable/france")){
-        view.visibility = View.VISIBLE
-        setImageUri(view, imageUri)
-    }
+fun setImageUriThumbnail(view: AppCompatImageView, imageUri: Uri?){
+    imageUri?.let { view.visibility = View.VISIBLE
+        setImageUri(view, imageUri) }
 }

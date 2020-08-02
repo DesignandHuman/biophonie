@@ -36,7 +36,6 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
     }
 
     override fun onBindViewHolder(holder: LandscapeViewHolder, position: Int) {
-        Log.d(TAG, "onBindViewHolder: $selectedPosition")
         holder.bind(dataset[position])
         holder.itemView.isSelected = selectedPosition == position
     }

@@ -76,7 +76,12 @@ class GalleryFragment : Fragment(),
             }
         })
         viewModel.fromDefault.observe(viewLifecycleOwner, Observer {
-            if (!it){
+            if (it){
+                viewAdapter.apply {
+                    selectedPosition = viewModel.currentId
+                    notifyItemChanged(selectedPosition)
+                }
+            } else {
                 viewAdapter.apply {
                     val previousPosition = selectedPosition
                     selectedPosition = RecyclerView.NO_POSITION
@@ -118,15 +123,6 @@ class GalleryFragment : Fragment(),
             thumbnail.setOnClickListener {
                 viewModel?.restorePreviewFromThumbnail()
             }
-            /*thumbnail.setOnClickListener {
-                //TODO fix selected photo inside recyclerview
-                if (currentPhotoPath != null) {
-                    landscape.setImageDrawable(Drawable.createFromPath(currentPhotoPath))
-                    return@setOnClickListener
-                }
-                if (currentUri != null)
-                    landscape.setImageURI(currentUri)
-            }*/
         }
     }
 
@@ -146,7 +142,7 @@ class GalleryFragment : Fragment(),
     }
 
     override fun onLandscapeClick(position: Int) {
-        binding.landscape.setImageDrawable(defaultLandscapes[position].image)
+        //binding.landscape.setImageDrawable(defaultLandscapes[position].image)
         viewModel.onClickDefault(position)
     }
 

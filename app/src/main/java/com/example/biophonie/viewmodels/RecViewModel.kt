@@ -1,6 +1,7 @@
 package com.example.biophonie.viewmodels
 
 import android.app.Application
+import android.content.ContentResolver
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
@@ -23,11 +24,17 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
     private lateinit var currentPhotoPath: String
-    @DrawableRes private var currentId: Int = R.drawable.france
-    val landscapeUri = MutableLiveData<Uri>(
-        Uri.parse("android.resource://com.example.biophonie/drawable/france"))
+    var currentId: Int = 0
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
+
+    private val _landscapeUri = MutableLiveData<Uri>(getResourceUri(defaultDrawableIds[0]))
+    val landscapeUri: LiveData<Uri>
+        get() = _landscapeUri
+
+    private val _landscapeThumbnail = MutableLiveData<Uri>()
+    val landscapeThumbnail: LiveData<Uri>
+        get() = _landscapeThumbnail
 
     private val _activityIntent = MutableLiveData<ActivityIntent>()
     val activityIntent: LiveData<ActivityIntent>
@@ -44,8 +51,14 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
     fun activityResult(requestCode: Int, imageIntent: Intent?){
         updateFromDefault(false)
         when(requestCode){
-            REQUEST_CAMERA -> landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
-            REQUEST_GALLERY -> landscapeUri.value = imageIntent?.data
+            REQUEST_CAMERA -> {
+                _landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
+                _landscapeThumbnail.value = _landscapeUri.value
+            }
+            REQUEST_GALLERY -> {
+                _landscapeUri.value = imageIntent?.data
+                _landscapeThumbnail.value = _landscapeUri.value
+            }
         }
     }
 
@@ -106,24 +119,21 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
 
     fun restorePreviewFromThumbnail() {
         updateFromDefault(false)
-        landscapeUri.value = landscapeUri.value
+        _landscapeUri.value = landscapeThumbnail.value
     }
 
     fun onClickDefault(i: Int) {
         updateFromDefault(true)
-        currentId = defaultDrawableIds[i]
+        currentId = i
+        _landscapeUri.value = getResourceUri(defaultDrawableIds[i])
     }
+
+    private fun getResourceUri(@DrawableRes id: Int) =
+        Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.resources.getResourcePackageName(id) + '/' + context.resources.getResourceTypeName(id) + '/' + context.resources.getResourceEntryName(id))
 
     private fun updateFromDefault(fromDefault: Boolean){
         if (fromDefault != _fromDefault.value)
             _fromDefault.value = fromDefault
-        /*if (fromDefault){
-            if (!_fromDefault.value!!)
-                _fromDefault.value = true
-        } else {
-            if (_fromDefault.value!!)
-                _fromDefault.value = false
-        }*/
     }
 
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
