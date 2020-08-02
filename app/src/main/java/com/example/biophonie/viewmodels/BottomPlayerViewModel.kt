@@ -119,12 +119,14 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
                 soundsIterator = geoPoint.value!!.sounds!!.listIterator()
                 sound = soundsIterator.next()
                 displaySound(sound!!)
+                _isNetworkErrorShown.value = true
                 _eventNetworkError.value = false
-                _isNetworkErrorShown.value = false
             } catch (networkError: IOException) {
                 // Show a Toast error message and hide the progress bar.
-                if(geoPoint.value == null)
+                if(geoPoint.value == null) {
+                    _isNetworkErrorShown.value = false
                     _eventNetworkError.value = true
+                }
             }
         }
     }
