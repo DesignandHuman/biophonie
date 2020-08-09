@@ -9,10 +9,12 @@ import androidx.databinding.DataBindingUtil
 import androidx.navigation.findNavController
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentRecordingBinding
+import fr.haran.soundwave.controller.DefaultRecorderController
 
 class RecordingFragment : Fragment() {
 
     private lateinit var binding: FragmentRecordingBinding
+    private var recorderController: DefaultRecorderController? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -24,7 +26,17 @@ class RecordingFragment : Fragment() {
             container,
             false)
         setClickListeners()
+        setRecorderController()
         return binding.root
+    }
+
+    private fun setRecorderController() {
+        recorderController = requireContext().externalCacheDir?.absolutePath?.let {
+            DefaultRecorderController(binding.recPlayerView,
+                it
+            ).apply { setListener() }
+        }
+        recorderController?.prepareRecorder()
     }
 
     private fun setClickListeners() {
@@ -33,5 +45,11 @@ class RecordingFragment : Fragment() {
         }
         binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
         binding.topPanel.close.setOnClickListener { activity?.finish() }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        recorderController?.destroyRecorder()
+        recorderController = null
     }
 }

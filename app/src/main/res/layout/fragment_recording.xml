@@ -13,5 +13,11 @@
 
         <include layout="@layout/ok_button" android:id="@+id/ok_button"/>
 
+        <fr.haran.soundwave.ui.RecPlayerView
+            android:id="@+id/rec_player_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:rec_color="@color/colorAccent"/>
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -5,9 +5,11 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import com.example.biophonie.R
+import fr.haran.soundwave.controller.DefaultRecorderController
 
 private const val TAG = "RecSoundActivity"
 class RecSoundActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rec_sound)
