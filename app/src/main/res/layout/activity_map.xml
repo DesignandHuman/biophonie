@@ -76,7 +76,7 @@
             android:layout_gravity="bottom|center"
             android:layout_marginBottom="15dp"
             android:src="@drawable/button_rec"
-            style="@style/BiggerFab"/>
+            style="@style/FloatingActionButton.Big"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"

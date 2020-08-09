@@ -13,6 +13,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
-        style="@style/BiggerFab"/>
+        style="@style/FloatingActionButton.Big"/>
 </merge>
 </layout>

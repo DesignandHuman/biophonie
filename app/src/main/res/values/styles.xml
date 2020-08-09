@@ -50,13 +50,17 @@
         <item name="android:textSize">@dimen/default_font_size</item>
     </style>
 
-    <style name="BiggerFab">
+    <style name="FloatingActionButton">
         <item name="android:backgroundTint">@color/design_default_color_background</item>
         <item name="android:focusable">true</item>
         <item name="android:clickable">true</item>
+        <item name="fabCustomSize">50dp</item>
+        <item name="borderWidth">1dp</item>
+    </style>
+
+    <style name="FloatingActionButton.Big" parent="FloatingActionButton">
         <item name="fabCustomSize">60dp</item>
         <item name="maxImageSize">42dp</item>
-        <item name="borderWidth">1dp</item>
     </style>
 
     <style name="DefaultTextView" parent="Widget.AppCompat.TextView">

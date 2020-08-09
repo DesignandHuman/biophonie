@@ -40,7 +40,7 @@ class RecordingFragment : Fragment() {
     }
 
     private fun setClickListeners() {
-        binding.okButton.ok.setOnClickListener { view: View ->
+        binding.ok.setOnClickListener { view: View ->
             view.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
         }
         binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
