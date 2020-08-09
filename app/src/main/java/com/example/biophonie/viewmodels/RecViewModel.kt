@@ -15,15 +15,18 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 import com.example.biophonie.R
+import fr.haran.soundwave.controller.DefaultRecorderController
 
 private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0
 const val REQUEST_GALLERY = 1
-class RecViewModel(application: Application) : AndroidViewModel(application) {
+class RecViewModel(application: Application) : AndroidViewModel(application), DefaultRecorderController.InformationRetriever {
 
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
+    private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentPhotoPath: String
+    private lateinit var currentSoundPath: String
     var currentId: Int = 0
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
@@ -162,4 +165,12 @@ class RecViewModel(application: Application) : AndroidViewModel(application) {
 
     data class ActivityIntent(var intent: Intent, var requestCode: Int)
     data class ToastModel(var message: String, var length: Int)
+
+    override fun setPath(path: String) {
+        currentSoundPath = path
+    }
+
+    override fun setAmplitudes(amplitudes: List<Int>) {
+        currentAmplitudes = amplitudes
+    }
 }

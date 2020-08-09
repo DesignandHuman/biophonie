@@ -11,19 +11,35 @@
 
         <include layout="@layout/back_and_close" android:id="@+id/top_panel"/>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/advice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/shhh"
+            app:layout_constraintTop_toBottomOf="@+id/close"
+            app:layout_constraintBottom_toTopOf="@id/rec_player_view"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="UnknownIdInLayout" />
+
         <fr.haran.soundwave.ui.RecPlayerView
             android:id="@+id/rec_player_view"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
-            android:layout_marginTop="20dp"
+            android:layout_height="0dp"
+            android:layout_marginBottom="20dp"
             app:rec_color="@color/colorAccent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:ignore="UnknownIdInLayout" />
+            app:layout_constraintTop_toBottomOf="@id/advice"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-        <!--TODO try to have RecPlayerView as the root view -->
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/control_buttons"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            app:constraint_referenced_ids="ok,record_again,play"
+            tools:visibility="visible"/>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/ok"
@@ -33,18 +49,17 @@
             android:layout_marginBottom="10dp"
             android:clickable="true"
             android:focusable="true"
+            android:elevation="0dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="@id/rec_player_view"
-            style="@style/FloatingActionButton.Big"
-            tools:ignore="UnknownIdInLayout" />
+            style="@style/FloatingActionButton.Big" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/play"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_play"
-            android:layout_marginBottom="10dp"
             android:clickable="true"
             android:focusable="true"
             android:tint="@color/colorPrimaryDark"
@@ -54,8 +69,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/rec_player_view"
             app:layout_constraintBottom_toBottomOf="@id/rec_player_view"
-            style="@style/FloatingActionButton"
-            tools:ignore="UnknownIdInLayout" />
+            style="@style/FloatingActionButton" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/record_again"
@@ -72,8 +86,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/ok"
             app:layout_constraintBottom_toBottomOf="@id/rec_player_view"
-            style="@style/FloatingActionButton"
-            tools:ignore="UnknownIdInLayout" />
+            style="@style/FloatingActionButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
