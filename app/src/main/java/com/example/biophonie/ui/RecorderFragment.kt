@@ -65,14 +65,15 @@ class RecordingFragment : Fragment() {
 
     private fun setClickListeners() {
         binding.ok.setOnClickListener { view: View ->
-            if (duration >= MINIMUM_DURATION)
+            view.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
+            /*if (duration >= MINIMUM_DURATION)
                 view.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
             else
                 Toast.makeText(
                     requireContext(),
                     "Une durée de plus de ${MINIMUM_DURATION/60000} minute est nécessaire",
                     Toast.LENGTH_SHORT
-                ).show()
+                ).show()*/
         }
         binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
         binding.topPanel.close.setOnClickListener { activity?.finish() }

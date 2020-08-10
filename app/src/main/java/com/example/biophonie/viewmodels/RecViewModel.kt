@@ -10,6 +10,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
+import androidx.databinding.BaseObservable
+import androidx.databinding.Bindable
+import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import java.io.File
 import java.io.IOException
@@ -21,6 +24,19 @@ private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0
 const val REQUEST_GALLERY = 1
 class RecViewModel(application: Application) : AndroidViewModel(application), DefaultRecorderController.InformationRetriever {
+
+    val mTitle = ObservableField<String>()
+
+    fun validationAndSubmit(){
+        val title = mTitle.get()
+        title?.let {
+            if (it.length < 7)
+                _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
+            else
+                context
+        }
+        Log.d(TAG, "validationAndSubmit: $title")
+    }
 
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
