@@ -6,7 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
-import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
 import com.example.biophonie.R
 
@@ -27,7 +26,7 @@ class NameFragment: Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_name, container, false)
-        name = view.findViewById<EditText>(R.id.name)
+        name = view.findViewById(R.id.name)
         return view
     }
 }
