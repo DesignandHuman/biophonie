@@ -4,10 +4,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.biophonie.viewmodels.RecViewModel" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.RecordingFragment">
+        tools:context=".ui.RecorderFragment">
 
         <include layout="@layout/back_and_close" android:id="@+id/top_panel"/>
 
@@ -15,7 +21,7 @@
             android:id="@+id/advice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/shhh"
+            android:text="@{viewModel.adviceText}"
             app:layout_constraintTop_toBottomOf="@+id/close"
             app:layout_constraintBottom_toTopOf="@id/rec_player_view"
             app:layout_constraintEnd_toEndOf="parent"
@@ -32,61 +38,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/advice"
             app:layout_constraintBottom_toBottomOf="parent" />
-
-        <androidx.constraintlayout.widget.Group
-            android:id="@+id/control_buttons"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone"
-            app:constraint_referenced_ids="ok,record_again,play"
-            tools:visibility="visible"/>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/ok"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/check"
-            android:layout_marginBottom="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:elevation="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="@id/rec_player_view"
-            style="@style/FloatingActionButton.Big" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_play"
-            android:clickable="true"
-            android:focusable="true"
-            android:tint="@color/colorPrimaryDark"
-            app:layout_constraintHorizontal_bias="0.3"
-            app:layout_constraintVertical_bias="1"
-            app:layout_constraintStart_toEndOf="@+id/ok"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@id/rec_player_view"
-            app:layout_constraintBottom_toBottomOf="@id/rec_player_view"
-            style="@style/FloatingActionButton" />
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/record_again"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_reload"
-            android:layout_marginTop="10dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:tint="@color/colorPrimaryDark"
-            app:layout_constraintHorizontal_bias="0.7"
-            app:layout_constraintVertical_bias="1"
-            app:layout_constraintTop_toTopOf="@id/rec_player_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/ok"
-            app:layout_constraintBottom_toBottomOf="@id/rec_player_view"
-            style="@style/FloatingActionButton" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

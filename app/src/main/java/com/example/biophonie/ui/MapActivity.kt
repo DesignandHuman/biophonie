@@ -12,6 +12,7 @@ import android.graphics.drawable.Drawable
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
@@ -61,6 +62,7 @@ private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_CHECK_SETTINGS = 0x1
+private const val REQUEST_ADD_SOUND = 2
 
 class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback,
     PermissionsListener {
@@ -122,7 +124,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 }
             }
         }
-        binding.rec.setOnClickListener { startActivity(Intent(this, RecSoundActivity::class.java)) }
+        binding.rec.setOnClickListener {
+            startActivityForResult(Intent(this, RecSoundActivity::class.java),
+                REQUEST_ADD_SOUND)
+        }
     }
 
     private fun createLocationRequest(): LocationRequest? =
@@ -268,11 +273,16 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode){
-            REQUEST_CHECK_SETTINGS -> when(resultCode){
-                Activity.RESULT_OK -> mapboxMap.getStyle { enableLocationComponent(it) }
-                else -> return
+            REQUEST_CHECK_SETTINGS -> if(resultCode == Activity.RESULT_OK) mapboxMap.getStyle { enableLocationComponent(it) }
+            REQUEST_ADD_SOUND -> if (resultCode == Activity.RESULT_OK) {
+                val soundPath = data?.extras?.getString("soundPath")
+                val landscapePath = data?.extras?.getString("landscapePath")
+                val amplitudes = data?.extras?.getIntegerArrayList("amplitudes")
+                val title = data?.extras?.getString("title")
+                //TODO send Sound to server
+                Log.d(TAG, "onActivityResult: $soundPath $landscapePath ${amplitudes?.size} $title")
             }
-            else -> return
+            else return
         }
     }
 

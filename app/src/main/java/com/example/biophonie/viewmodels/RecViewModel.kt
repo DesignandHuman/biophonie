@@ -10,8 +10,6 @@ import android.util.Log
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
-import androidx.databinding.BaseObservable
-import androidx.databinding.Bindable
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import java.io.File
@@ -19,6 +17,7 @@ import java.io.IOException
 import java.util.*
 import com.example.biophonie.R
 import fr.haran.soundwave.controller.DefaultRecorderController
+import fr.haran.soundwave.ui.RecPlayerView
 
 private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0
@@ -33,11 +32,12 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             if (it.length < 7)
                 _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
             else
-                context
+                _result.value = Result(currentSoundPath, currentAmplitudes, _landscapeUri.value!!.path!!, it)
         }
         Log.d(TAG, "validationAndSubmit: $title")
     }
 
+    private var recorderController: DefaultRecorderController? = null
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
     private lateinit var currentAmplitudes: List<Int>
@@ -67,6 +67,18 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val fromDefault: LiveData<Boolean>
         get() = _fromDefault
 
+    private val _adviceText = MutableLiveData<String>()
+    val adviceText: LiveData<String>
+        get() = _adviceText
+
+    private val _goToNext = MutableLiveData<Boolean>(false)
+    val goToNext: LiveData<Boolean>
+        get() = _goToNext
+
+    private val _result = MutableLiveData<Result>()
+    val result: LiveData<Result>
+        get() = _result
+
     fun activityResult(requestCode: Int, imageIntent: Intent?){
         updateFromDefault(false)
         when(requestCode){
@@ -92,7 +104,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             if (!storageDir.exists())
                 storageDir.mkdir()
             File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
-                .apply { currentPhotoPath = absolutePath }
         }
     }
 
@@ -130,6 +141,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                     null
                 }
                 photoFile?.let {
+                    currentPhotoPath = it.absolutePath
                     val photoURI: Uri = FileProvider.getUriForFile(
                         context,
                         "com.example.biophonie.fileprovider",
@@ -189,4 +201,33 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     override fun setAmplitudes(amplitudes: List<Int>) {
         currentAmplitudes = amplitudes
     }
+
+    fun setRecorderController(recPlayerView: RecPlayerView) {
+        if (recorderController == null){
+            recorderController = context.externalCacheDir?.absolutePath?.let {
+                DefaultRecorderController(recPlayerView,
+                    it,
+                    this
+                ).apply { setRecorderListener(
+                    start = { _adviceText.value = "Chhhhhut, écoutez !" },
+                    complete = { _adviceText.value = "C'est tout bon !" },
+                    validate = { _goToNext.value = true })}
+            }
+            recorderController?.prepareRecorder()
+        }
+    }
+
+    fun onNextFragment(){
+        _goToNext.value = false
+    }
+
+    fun destroyController(){
+        recorderController?.destroyController()
+        recorderController = null
+    }
+
+    data class Result(val soundPath: String,
+                      val amplitudes: List<Int>,
+                      val landscapePath: String,
+                      val title: String)
 }

@@ -57,7 +57,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     val geoPoint: LiveData<GeoPoint> = repository.geoPoint
 
     fun setPlayerController(context: Context, view: PlayerView){
-        playerController = DefaultPlayerController(view).apply { setListener() }
+        playerController = DefaultPlayerController(view).apply { setPlayerListener() }
         //TODO(find the right sound)
         val uri = Uri.parse("android.resource://${context.packageName}/raw/france")
         try {
