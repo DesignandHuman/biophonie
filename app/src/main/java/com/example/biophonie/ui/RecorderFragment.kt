@@ -6,11 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
+import com.example.biophonie.BuildConfig
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentRecordingBinding
 import com.example.biophonie.viewmodels.RecViewModel
@@ -48,18 +50,21 @@ class RecorderFragment : Fragment() {
 
     private fun setDataObserver() {
         viewModel.goToNext.observe(viewLifecycleOwner, Observer {
-            if (it){
-                binding.recPlayerView.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
-                viewModel.onNextFragment()}
-            /*if (duration >= MINIMUM_DURATION)
-                view.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
-            else
-                Toast.makeText(
-                    requireContext(),
-                    "Une durée de plus de ${MINIMUM_DURATION/60000} minute est nécessaire",
-                    Toast.LENGTH_SHORT
-                ).show()*/
-            })
+            if (BuildConfig.DEBUG) {
+                if (it){
+                    binding.root.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
+                    viewModel.onNextFragment()}
+            } else {
+                if (duration >= MINIMUM_DURATION)
+                    binding.root.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
+                else
+                    Toast.makeText(
+                        requireContext(),
+                        "Une durée de plus de ${MINIMUM_DURATION/60000} minute est nécessaire",
+                        Toast.LENGTH_SHORT
+                    ).show()
+            }
+        })
     }
 
     // The controller is inside the Fragment because it needs a reference to the recplayerview
