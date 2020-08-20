@@ -63,6 +63,7 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
 
+                <!--TODO add biophonie logo -->
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -105,7 +106,7 @@
                     android:layout_gravity="center"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="20dp"
-                    android:background="@drawable/button_border_rect"
+                    android:background="@drawable/border_rect"
                     android:textColor="@color/colorPrimaryDark"
                     android:theme="@style/ClickableButton"
                     style="@style/ButtonStyle"/>

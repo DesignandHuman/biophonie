@@ -17,6 +17,8 @@
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:background="@color/design_default_color_background"
+        android:elevation="15dp"
+        android:outlineProvider="none"
         app:behavior_hideable="true"
         app:behavior_skipCollapsed="false"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">

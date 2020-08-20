@@ -57,7 +57,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     val geoPoint: LiveData<GeoPoint> = repository.geoPoint
 
     fun setPlayerController(context: Context, view: PlayerView){
-        playerController = DefaultPlayerController(view).apply { setListener() }
+        playerController = DefaultPlayerController(view).apply { setPlayerListener() }
         //TODO(find the right sound)
         val uri = Uri.parse("android.resource://${context.packageName}/raw/france")
         try {
@@ -119,12 +119,14 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
                 soundsIterator = geoPoint.value!!.sounds!!.listIterator()
                 sound = soundsIterator.next()
                 displaySound(sound!!)
+                _isNetworkErrorShown.value = true
                 _eventNetworkError.value = false
-                _isNetworkErrorShown.value = false
             } catch (networkError: IOException) {
                 // Show a Toast error message and hide the progress bar.
-                if(geoPoint.value == null)
+                if(geoPoint.value == null) {
+                    _isNetworkErrorShown.value = false
                     _eventNetworkError.value = true
+                }
             }
         }
     }

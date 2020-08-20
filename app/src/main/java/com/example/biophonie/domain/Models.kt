@@ -1,7 +1,10 @@
 package com.example.biophonie.domain
 
 import android.content.ContentValues.TAG
+import android.content.res.AssetFileDescriptor
+import android.graphics.drawable.Drawable
 import android.util.Log
+import androidx.annotation.RawRes
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -16,6 +19,13 @@ data class GeoPoint(var id: String?,
                     var name: String = "",
                     var coordinates: String = "",
                     var sounds: List<Sound>?)
+
+data class Landscape(var image: Drawable,
+                     var titre: String)
+
+data class DialogAdapterItem(var text: String, var icon: Int){
+    override fun toString(): String = text
+}
 
 fun Sound.dateAsCalendar(): Calendar{
     return if (date != null){

@@ -46,7 +46,7 @@
             android:src="@drawable/pine"
             android:layout_gravity="top|start"
             android:layout_margin="15dp"
-            android:foreground="@drawable/button_border_rect"
+            android:foreground="@drawable/border_rect"
             android:clickable="true"
             android:focusable="true"
             android:scaleType="center"
@@ -74,20 +74,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
-            android:layout_marginBottom="50dp"
-            android:backgroundTint="@color/design_default_color_background"
+            android:layout_marginBottom="15dp"
             android:src="@drawable/button_rec"
-            android:focusable="true"
-            android:clickable="true"
-            app:fabCustomSize="80dp"
-            app:maxImageSize="52dp"
-            app:borderWidth="1dp"/>
+            style="@style/FloatingActionButton.Big"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
-            android:layout_marginBottom="82dp"
+            android:layout_marginBottom="36dp"
             android:text="Rec."
             android:textColor="@color/design_default_color_background"
             android:elevation="14dp"/>

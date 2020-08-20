@@ -10,14 +10,14 @@ import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.LocationManager
-import android.net.Uri
-import android.net.Uri.fromFile
-import android.net.Uri.parse
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
@@ -55,7 +55,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import kotlinx.android.synthetic.main.activity_map.*
-import java.net.URI
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
@@ -63,6 +62,7 @@ private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_CHECK_SETTINGS = 0x1
+private const val REQUEST_ADD_SOUND = 2
 
 class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback,
     PermissionsListener {
@@ -123,6 +123,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     permissionsManager.requestLocationPermissions(this@MapActivity)
                 }
             }
+        }
+        binding.rec.setOnClickListener {
+            startActivityForResult(Intent(this, RecSoundActivity::class.java),
+                REQUEST_ADD_SOUND)
         }
     }
 
@@ -269,11 +273,16 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode){
-            REQUEST_CHECK_SETTINGS -> when(resultCode){
-                Activity.RESULT_OK -> mapboxMap.getStyle { enableLocationComponent(it) }
-                else -> return
+            REQUEST_CHECK_SETTINGS -> if(resultCode == Activity.RESULT_OK) mapboxMap.getStyle { enableLocationComponent(it) }
+            REQUEST_ADD_SOUND -> if (resultCode == Activity.RESULT_OK) {
+                val soundPath = data?.extras?.getString("soundPath")
+                val landscapePath = data?.extras?.getString("landscapePath")
+                val amplitudes = data?.extras?.getIntegerArrayList("amplitudes")
+                val title = data?.extras?.getString("title")
+                //TODO send Sound to server
+                Log.d(TAG, "onActivityResult: $soundPath $landscapePath ${amplitudes?.size} $title")
             }
-            else -> return
+            else return
         }
     }
 
@@ -300,9 +309,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun bindMap(savedInstanceState: Bundle?) {
-        binding.mapView.onCreate(savedInstanceState)
-        binding.mapView.getMapAsync(this)
-        binding.scaleView.metersOnly()
+        binding.apply {
+            mapView.onCreate(savedInstanceState)
+            mapView.getMapAsync(this@MapActivity)
+            scaleView.metersOnly()
+            scaleView.setTextFont(getFont(this@MapActivity, R.font.ibm_plex_mono))
+        }
     }
 
     private fun addBottomSheetFragment() {
