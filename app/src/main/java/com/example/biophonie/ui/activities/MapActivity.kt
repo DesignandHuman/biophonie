@@ -283,6 +283,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 val landscapePath = data?.extras?.getString("landscapePath")
                 val amplitudes = data?.extras?.getIntegerArrayList("amplitudes")
                 val title = data?.extras?.getString("title")
+                //TODO add coordinates (here and inside Rec*
                 //TODO send Sound to server
                 Log.d(TAG, "onActivityResult: $soundPath $landscapePath ${amplitudes?.size} $title")
             }
