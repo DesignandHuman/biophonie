@@ -1,13 +1,11 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
-import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -17,7 +15,6 @@ import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentRecordingBinding
 import com.example.biophonie.viewmodels.RecViewModel
 import fr.haran.soundwave.controller.DefaultRecorderController
-import java.util.ArrayList
 import kotlin.properties.Delegates
 
 private const val MINIMUM_DURATION = 60000
@@ -60,7 +57,7 @@ class RecorderFragment : Fragment() {
                 else
                     Toast.makeText(
                         requireContext(),
-                        "Une durée de plus de ${MINIMUM_DURATION/60000} minute est nécessaire",
+                        "Une durée de plus de ${MINIMUM_DURATION /60000} minute est nécessaire",
                         Toast.LENGTH_SHORT
                     ).show()
             }

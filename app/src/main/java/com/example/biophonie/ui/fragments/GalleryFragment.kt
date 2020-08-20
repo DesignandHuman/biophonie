@@ -1,4 +1,4 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
 import android.app.Activity
 import android.app.Dialog
@@ -7,7 +7,6 @@ import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -29,10 +28,11 @@ import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
+import com.example.biophonie.ui.GridItemDecoration
+import com.example.biophonie.ui.LandscapesAdapter
 import com.example.biophonie.viewmodels.REQUEST_GALLERY
 import com.example.biophonie.viewmodels.RecViewModel
 
-private const val TAG = "GalleryFragment"
 class GalleryFragment : Fragment(),
     LandscapesAdapter.OnLandscapeListener,
     ChooseMeanDialog.ChooseMeanListener {
@@ -98,13 +98,20 @@ class GalleryFragment : Fragment(),
             Landscape(resources.getDrawable(id, activity?.theme), viewModel.defaultLandscapeTitle[index])
         }
         viewManager = GridLayoutManager(context,2)
-        viewAdapter = LandscapesAdapter(defaultLandscapes, this)
+        viewAdapter =
+            LandscapesAdapter(defaultLandscapes, this)
 
         binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
-            addItemDecoration(GridItemDecoration(requireActivity(), 20, 2))
+            addItemDecoration(
+                GridItemDecoration(
+                    requireActivity(),
+                    20,
+                    2
+                )
+            )
         }
     }
 
@@ -139,7 +146,11 @@ class GalleryFragment : Fragment(),
         } else {
             val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.photo_camera),
                 DialogAdapterItem("Galerie", R.drawable.photo_library))
-            activity?.supportFragmentManager?.let { ChooseMeanDialog(requireContext(),items,this).show(it, "dialog") }
+            activity?.supportFragmentManager?.let { ChooseMeanDialog(
+                requireContext(),
+                items,
+                this
+            ).show(it, "dialog") }
         }
     }
 
@@ -159,12 +170,13 @@ class ChooseMeanDialog(context: Context, items: Array<DialogAdapterItem>, privat
         fun onChoiceClick(choice: Int)
     }
 
-    private val adapter: ListAdapter = DialogListAdapter(
-        context,
-        android.R.layout.select_dialog_item,
-        android.R.id.text1,
-        items
-    )
+    private val adapter: ListAdapter =
+        DialogListAdapter(
+            context,
+            android.R.layout.select_dialog_item,
+            android.R.id.text1,
+            items
+        )
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return activity?.let { it ->

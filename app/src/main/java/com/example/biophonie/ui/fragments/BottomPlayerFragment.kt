@@ -1,4 +1,4 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter

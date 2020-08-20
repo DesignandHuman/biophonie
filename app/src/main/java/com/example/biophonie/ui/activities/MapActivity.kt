@@ -1,4 +1,4 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -15,7 +15,6 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
@@ -24,6 +23,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
+import com.example.biophonie.ui.fragments.AboutFragment
+import com.example.biophonie.ui.fragments.BottomPlayerFragment
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
@@ -75,7 +76,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var mapboxMap: MapboxMap
     private var bottomPlayer: BottomPlayerFragment =
         BottomPlayerFragment()
-    private var about: AboutFragment = AboutFragment()
+    private var about: AboutFragment =
+        AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
         override fun turnedOn() {
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
@@ -109,7 +111,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
             supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, about, FRAGMENT_TAG+"about")
+                .add(R.id.containerMap, about, FRAGMENT_TAG +"about")
                 .addToBackStack(null)
                 .commit()
         }
@@ -126,7 +128,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
         binding.rec.setOnClickListener {
             startActivityForResult(Intent(this, RecSoundActivity::class.java),
-                REQUEST_ADD_SOUND)
+                REQUEST_ADD_SOUND
+            )
         }
     }
 
@@ -158,7 +161,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         // Show the dialog by calling startResolutionForResult(),
                         // and check the result in onActivityResult().
                         (exception as ResolvableApiException).startResolutionForResult(this@MapActivity,
-                            REQUEST_CHECK_SETTINGS)
+                            REQUEST_CHECK_SETTINGS
+                        )
                     } catch (sendEx: IntentSender.SendIntentException) {
                         // Ignore the error.
                     }
@@ -321,7 +325,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         supportFragmentManager.beginTransaction()
             .add(
                 R.id.containerMap, bottomPlayer,
-                FRAGMENT_TAG+"bottomSheet"
+                FRAGMENT_TAG +"bottomSheet"
             )
             .commit()
     }

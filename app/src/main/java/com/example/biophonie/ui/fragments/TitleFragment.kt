@@ -1,12 +1,10 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
-import android.R.attr
 import android.app.Service
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +20,6 @@ import com.example.biophonie.viewmodels.RecViewModel
 import java.util.ArrayList
 
 
-private const val TAG = "TitleFragment"
 class TitleFragment : Fragment() {
     private lateinit var binding: FragmentTitleBinding
     private val viewModel: RecViewModel by activityViewModels{
