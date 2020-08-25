@@ -1,5 +1,6 @@
 package com.example.biophonie.network
 
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.OkHttpClient
@@ -17,7 +18,7 @@ interface WebService {
 }
 
 object GeoPointWeb {
-
+    
     private val client: OkHttpClient = OkHttpClient.Builder().addInterceptor(FakeInterceptor()).build()//.apply { interceptors().add(FakeInterceptor()) }
 
     private val moshi = Moshi.Builder()

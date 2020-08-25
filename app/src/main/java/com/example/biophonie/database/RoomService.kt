@@ -3,20 +3,21 @@ package com.example.biophonie.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import com.example.biophonie.domain.Sound
 
 @Dao
 interface SoundDao {
     @Query("select * from databasenewsound")
-    fun getSounds(): LiveData<List<DatabaseNewSound>>
+    fun getNewSounds(): LiveData<List<Sound>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(sound: DatabaseNewSound)
+    fun insert(newSound: Sound)
 }
 
-@Database(entities = [DatabaseNewSound::class], version = 1, exportSchema = false)
+@Database(entities = [Sound::class], version = 1, exportSchema = false)
 abstract class NewSoundDatabase : RoomDatabase() {
 
-    abstract val sleepDatabaseDao: SoundDao
+    abstract val soundDao: SoundDao
 
     companion object {
 

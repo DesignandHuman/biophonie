@@ -1,24 +1,28 @@
 package com.example.biophonie.repositories
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.network.GeoPointWeb
-import com.example.biophonie.network.NetworkGeoPoint
-import com.example.biophonie.network.asDomainModel
+import androidx.lifecycle.Transformations
+import com.example.biophonie.database.NewSoundDatabase
+import com.example.biophonie.domain.Sound
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Response
 
-class GeoJsonRepository {
+class GeoJsonRepository(private val database: NewSoundDatabase) {
 
     fun refreshFeatures(){
-        // TODO fetch from network and cache
+        // TODO fetch from network (use GeoJsonSource)
         geoFeatures.value = createTestLayers()
+    }
+
+    suspend fun insertNewSound(newSound: Sound, title: String){
+        withContext(Dispatchers.IO) {
+            database.soundDao.insert(newSound)
+        }
     }
 
     private fun createTestLayers(): MutableList<Feature> {
@@ -51,4 +55,5 @@ class GeoJsonRepository {
     }
 
     var geoFeatures: MutableLiveData<List<Feature>> = MutableLiveData()
+    var newSounds: LiveData<List<Sound>> = database.soundDao.getNewSounds()
 }

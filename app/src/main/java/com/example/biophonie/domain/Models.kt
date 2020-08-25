@@ -10,10 +10,13 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-data class Sound(var date: String?,
-                 var amplitudes: List<Int>,
-                 var urlPhoto: String,
-                 var urlAudio: String)
+data class Sound(
+    var title: String?,
+    var date: String?,
+    var amplitudes: List<Int>,
+    var coordinates: String?,
+    var landscapePath: String,
+    var soundPath: String)
 
 data class GeoPoint(var id: String?,
                     var name: String = "",

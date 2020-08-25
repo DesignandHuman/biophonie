@@ -2,7 +2,6 @@ package com.example.biophonie.network
 
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Sound
-import com.example.biophonie.util.LocationConverter
 import com.example.biophonie.util.coordinatesToString
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.squareup.moshi.Json
@@ -23,8 +22,10 @@ fun NetworkGeoPoint.asDomainModel(name: String, coordinates: LatLng): GeoPoint{
         coordinatesToString(coordinates),
         sounds.map {
             Sound(
+                title = null,
+                coordinates = null,
                 date = it.date,
                 amplitudes = it.amplitudes ?: listOf(1),
-                urlPhoto = it.urlPhoto ?: "https//biophonie.fr/photos/1",
-                urlAudio = it.urlAudio ?: "")})
+                landscapePath = it.urlPhoto ?: "https//biophonie.fr/photos/1",
+                soundPath = it.urlAudio ?: "")})
 }

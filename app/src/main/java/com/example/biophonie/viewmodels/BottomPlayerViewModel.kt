@@ -87,13 +87,13 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         // A bit of a hack due to ListIterators' behavior.
         // The index is between two elements.
         try {
-            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].urlAudio)
+            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].soundPath)
             _leftClickable.value = true
         } catch (e: IndexOutOfBoundsException){
             _leftClickable.value = false
         }
         try {
-            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
+            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].soundPath)
             _rightClickable.value = true
         } catch (e: IndexOutOfBoundsException){
             _rightClickable.value = false
