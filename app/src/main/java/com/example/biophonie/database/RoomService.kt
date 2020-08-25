@@ -8,7 +8,7 @@ import com.example.biophonie.domain.Sound
 @Dao
 interface SoundDao {
     @Query("select * from databasenewsound")
-    fun getNewSounds(): LiveData<List<Sound>>
+    fun getNewSounds(): LiveData<List<DatabaseNewSound>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(newSound: Sound)

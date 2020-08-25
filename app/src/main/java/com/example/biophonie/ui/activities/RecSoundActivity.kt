@@ -16,6 +16,7 @@ class RecSoundActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_rec_sound)
+        viewModel.setCoordinates(intent.extras)
     }
 
     // Used to pass the correct result to NavigationFragments

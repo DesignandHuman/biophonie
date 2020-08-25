@@ -3,6 +3,7 @@ package com.example.biophonie.repositories
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.viewmodels.PROPERTY_ID
@@ -19,7 +20,7 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
         geoFeatures.value = createTestLayers()
     }
 
-    suspend fun insertNewSound(newSound: Sound, title: String){
+    suspend fun insertNewSound(newSound: Sound){
         withContext(Dispatchers.IO) {
             database.soundDao.insert(newSound)
         }
@@ -55,5 +56,5 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
     }
 
     var geoFeatures: MutableLiveData<List<Feature>> = MutableLiveData()
-    var newSounds: LiveData<List<Sound>> = database.soundDao.getNewSounds()
+    var newSounds: LiveData<List<DatabaseNewSound>> = database.soundDao.getNewSounds()
 }

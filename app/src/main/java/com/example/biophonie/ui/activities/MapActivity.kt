@@ -69,7 +69,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     PermissionsListener {
 
     private val viewModel: MapViewModel by lazy {
-        ViewModelProvider(this, MapViewModel.ViewModelFactory()).get(MapViewModel::class.java)
+        ViewModelProvider(this, MapViewModel.ViewModelFactory(this)).get(MapViewModel::class.java)
     }
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
@@ -127,9 +127,23 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             }
         }
         binding.rec.setOnClickListener {
-            startActivityForResult(Intent(this, RecSoundActivity::class.java),
-                REQUEST_ADD_SOUND
-            )
+            val location = mapboxMap.locationComponent.lastKnownLocation
+            if (location != null){
+                startActivityForResult(Intent(this, RecSoundActivity::class.java).apply {
+                    putExtras(Bundle().apply {
+                        putDouble("latitude", location.latitude)
+                        putDouble("longitude", location.longitude)
+                    })
+                },
+                    REQUEST_ADD_SOUND
+                )
+            } else {
+                Toast.makeText(
+                    this,
+                    "La localisation est nécessaire pour enregistrer un son",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
         }
     }
 
@@ -278,19 +292,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         super.onActivityResult(requestCode, resultCode, data)
         when (requestCode){
             REQUEST_CHECK_SETTINGS -> if(resultCode == Activity.RESULT_OK) mapboxMap.getStyle { enableLocationComponent(it) }
-            REQUEST_ADD_SOUND -> if (resultCode == Activity.RESULT_OK) {
-                val soundPath = data?.extras?.getString("soundPath")
-                val landscapePath = data?.extras?.getString("landscapePath")
-                val amplitudes = data?.extras?.getIntegerArrayList("amplitudes")
-                val title = data?.extras?.getString("title")
-                //TODO add coordinates (here and inside Rec*
-                //TODO send Sound to server
-                Log.d(TAG, "onActivityResult: $soundPath $landscapePath ${amplitudes?.size} $title")
-            }
+            REQUEST_ADD_SOUND -> if (resultCode == Activity.RESULT_OK) viewModel.requestAddSound(data?.extras)
             else return
         }
     }
-
 
     override fun onRequestPermissionsResult(requestCode: Int,
                                    permissions: Array<String?>,

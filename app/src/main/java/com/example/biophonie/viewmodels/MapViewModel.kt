@@ -1,8 +1,11 @@
 package com.example.biophonie.viewmodels
 
+import android.content.Context
+import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.repositories.GeoJsonRepository
 import com.example.biophonie.repositories.GeoPointRepository
 import com.mapbox.geojson.Feature
@@ -31,12 +34,23 @@ class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
         }
     }
 
-    class ViewModelFactory : ViewModelProvider.Factory {
+    fun requestAddSound(extras: Bundle?) {
+        //TODO add coordinates (here and inside Rec*
+        //TODO send Sound to server
+        val soundPath = extras?.getString("soundPath")
+        val landscapePath = extras?.getString("landscapePath")
+        val amplitudes = extras?.getIntegerArrayList("amplitudes")
+        val latitude = extras?.getDouble("latitude")
+        val longitude = extras?.getDouble("longitude")
+        val title = extras?.getString("title")
+    }
+
+    class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MapViewModel(GeoJsonRepository()) as T
+                return MapViewModel(GeoJsonRepository(NewSoundDatabase.getInstance(context))) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

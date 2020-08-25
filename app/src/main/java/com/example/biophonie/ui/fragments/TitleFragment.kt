@@ -95,10 +95,12 @@ class TitleFragment : Fragment() {
         viewModel.result.observe(viewLifecycleOwner, Observer {
             val intent = Intent()
             val bundle = Bundle().apply {
+                putString("title", it.title)
+                putIntegerArrayList("amplitudes", it.amplitudes as ArrayList<Int>)
+                putDouble("latitude", it.coordinates.latitude)
+                putDouble("longitude", it.coordinates.longitude)
                 putString("soundPath", it.soundPath)
                 putString("landscapePath", it.landscapePath)
-                putIntegerArrayList("amplitudes", it.amplitudes as ArrayList<Int>)
-                putString("title", it.title)
             }
             intent.putExtras(bundle)
             requireActivity().apply {

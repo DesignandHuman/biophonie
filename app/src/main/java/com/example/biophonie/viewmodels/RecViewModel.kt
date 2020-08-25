@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -16,6 +17,7 @@ import java.io.File
 import java.io.IOException
 import java.util.*
 import com.example.biophonie.R
+import com.mapbox.mapboxsdk.geometry.LatLng
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 
@@ -32,9 +34,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             if (it.length < 7)
                 _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
             else
-                _result.value = Result(currentSoundPath, currentAmplitudes, _landscapeUri.value!!.path!!, it)
+                _result.value = Result(it, currentAmplitudes, coordinates, currentSoundPath,_landscapeUri.value!!.path!!)
         }
-        Log.d(TAG, "validationAndSubmit: $title")
     }
 
     private var recorderController: DefaultRecorderController? = null
@@ -43,6 +44,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentPhotoPath: String
     private lateinit var currentSoundPath: String
+    private lateinit var coordinates: LatLng
     var currentId: Int = 0
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
@@ -226,8 +228,15 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         recorderController = null
     }
 
-    data class Result(val soundPath: String,
+    fun setCoordinates(extras: Bundle?) {
+        extras?.let {
+            coordinates = LatLng(it.getDouble("latitude"), it.getDouble("longitude"))
+        }
+    }
+
+    data class Result(val title: String,
                       val amplitudes: List<Int>,
-                      val landscapePath: String,
-                      val title: String)
+                      val coordinates: LatLng,
+                      val soundPath: String,
+                      val landscapePath: String)
 }
