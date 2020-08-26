@@ -2,13 +2,19 @@ package com.example.biophonie.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.*
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.IntentSender
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.PointF
 import android.graphics.RectF
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
+import android.location.Criteria
+import android.location.Location
+import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
@@ -62,8 +68,9 @@ private const val ID_ICON: String = "biophonie.icon"
 private const val ID_SOURCE: String = "biophonie"
 private const val ID_LAYER: String = "biophonie.sound"
 private const val FRAGMENT_TAG: String = "fragment"
-private const val REQUEST_CHECK_SETTINGS = 0x1
-private const val REQUEST_ADD_SOUND = 2
+private const val REQUEST_SETTINGS_TRACKING = 0x1
+private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
+private const val REQUEST_ADD_SOUND = 0x3
 
 class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback,
     PermissionsListener {
@@ -85,7 +92,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
         @SuppressLint("MissingPermission")
         override fun turnedOff() {
-            mapboxMap.locationComponent.isLocationComponentEnabled = false
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_disabled)
         }
     })
@@ -102,10 +108,72 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun setUpFabResource(){
-        if (isGPSEnabled(applicationContext))
+        if (isGPSEnabled(this))
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
         else
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_disabled)
+    }
+
+    private fun trackLocation(){
+        mapboxMap.getStyle {
+            enableLocationComponent(it)
+            val locationComponent = mapboxMap.locationComponent
+            locationComponent.addOnCameraTrackingChangedListener(object :
+                OnCameraTrackingChangedListener {
+                override fun onCameraTrackingChanged(currentMode: Int) {
+                    when (currentMode) {
+                        CameraMode.TRACKING -> binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
+                        else -> binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
+                    }
+                }
+
+                override fun onCameraTrackingDismissed() {
+                }
+            })
+
+            // Enable to make component visible
+            locationComponent.cameraMode = CameraMode.TRACKING
+        }
+    }
+
+    object SingleShotLocationProvider {
+        @SuppressLint("MissingPermission")
+        fun requestSingleUpdate(
+            context: Context,
+            callback: LocationCallback
+        ) {
+            val locationManager =
+                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val criteria = Criteria()
+            criteria.accuracy = Criteria.ACCURACY_FINE
+            locationManager.requestSingleUpdate(criteria, object : LocationListener {
+                override fun onLocationChanged(location: Location) = callback.onNewLocationAvailable(location)
+                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
+                override fun onProviderEnabled(provider: String?) {}
+                override fun onProviderDisabled(provider: String?) {}
+            }, null)
+        }
+    }
+
+    interface LocationCallback {
+        fun onNewLocationAvailable(location: Location)
+    }
+
+    private fun launchRecActivity(){
+        SingleShotLocationProvider.requestSingleUpdate(this,
+            object : LocationCallback {
+                override fun onNewLocationAvailable(location: Location) {
+                    startActivityForResult(Intent(this@MapActivity, RecSoundActivity::class.java).apply {
+                        putExtras(Bundle().apply {
+                            putDouble("latitude", location.latitude)
+                            putDouble("longitude", location.longitude)
+                        })
+                        Log.d(TAG, "setOnClickListeners: ${location.latitude} ${location.longitude}")
+                    },
+                        REQUEST_ADD_SOUND
+                    )
+                }
+            })
     }
 
     private fun setOnClickListeners() {
@@ -116,33 +184,19 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 .commit()
         }
         binding.locationFab.setOnClickListener {
-            //askLocationSettings()
-            mapboxMap.locationComponent.apply {
-                if (PermissionsManager.areLocationPermissionsGranted(this@MapActivity))
-                    activateLocationSettings()
-                else {
-                    permissionsManager = PermissionsManager(this@MapActivity)
-                    permissionsManager.requestLocationPermissions(this@MapActivity)
-                }
+            if (PermissionsManager.areLocationPermissionsGranted(this))
+                activateLocationSettings(REQUEST_SETTINGS_TRACKING,::trackLocation)
+            else {
+                permissionsManager = PermissionsManager(this)
+                permissionsManager.requestLocationPermissions(this)
             }
         }
         binding.rec.setOnClickListener {
-            val location = mapboxMap.locationComponent.lastKnownLocation
-            if (location != null){
-                startActivityForResult(Intent(this, RecSoundActivity::class.java).apply {
-                    putExtras(Bundle().apply {
-                        putDouble("latitude", location.latitude)
-                        putDouble("longitude", location.longitude)
-                    })
-                },
-                    REQUEST_ADD_SOUND
-                )
+            if (PermissionsManager.areLocationPermissionsGranted(this)){
+                activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE,::launchRecActivity)
             } else {
-                Toast.makeText(
-                    this,
-                    "La localisation est nécessaire pour enregistrer un son",
-                    Toast.LENGTH_SHORT
-                ).show()
+                permissionsManager = PermissionsManager(this)
+                permissionsManager.requestLocationPermissions(this)
             }
         }
     }
@@ -154,32 +208,24 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
         }
 
-    private fun activateLocationSettings(){
+    private fun activateLocationSettings(requestCode: Int, onSuccess: () -> Unit){
         val googleApiClient = GoogleApiClient.Builder(this).addApi(LocationServices.API).build()
         googleApiClient.connect()
         val builder = createLocationRequest()?.let {
             LocationSettingsRequest.Builder()
                 .addLocationRequest(it).apply { setAlwaysShow(true) }
         }
-
         val client: SettingsClient = LocationServices.getSettingsClient(this)
         client.checkLocationSettings(builder?.build()).apply {
             addOnSuccessListener {
-                mapboxMap.getStyle {
-                    enableLocationComponent(it)
-                }
+                onSuccess()
             }
             addOnFailureListener {
                 if (exception is ResolvableApiException){
                     try {
-                        // Show the dialog by calling startResolutionForResult(),
-                        // and check the result in onActivityResult().
                         (exception as ResolvableApiException).startResolutionForResult(this@MapActivity,
-                            REQUEST_CHECK_SETTINGS
-                        )
-                    } catch (sendEx: IntentSender.SendIntentException) {
-                        // Ignore the error.
-                    }
+                            requestCode)
+                    } catch (sendEx: IntentSender.SendIntentException) { }
                 }
             }
         }
@@ -194,22 +240,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 .locationComponentOptions(styleLocation())
                 .build()
         )
-
-        locationComponent.addOnCameraTrackingChangedListener(object :
-            OnCameraTrackingChangedListener {
-            override fun onCameraTrackingChanged(currentMode: Int) {
-                when(currentMode){
-                    CameraMode.TRACKING -> binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
-                    else -> binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
-                }
-            }
-
-            override fun onCameraTrackingDismissed() {
-            }})
-
-        // Enable to make component visible
         locationComponent.isLocationComponentEnabled = true
-        locationComponent.cameraMode = CameraMode.TRACKING
     }
 
     private fun styleLocation(): LocationComponentOptions =
@@ -290,10 +321,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        when (requestCode){
-            REQUEST_CHECK_SETTINGS -> if(resultCode == Activity.RESULT_OK) mapboxMap.getStyle { enableLocationComponent(it) }
-            REQUEST_ADD_SOUND -> if (resultCode == Activity.RESULT_OK) viewModel.requestAddSound(data?.extras)
-            else return
+        if(resultCode == Activity.RESULT_OK){
+            when (requestCode){
+                REQUEST_SETTINGS_TRACKING -> trackLocation()
+                REQUEST_SETTINGS_SINGLE_UPDATE -> launchRecActivity()
+                REQUEST_ADD_SOUND -> viewModel.requestAddSound(data?.extras)
+                else -> return
+            }
         }
     }
 

@@ -11,10 +11,11 @@ interface SoundDao {
     fun getNewSounds(): LiveData<List<DatabaseNewSound>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(newSound: Sound)
+    fun insert(newSound: DatabaseNewSound)
 }
 
-@Database(entities = [Sound::class], version = 1, exportSchema = false)
+@Database(entities = [DatabaseNewSound::class], version = 1, exportSchema = false)
+@TypeConverters(Converters::class)
 abstract class NewSoundDatabase : RoomDatabase() {
 
     abstract val soundDao: SoundDao

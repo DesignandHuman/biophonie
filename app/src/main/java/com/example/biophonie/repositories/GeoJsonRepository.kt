@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase
+import com.example.biophonie.database.asDatabaseModel
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
@@ -22,7 +23,7 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
 
     suspend fun insertNewSound(newSound: Sound){
         withContext(Dispatchers.IO) {
-            database.soundDao.insert(newSound)
+            database.soundDao.insert(newSound.asDatabaseModel())
         }
     }
 
