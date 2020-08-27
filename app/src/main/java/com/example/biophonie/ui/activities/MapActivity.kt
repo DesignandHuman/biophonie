@@ -54,6 +54,7 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.layers.Property.*
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
@@ -109,17 +110,17 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private fun setDataObservers() {
         viewModel.newSounds.observe(this, Observer {
-            val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-            for (i in it){
-            symbolLayerIconFeatureList.add(
-                Feature.fromGeometry(
-                    Point.fromLngLat(i.longitude, i.latitude)
-                ).apply {
-                    addStringProperty(PROPERTY_NAME, i.title)
-                    addStringProperty(PROPERTY_ID, i.id.toString())
-                }
-            )}
-            mapboxMap.getStyle { style -> style.addSource(GeoJsonSource(ID_SOURCE_CACHE, FeatureCollection.fromFeatures(symbolLayerIconFeatureList))) }
+            if (!it.isNullOrEmpty()){
+                mapboxMap.getStyle { style ->
+                    (style.getSource(ID_SOURCE_CACHE) as GeoJsonSource).setGeoJson(
+                        Feature.fromGeometry(
+                            Point.fromLngLat(it.last().longitude, it.last().latitude)
+                        ).apply {
+                            addStringProperty(PROPERTY_NAME, it.last().title)
+                            addStringProperty(PROPERTY_ID, it.last().id.toString())
+                        }
+                    ) }
+            }
         })
     }
 
@@ -314,8 +315,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private fun handleClickIcon(screenPoint: PointF?): Boolean {
         var rectF: RectF? = null
-        // This is a hack. It does not allow for a real hitbox of the size of the text
-        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 50, screenPoint.y + 10) }
+        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 10, screenPoint.y + 10) }
 
         val features: List<Feature> =
             rectF?.let { mapboxMap.queryRenderedFeatures(it,
@@ -409,12 +409,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         iconImage(ID_ICON),
                         iconOpacity(8f),
                         iconSize(0.7f),
-                        iconAllowOverlap(true),
-                        iconIgnorePlacement(true),
+                        iconAllowOverlap(false),
+                        iconIgnorePlacement(false),
                         textColor(resources.getColor(R.color.colorAccent, theme)),
                         textField("{name}"),
                         textSize(12f),
-                        textOffset(arrayOf(2.2f,0f)),
+                        textOffset(arrayOf(0.6f,-0.05f)),
+                        textAnchor(TEXT_ANCHOR_LEFT),
                         textIgnorePlacement(false),
                         textAllowOverlap(false)
                     ),
@@ -423,19 +424,45 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         iconImage(ID_ICON_CACHE),
                         iconOpacity(1f),
                         iconSize(0.7f),
-                        iconAllowOverlap(true),
-                        iconIgnorePlacement(true),
+                        iconAllowOverlap(false),
+                        iconIgnorePlacement(false),
                         textColor(resources.getColor(R.color.colorPrimaryDark, theme)),
                         textField("{name}"),
                         textSize(12F),
-                        textOffset(arrayOf(3.2f,0f)),
+                        textOffset(arrayOf(0.6f,-0.05f)),
+                        textAnchor(TEXT_ANCHOR_LEFT),
                         textIgnorePlacement(false),
                         textAllowOverlap(false)
                     )
             )) {
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
+            setCacheFeatures()
             setDataObservers()
+        }
+    }
+
+    private fun setCacheFeatures(){
+        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+        if (viewModel.newSounds.value.isNullOrEmpty())
+            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE_CACHE)) }
+        else {
+            for (i in viewModel.newSounds.value!!) {
+                symbolLayerIconFeatureList.add(
+                    Feature.fromGeometry(
+                        Point.fromLngLat(i.longitude, i.latitude)
+                    ).apply {
+                        addStringProperty(PROPERTY_NAME, i.title)
+                        addStringProperty(PROPERTY_ID, i.id.toString())
+                    }
+                )
+            }
+            mapboxMap.getStyle { it.addSource(
+                GeoJsonSource(
+                    ID_SOURCE_CACHE,
+                    FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
+                )
+            ) }
         }
     }
 
