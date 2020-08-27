@@ -6,10 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.IntentSender
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.PointF
-import android.graphics.RectF
+import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.Drawable
 import android.location.Criteria
@@ -60,10 +57,12 @@ import com.mapbox.mapboxsdk.maps.Style
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
+import com.mapbox.mapboxsdk.utils.BitmapUtils
 import kotlinx.android.synthetic.main.activity_map.*
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
+private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
 private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
 private const val ID_SOURCE_CACHE: String = "biophonie.cache"
 private const val ID_LAYER_REMOTE: String = "biophonie.sound"
@@ -91,6 +90,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
         @SuppressLint("MissingPermission")
         override fun turnedOff() {
+            if (mapboxMap.locationComponent.isLocationComponentActivated)
+                mapboxMap.locationComponent.isLocationComponentEnabled = false
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_disabled)
         }
     })
@@ -397,10 +398,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         this.mapboxMap = mapboxMap
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
-        val d = resources.getDrawable(R.drawable.ic_marker, theme)
         //val url: URI = URI.create("https://biophonie.fr/geojson")
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
-            .withImage(ID_ICON, d.toBitmap())
+            .withImage(ID_ICON, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, theme))!!)
+            .withImage(ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker_grey, theme))!!)
             .withSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
             .withLayers(
                 SymbolLayer(ID_LAYER_REMOTE, ID_SOURCE_REMOTE)
@@ -410,7 +411,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         iconSize(0.7f),
                         iconAllowOverlap(true),
                         iconIgnorePlacement(true),
-                        textColor("#000000"),
+                        textColor(resources.getColor(R.color.colorAccent, theme)),
                         textField("{name}"),
                         textSize(12f),
                         textOffset(arrayOf(2.2f,0f)),
@@ -419,15 +420,15 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     ),
                 SymbolLayer(ID_LAYER_CACHE, ID_SOURCE_CACHE)
                     .withProperties(
-                        iconImage(ID_ICON),
-                        iconOpacity(8f),
+                        iconImage(ID_ICON_CACHE),
+                        iconOpacity(1f),
                         iconSize(0.7f),
                         iconAllowOverlap(true),
                         iconIgnorePlacement(true),
-                        textColor("#bbbbbb"),
+                        textColor(resources.getColor(R.color.colorPrimaryDark, theme)),
                         textField("{name}"),
-                        textSize(12f),
-                        textOffset(arrayOf(2.2f,0f)),
+                        textSize(12F),
+                        textOffset(arrayOf(3.2f,0f)),
                         textIgnorePlacement(false),
                         textAllowOverlap(false)
                     )
