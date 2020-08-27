@@ -1,18 +1,21 @@
 package com.example.biophonie.database
 
+import android.util.Log
 import androidx.room.*
 import com.example.biophonie.domain.Sound
+import com.example.biophonie.util.LocationConverter
 import java.util.*
 
 @Entity
 data class DatabaseNewSound (
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val title: String?,
-    val date: String?,
+    val title: String,
+    val date: String,
     @TypeConverters(Converters::class)
     val amplitudes: List<Int>,
-    val coordinates: String?,
+    val latitude: Double,
+    val longitude: Double,
 
     @ColumnInfo(name = "landscape_path")
     val landscapePath: String,
@@ -25,29 +28,19 @@ fun List<DatabaseNewSound>.asDomainModel(): List<Sound> {
             title = it.title,
             date = it.date,
             amplitudes = it.amplitudes,
-            coordinates = it.coordinates,
+            coordinates = LocationConverter.latitudeAsDMS(it.latitude,4)+LocationConverter.longitudeAsDMS(it.longitude, 4),
             landscapePath = it.landscapePath,
             soundPath = it.soundPath
         )
     }
 }
 
-fun Sound.asDatabaseModel(): DatabaseNewSound {
-    return DatabaseNewSound(
-        id = 0,
-        title = this.title,
-        date = this.date,
-        amplitudes = this.amplitudes,
-        coordinates = this.coordinates,
-        landscapePath = this.landscapePath,
-        soundPath = this.soundPath)
-}
-
+private const val TAG = "DatabaseEntities"
 class Converters {
     @TypeConverter
     fun stringToList(value: String): List<Int> {
         val list = value.split(",")
-        return list.map{ it.toInt() }
+        return list.map{ if(it.isEmpty()) 0 else it.toInt()}
     }
 
     @TypeConverter

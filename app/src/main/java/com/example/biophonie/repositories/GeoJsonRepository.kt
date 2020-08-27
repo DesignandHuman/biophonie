@@ -2,11 +2,8 @@ package com.example.biophonie.repositories
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase
-import com.example.biophonie.database.asDatabaseModel
-import com.example.biophonie.domain.Sound
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.mapbox.geojson.Feature
@@ -21,9 +18,9 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
         geoFeatures.value = createTestLayers()
     }
 
-    suspend fun insertNewSound(newSound: Sound){
+    suspend fun insertNewSound(newSound: DatabaseNewSound){
         withContext(Dispatchers.IO) {
-            database.soundDao.insert(newSound.asDatabaseModel())
+            database.soundDao.insert(newSound)
         }
     }
 

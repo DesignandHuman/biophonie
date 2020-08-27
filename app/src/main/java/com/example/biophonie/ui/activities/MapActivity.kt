@@ -18,7 +18,6 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
-import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
@@ -65,8 +64,10 @@ import kotlinx.android.synthetic.main.activity_map.*
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
-private const val ID_SOURCE: String = "biophonie"
-private const val ID_LAYER: String = "biophonie.sound"
+private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
+private const val ID_SOURCE_CACHE: String = "biophonie.cache"
+private const val ID_LAYER_REMOTE: String = "biophonie.sound"
+private const val ID_LAYER_CACHE: String = "biophonie.newsound"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_SETTINGS_TRACKING = 0x1
 private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
@@ -81,10 +82,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
-    private var bottomPlayer: BottomPlayerFragment =
-        BottomPlayerFragment()
-    private var about: AboutFragment =
-        AboutFragment()
+    private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
+    private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
         override fun turnedOn() {
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
@@ -105,6 +104,22 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         addBottomSheetFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
+    }
+
+    private fun setDataObservers() {
+        viewModel.newSounds.observe(this, Observer {
+            val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+            for (i in it){
+            symbolLayerIconFeatureList.add(
+                Feature.fromGeometry(
+                    Point.fromLngLat(i.longitude, i.latitude)
+                ).apply {
+                    addStringProperty(PROPERTY_NAME, i.title)
+                    addStringProperty(PROPERTY_ID, i.id.toString())
+                }
+            )}
+            mapboxMap.getStyle { style -> style.addSource(GeoJsonSource(ID_SOURCE_CACHE, FeatureCollection.fromFeatures(symbolLayerIconFeatureList))) }
+        })
     }
 
     private fun setUpFabResource(){
@@ -160,6 +175,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun launchRecActivity(){
+        Toast.makeText(this, "Acquisition de la position en cours", Toast.LENGTH_SHORT)
+            .show()
         SingleShotLocationProvider.requestSingleUpdate(this,
             object : LocationCallback {
                 override fun onNewLocationAvailable(location: Location) {
@@ -168,7 +185,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                             putDouble("latitude", location.latitude)
                             putDouble("longitude", location.longitude)
                         })
-                        Log.d(TAG, "setOnClickListeners: ${location.latitude} ${location.longitude}")
                     },
                         REQUEST_ADD_SOUND
                     )
@@ -302,7 +318,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
         val features: List<Feature> =
             rectF?.let { mapboxMap.queryRenderedFeatures(it,
-                ID_LAYER
+                ID_LAYER_REMOTE
             ) } as List<Feature>
         return if (features.isEmpty()) false
         else {
@@ -373,7 +389,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     // For a future research function...
     fun setFeaturesListener(){
         viewModel.features.observe(this, Observer<List<Feature>>{features ->
-            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(features))) }
+            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(features))) }
         })
     }
 
@@ -385,27 +401,40 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         //val url: URI = URI.create("https://biophonie.fr/geojson")
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
             .withImage(ID_ICON, d.toBitmap())
-            .withSource(GeoJsonSource(ID_SOURCE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
-            .withLayer(SymbolLayer(
-                ID_LAYER,
-                ID_SOURCE
-            )
-                .withProperties(
-                    iconImage(ID_ICON),
-                    iconOpacity(8f),
-                    iconSize(0.7f),
-                    iconAllowOverlap(true),
-                    iconIgnorePlacement(true),
-                    textColor("#000000"),
-                    textField("{name}"),
-                    textSize(12f),
-                    textOffset(arrayOf(2.2f,0f)),
-                    textIgnorePlacement(false),
-                    textAllowOverlap(false)
-                )
+            .withSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
+            .withLayers(
+                SymbolLayer(ID_LAYER_REMOTE, ID_SOURCE_REMOTE)
+                    .withProperties(
+                        iconImage(ID_ICON),
+                        iconOpacity(8f),
+                        iconSize(0.7f),
+                        iconAllowOverlap(true),
+                        iconIgnorePlacement(true),
+                        textColor("#000000"),
+                        textField("{name}"),
+                        textSize(12f),
+                        textOffset(arrayOf(2.2f,0f)),
+                        textIgnorePlacement(false),
+                        textAllowOverlap(false)
+                    ),
+                SymbolLayer(ID_LAYER_CACHE, ID_SOURCE_CACHE)
+                    .withProperties(
+                        iconImage(ID_ICON),
+                        iconOpacity(8f),
+                        iconSize(0.7f),
+                        iconAllowOverlap(true),
+                        iconIgnorePlacement(true),
+                        textColor("#bbbbbb"),
+                        textField("{name}"),
+                        textSize(12f),
+                        textOffset(arrayOf(2.2f,0f)),
+                        textIgnorePlacement(false),
+                        textAllowOverlap(false)
+                    )
             )) {
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
+            setDataObservers()
         }
     }
 
