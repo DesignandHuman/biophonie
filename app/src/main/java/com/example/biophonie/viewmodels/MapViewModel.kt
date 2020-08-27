@@ -12,6 +12,7 @@ import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.repositories.GeoJsonRepository
 import com.example.biophonie.repositories.GeoPointRepository
+import com.example.biophonie.util.getRandomString
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.geometry.LatLng
@@ -53,7 +54,7 @@ class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
-                repository.insertNewSound(DatabaseNewSound(0, title!!, date.toString(), amplitudes as List<Int>, latitude, longitude, landscapePath!!, soundPath!!))
+                repository.insertNewSound(DatabaseNewSound(getRandomString(16), title!!, date.toString(), amplitudes as List<Int>, latitude, longitude, landscapePath!!, soundPath!!))
             }
         }
     }

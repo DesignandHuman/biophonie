@@ -8,8 +8,8 @@ import java.util.*
 
 @Entity
 data class DatabaseNewSound (
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
+    val id: String,
     val title: String,
     val date: String,
     @TypeConverters(Converters::class)
