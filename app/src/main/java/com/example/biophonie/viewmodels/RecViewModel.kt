@@ -218,6 +218,9 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                     validate = { _goToNext.value = true })}
             }
             recorderController?.prepareRecorder()
+        } else {
+            recorderController!!.recPlayerView = recPlayerView
+            recorderController!!.prepareRecorder()
         }
     }
 
