@@ -35,6 +35,12 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
         }
     }
 
+    suspend fun deleteNewSound(newSound: DatabaseNewSound){
+        withContext(Dispatchers.IO) {
+            database.soundDao.delete(newSound)
+        }
+    }
+
     private fun createTestLayers(): MutableList<Feature> {
         val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
         symbolLayerIconFeatureList.add(

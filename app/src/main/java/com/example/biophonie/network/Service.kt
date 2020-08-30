@@ -1,5 +1,6 @@
 package com.example.biophonie.network
 
+import com.example.biophonie.BuildConfig
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -28,8 +29,11 @@ interface WebService {
 data class Message(val message: String)
 
 object GeoPointWeb {
-    
-    private val client: OkHttpClient = OkHttpClient.Builder().addInterceptor(FakeInterceptor()).build()//.apply { interceptors().add(FakeInterceptor()) }
+
+    private val client: OkHttpClient = OkHttpClient.Builder().apply {
+        if (BuildConfig.DEBUG)
+            addInterceptor(FakeInterceptor())
+    }.build()
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())

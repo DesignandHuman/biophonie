@@ -16,6 +16,9 @@ interface SoundDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(newSound: DatabaseNewSound)
+
+    @Delete
+    fun delete(newSound: DatabaseNewSound)
 }
 
 @Database(entities = [DatabaseNewSound::class], version = 1, exportSchema = false)

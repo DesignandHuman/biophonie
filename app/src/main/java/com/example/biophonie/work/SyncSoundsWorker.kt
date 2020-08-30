@@ -22,7 +22,7 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
                 success = repository.sendNewSound(newSound)
                 Log.d(TAG, "doWork: sound ${newSound.title} success? $success")
                 if (!success) break
-                /*else //TODO("remove from db")*/
+                else repository.deleteNewSound(newSound)
             }
         } catch (e: HttpException) {
             Log.d(TAG, "doWork: failure")
