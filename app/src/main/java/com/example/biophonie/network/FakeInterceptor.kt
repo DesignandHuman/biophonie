@@ -17,40 +17,54 @@ class FakeInterceptor : Interceptor {
 
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response? {
-        val response: Response?
         val responseString: String
         // Get Request URI.
         val uri: URI = chain.request().url().uri()
         // Get Query String.
-        val query: String = uri.query
+        val query: String? = uri.query
         // Parse the Query String.
         SystemClock.sleep(1000)
-        val parsedQuery = query.split("=".toRegex()).toTypedArray()
-        responseString = if (parsedQuery[0].equals("id", ignoreCase = true) && parsedQuery[1]
-                .equals("1", ignoreCase = true)
-        ) {
-            SoundId1
-        } else if (parsedQuery[0].equals("id", ignoreCase = true) && parsedQuery[1]
-                .equals("2", ignoreCase = true)
-        ) {
-            SoundId2
-        } else {
-            ""
-        }
-        response = Response.Builder()
-            .code(200)
-            .message(responseString)
-            .request(chain.request())
-            .protocol(Protocol.HTTP_1_0)
-            .body(
-                ResponseBody.create(
-                    MediaType.parse("application/json"),
-                    responseString.toByteArray()
+        if (query != null){
+            val parsedQuery = query.split("=".toRegex()).toTypedArray()
+            responseString = if (parsedQuery[0].equals("id", ignoreCase = true) && parsedQuery[1]
+                    .equals("1", ignoreCase = true)
+            ) {
+                SoundId1
+            } else if (parsedQuery[0].equals("id", ignoreCase = true) && parsedQuery[1]
+                    .equals("2", ignoreCase = true)
+            ) {
+                SoundId2
+            } else {
+                ""
+            }
+            return Response.Builder()
+                .code(200)
+                .message(responseString)
+                .request(chain.request())
+                .protocol(Protocol.HTTP_2)
+                .body(
+                    ResponseBody.create(
+                        MediaType.parse("application/json"),
+                        responseString.toByteArray()
+                    )
                 )
-            )
-            .addHeader("content-type", "application/json")
-            .build()
-        return response
+                .addHeader("content-type", "application/json")
+                .build()
+        } else {
+            return Response.Builder()
+                .code(200)
+                .message("{\"message\":\"OK\"}")
+                .request(chain.request())
+                .protocol(Protocol.HTTP_2)
+                .body(
+                    ResponseBody.create(
+                        MediaType.parse("application/json"),
+                        "{\"message\":\"OK\"}".toByteArray()
+                    )
+                )
+                .addHeader("content-type", "application/json")
+                .build()
+        }
     }
 
 }

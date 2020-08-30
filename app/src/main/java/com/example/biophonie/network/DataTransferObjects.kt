@@ -8,8 +8,10 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkSound(val date: String?,
-                 var amplitudes: List<Int>?,
+data class NetworkSound(val title: String,
+                        val coordinates: List<Double>?,
+                        val date: String?,
+                        var amplitudes: List<Int>?,
                         @Json(name = "url_photo") var urlPhoto: String?,
                         @Json(name = "url_audio")var urlAudio: String?)
 

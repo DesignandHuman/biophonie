@@ -94,6 +94,6 @@ dependencies {
     // Testing Navigation
     androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
 
-
+    implementation "androidx.work:work-runtime-ktx:2.4.0"
     implementation 'com.github.pengrad:mapscaleview:1.6.0'
 }

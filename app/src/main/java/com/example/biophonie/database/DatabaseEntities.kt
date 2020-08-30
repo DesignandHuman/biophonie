@@ -1,8 +1,10 @@
 package com.example.biophonie.database
 
 import android.util.Log
+import androidx.core.util.Pair
 import androidx.room.*
 import com.example.biophonie.domain.Sound
+import com.example.biophonie.network.NetworkSound
 import com.example.biophonie.util.LocationConverter
 import java.util.*
 
@@ -33,6 +35,17 @@ fun List<DatabaseNewSound>.asDomainModel(): List<Sound> {
             soundPath = it.soundPath
         )
     }
+}
+
+fun DatabaseNewSound.asNetworkModel(): NetworkSound {
+    return NetworkSound(
+        title = title,
+        coordinates = listOf(latitude, longitude),
+        date = date,
+        amplitudes = amplitudes,
+        urlAudio = soundPath,
+        urlPhoto = landscapePath
+    )
 }
 
 private const val TAG = "DatabaseEntities"

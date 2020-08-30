@@ -15,6 +15,7 @@ import android.location.LocationListener
 import android.location.LocationManager
 import android.os.Bundle
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
@@ -23,6 +24,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.work.*
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.ui.fragments.AboutFragment
@@ -32,6 +34,7 @@ import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
+import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -60,6 +63,9 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
 import kotlinx.android.synthetic.main.activity_map.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
@@ -511,6 +517,29 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         super.onResume()
         binding.mapView.onResume()
         registerReceiver(gpsReceiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
+        syncToServer()
+    }
+
+    private val applicationScope = CoroutineScope(Dispatchers.Default)
+
+    private fun setUpOnTimeWork(){
+        Log.d(TAG, "setUpOnTimeWork: syncing to server")
+        val constraints = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .setRequiresBatteryNotLow(true)
+            .build()
+        val workRequest = OneTimeWorkRequestBuilder<SyncSoundsWorker>()
+            .setConstraints(constraints)
+            .build()
+        WorkManager.getInstance(this).enqueueUniqueWork(
+            SyncSoundsWorker.WORK_NAME,
+            ExistingWorkPolicy.APPEND_OR_REPLACE,
+            workRequest
+        )
+    }
+
+    private fun syncToServer() {
+        applicationScope.launch { setUpOnTimeWork() }
     }
 
     override fun onPause() {
