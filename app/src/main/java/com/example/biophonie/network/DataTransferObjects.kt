@@ -8,7 +8,7 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
-data class NetworkSound(val title: String,
+data class NetworkSound(val title: String?,
                         val coordinates: List<Double>?,
                         val date: String?,
                         var amplitudes: List<Int>?,
@@ -24,7 +24,7 @@ fun NetworkGeoPoint.asDomainModel(name: String, coordinates: LatLng): GeoPoint{
         coordinatesToString(coordinates),
         sounds.map {
             Sound(
-                title = null,
+                title = it.title,
                 coordinates = null,
                 date = it.date,
                 amplitudes = it.amplitudes ?: listOf(1),

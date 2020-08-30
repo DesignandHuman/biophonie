@@ -50,8 +50,18 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     val rightClickable: LiveData<Boolean>
         get() = _rightClickable
 
-    val date: MutableLiveData<String> = MutableLiveData()
-    val datePicker: MutableLiveData<String> = MutableLiveData()
+    private val _title: MutableLiveData<String> = MutableLiveData()
+    val title: LiveData<String>
+        get() = _title
+
+    private val _date: MutableLiveData<String> = MutableLiveData()
+    val date: LiveData<String>
+        get() = _date
+
+    private val _datePicker: MutableLiveData<String> = MutableLiveData()
+    val datePicker: LiveData<String>
+        get() = _datePicker
+
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = repository.geoPoint
@@ -103,8 +113,9 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     private fun displaySound(sound: Sound) {
         checkClickability(geoPoint.value?.sounds!!)
         val calendar: Calendar = sound.dateAsCalendar()
-        date.value = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(calendar.time)
-        datePicker.value = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(calendar.time)
+        _date.value = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(calendar.time)
+        _datePicker.value = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(calendar.time)
+        _title.value = sound.title
         _visibility.value = true
     }
 

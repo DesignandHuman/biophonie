@@ -3,6 +3,7 @@ package com.example.biophonie.work
 import android.content.Context
 import android.util.Log
 import androidx.work.*
+import com.example.biophonie.BuildConfig
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.repositories.GeoJsonRepository
 import retrofit2.HttpException
@@ -15,20 +16,20 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
         Log.d(TAG, "doWork: ")
         val database = NewSoundDatabase.getInstance(applicationContext)
         val repository = GeoJsonRepository(database)
-        var success = false
+        var finalResult = true
         try {
             val newSounds = database.soundDao.getNewSounds()
             for (newSound in newSounds){
-                success = repository.sendNewSound(newSound)
+                val success = repository.sendNewSound(newSound)
                 Log.d(TAG, "doWork: sound ${newSound.title} success? $success")
-                if (!success) break
-                else repository.deleteNewSound(newSound)
+                if (!success) finalResult = false && continue
+                else if (!BuildConfig.DEBUG) repository.deleteNewSound(newSound)
             }
         } catch (e: HttpException) {
             Log.d(TAG, "doWork: failure")
             return Result.failure()
         }
-        return if(success) Result.success() else Result.failure()
+        return if(finalResult) Result.success() else Result.failure()
     }
 
     companion object {
