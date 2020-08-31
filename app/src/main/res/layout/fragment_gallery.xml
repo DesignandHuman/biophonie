@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         xmlns:app="http://schemas.android.com/apk/res-auto"
-        tools:context=".ui.GalleryFragment">
+        tools:context=".ui.fragments.GalleryFragment">
 
         <include layout="@layout/back_and_close" android:id="@+id/top_panel"/>
 

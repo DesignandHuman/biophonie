@@ -1,10 +1,13 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import android.widget.TextView
 import android.widget.Toast
@@ -27,7 +30,7 @@ class BottomPlayerFragment : Fragment() {
     private var shortAnimationDuration: Int = 0
 
     private val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory()).get(BottomPlayerViewModel::class.java)
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(BottomPlayerViewModel::class.java)
     }
     private lateinit var binding: FragmentBottomPlayerBinding
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>

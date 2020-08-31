@@ -1,4 +1,4 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
 import android.content.Intent
 import android.net.Uri

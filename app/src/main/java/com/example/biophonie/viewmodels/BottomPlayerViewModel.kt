@@ -4,7 +4,11 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.domain.dateAsCalendar
@@ -13,7 +17,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -50,8 +57,18 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     val rightClickable: LiveData<Boolean>
         get() = _rightClickable
 
-    val date: MutableLiveData<String> = MutableLiveData()
-    val datePicker: MutableLiveData<String> = MutableLiveData()
+    private val _title: MutableLiveData<String> = MutableLiveData()
+    val title: LiveData<String>
+        get() = _title
+
+    private val _date: MutableLiveData<String> = MutableLiveData()
+    val date: LiveData<String>
+        get() = _date
+
+    private val _datePicker: MutableLiveData<String> = MutableLiveData()
+    val datePicker: LiveData<String>
+        get() = _datePicker
+
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = repository.geoPoint
@@ -87,13 +104,13 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         // A bit of a hack due to ListIterators' behavior.
         // The index is between two elements.
         try {
-            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].urlAudio)
+            Log.d(TAG, "checkClickability: previous URL " + sounds[soundsIterator.previousIndex()-1].soundPath)
             _leftClickable.value = true
         } catch (e: IndexOutOfBoundsException){
             _leftClickable.value = false
         }
         try {
-            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].urlAudio)
+            Log.d(TAG, "checkClickability: next URL "+ sounds[soundsIterator.nextIndex()].soundPath)
             _rightClickable.value = true
         } catch (e: IndexOutOfBoundsException){
             _rightClickable.value = false
@@ -103,8 +120,9 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     private fun displaySound(sound: Sound) {
         checkClickability(geoPoint.value?.sounds!!)
         val calendar: Calendar = sound.dateAsCalendar()
-        date.value = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(calendar.time)
-        datePicker.value = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(calendar.time)
+        _date.value = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(calendar.time)
+        _datePicker.value = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(calendar.time)
+        _title.value = sound.title
         _visibility.value = true
     }
 
@@ -131,12 +149,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         }
     }
 
-    class ViewModelFactory : ViewModelProvider.Factory {
+    class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(GeoPointRepository()) as T
+                return BottomPlayerViewModel(GeoPointRepository(NewSoundDatabase.getInstance(context))) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

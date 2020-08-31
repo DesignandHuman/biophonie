@@ -13,7 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.RecorderFragment">
+        tools:context=".ui.fragments.RecorderFragment">
 
         <include layout="@layout/back_and_close" android:id="@+id/top_panel"/>
 

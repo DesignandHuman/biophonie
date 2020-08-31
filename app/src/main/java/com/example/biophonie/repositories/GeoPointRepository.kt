@@ -1,28 +1,36 @@
 package com.example.biophonie.repositories
 
-import android.content.ContentValues.TAG
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import com.example.biophonie.database.NewSoundDatabase
+import com.example.biophonie.database.asDomainModel
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.GeoPointWeb
 import com.example.biophonie.network.NetworkGeoPoint
 import com.example.biophonie.network.asDomainModel
+import com.example.biophonie.util.coordinatesToString
 import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import retrofit2.await
 
-class GeoPointRepository {
+class GeoPointRepository(private val database: NewSoundDatabase) {
     suspend fun fetchGeoPoint(id: String, name: String, coordinates: LatLng){
         withContext(Dispatchers.IO){
-            val response: Response<NetworkGeoPoint> = GeoPointWeb.geopoints.getGeoPoint(id)
-            if (response.isSuccessful && response.body() != null)
+            val cachedNewSound = database.soundDao.getNewSound(id)
+            if (cachedNewSound == null){
+                val response: Response<NetworkGeoPoint> = GeoPointWeb.geopoints.getGeoPoint(id)
+                if (response.isSuccessful && response.body() != null)
+                    withContext(Dispatchers.Main){
+                        geoPoint.value = response.body()?.asDomainModel(name, coordinates)
+                    }
+            } else {
                 withContext(Dispatchers.Main){
-                    geoPoint.value = response.body()?.asDomainModel(name, coordinates)
+                    geoPoint.value = GeoPoint(id,
+                        name,
+                        coordinatesToString(coordinates),
+                        listOf(cachedNewSound.asDomainModel()))
                 }
+            }
         }
     }
     var geoPoint: MutableLiveData<GeoPoint> = MutableLiveData()

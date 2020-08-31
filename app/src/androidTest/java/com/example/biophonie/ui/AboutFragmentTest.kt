@@ -7,7 +7,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.example.biophonie.R
-import org.junit.Assert.*
+import com.example.biophonie.ui.fragments.AboutFragment
 import org.junit.Test
 import org.junit.runner.RunWith
 

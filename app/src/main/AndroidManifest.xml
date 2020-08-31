@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.biophonie">
 
     <uses-feature android:name="android.hardware.camera"
@@ -17,10 +18,10 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.RecSoundActivity" android:windowSoftInputMode="adjustResize" />
-        <activity android:name=".ui.TutorialActivity" android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".ui.MapActivity"/>
-        <activity android:name=".ui.MainActivity" android:theme="@style/SplashTheme">
+        <activity android:name=".ui.activities.RecSoundActivity" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.activities.TutorialActivity" android:windowSoftInputMode="adjustResize"/>
+        <activity android:name=".ui.activities.MapActivity"/>
+        <activity android:name=".ui.activities.MainActivity" android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -37,7 +38,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
     </application>
 
 </manifest>

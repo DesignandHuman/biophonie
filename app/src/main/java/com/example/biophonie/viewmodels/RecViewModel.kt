@@ -5,6 +5,7 @@ import android.content.ContentResolver
 import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
+import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -12,12 +13,13 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
+import com.example.biophonie.R
+import com.mapbox.mapboxsdk.geometry.LatLng
+import fr.haran.soundwave.controller.DefaultRecorderController
+import fr.haran.soundwave.ui.RecPlayerView
 import java.io.File
 import java.io.IOException
 import java.util.*
-import com.example.biophonie.R
-import fr.haran.soundwave.controller.DefaultRecorderController
-import fr.haran.soundwave.ui.RecPlayerView
 
 private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0
@@ -27,14 +29,15 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val mTitle = ObservableField<String>()
 
     fun validationAndSubmit(){
+        val date = Calendar.getInstance().time
+        val dateAsString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(date)
         val title = mTitle.get()
         title?.let {
             if (it.length < 7)
                 _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
             else
-                _result.value = Result(currentSoundPath, currentAmplitudes, _landscapeUri.value!!.path!!, it)
+                _result.value = Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath,_landscapeUri.value!!.path!!)
         }
-        Log.d(TAG, "validationAndSubmit: $title")
     }
 
     private var recorderController: DefaultRecorderController? = null
@@ -43,6 +46,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentPhotoPath: String
     private lateinit var currentSoundPath: String
+    private lateinit var coordinates: LatLng
     var currentId: Int = 0
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
@@ -95,7 +99,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     @Throws(IOException::class)
     private fun createImageFile(): File? {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.FRANCE).format(Date())
+        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
         val storageDir: File? = File(context.externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
         return if (storageDir == null){
             _toast.value = ToastModel("Veuillez accorder la permission d'accès au stockage du téléphone", Toast.LENGTH_LONG)
@@ -214,6 +218,9 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                     validate = { _goToNext.value = true })}
             }
             recorderController?.prepareRecorder()
+        } else {
+            recorderController!!.recPlayerView = recPlayerView
+            recorderController!!.prepareRecorder()
         }
     }
 
@@ -226,8 +233,16 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         recorderController = null
     }
 
-    data class Result(val soundPath: String,
+    fun setCoordinates(extras: Bundle?) {
+        extras?.let {
+            coordinates = LatLng(it.getDouble("latitude"), it.getDouble("longitude"))
+        }
+    }
+
+    data class Result(val title: String,
+                      val date: String,
                       val amplitudes: List<Int>,
-                      val landscapePath: String,
-                      val title: String)
+                      val coordinates: LatLng,
+                      val soundPath: String,
+                      val landscapePath: String)
 }

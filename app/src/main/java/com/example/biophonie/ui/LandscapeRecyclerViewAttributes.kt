@@ -2,16 +2,10 @@ package com.example.biophonie.ui
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
-import androidx.core.graphics.ColorUtils
 import androidx.recyclerview.widget.RecyclerView
-import androidx.recyclerview.widget.RecyclerView.ViewHolder
-import com.example.biophonie.R
 import com.example.biophonie.databinding.LandscapeViewBinding
 import com.example.biophonie.domain.Landscape
 import com.example.biophonie.util.dpToPx

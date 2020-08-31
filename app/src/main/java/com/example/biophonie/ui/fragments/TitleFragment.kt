@@ -1,12 +1,10 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
-import android.R.attr
 import android.app.Service
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,10 +17,9 @@ import androidx.lifecycle.Observer
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
 import com.example.biophonie.viewmodels.RecViewModel
-import java.util.ArrayList
+import java.util.*
 
 
-private const val TAG = "TitleFragment"
 class TitleFragment : Fragment() {
     private lateinit var binding: FragmentTitleBinding
     private val viewModel: RecViewModel by activityViewModels{
@@ -98,10 +95,13 @@ class TitleFragment : Fragment() {
         viewModel.result.observe(viewLifecycleOwner, Observer {
             val intent = Intent()
             val bundle = Bundle().apply {
+                putString("title", it.title)
+                putString("date", it.date)
+                putIntegerArrayList("amplitudes", it.amplitudes as ArrayList<Int>)
+                putDouble("latitude", it.coordinates.latitude)
+                putDouble("longitude", it.coordinates.longitude)
                 putString("soundPath", it.soundPath)
                 putString("landscapePath", it.landscapePath)
-                putIntegerArrayList("amplitudes", it.amplitudes as ArrayList<Int>)
-                putString("title", it.title)
             }
             intent.putExtras(bundle)
             requireActivity().apply {
