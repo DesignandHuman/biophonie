@@ -27,7 +27,7 @@ class BottomPlayerFragment : Fragment() {
     private var shortAnimationDuration: Int = 0
 
     private val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory()).get(BottomPlayerViewModel::class.java)
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(BottomPlayerViewModel::class.java)
     }
     private lateinit var binding: FragmentBottomPlayerBinding
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>

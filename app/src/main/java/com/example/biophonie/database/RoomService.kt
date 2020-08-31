@@ -19,6 +19,9 @@ interface SoundDao {
 
     @Delete
     fun delete(newSound: DatabaseNewSound)
+
+    @Query("select * from databasenewsound where id like :id")
+    fun getNewSound(id: String): DatabaseNewSound?
 }
 
 @Database(entities = [DatabaseNewSound::class], version = 1, exportSchema = false)

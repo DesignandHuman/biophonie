@@ -5,6 +5,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.*
+import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.domain.dateAsCalendar
@@ -142,12 +143,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         }
     }
 
-    class ViewModelFactory : ViewModelProvider.Factory {
+    class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(GeoPointRepository()) as T
+                return BottomPlayerViewModel(GeoPointRepository(NewSoundDatabase.getInstance(context))) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

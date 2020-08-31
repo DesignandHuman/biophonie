@@ -322,24 +322,33 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun handleClickIcon(screenPoint: PointF?): Boolean {
         var rectF: RectF? = null
         screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 10, screenPoint.y + 10) }
-
         val features: List<Feature> =
             rectF?.let { mapboxMap.queryRenderedFeatures(it,
                 ID_LAYER_REMOTE
             ) } as List<Feature>
-        return if (features.isEmpty()) false
-        else {
-            val clickedFeature: Feature? = features.first { it.geometry() is Point }
-            val clickedPoint: Point? = clickedFeature?.geometry() as Point?
-            clickedPoint?.let {
-                bottomPlayer.clickOnGeoPoint(clickedFeature!!.getStringProperty(PROPERTY_ID),
-                    clickedFeature.getStringProperty(PROPERTY_NAME),
-                    LatLng(clickedPoint.latitude(), clickedPoint.longitude())
-                )
-                return true
-            }
-            return false
+        val cachedFeatures: List<Feature> =
+            rectF?.let { mapboxMap.queryRenderedFeatures(it,
+                ID_LAYER_CACHE
+            ) } as List<Feature>
+        return when {
+            features.isNotEmpty() -> displayFeatures(features)
+            cachedFeatures.isNotEmpty() -> displayFeatures(cachedFeatures)
+            else -> false
         }
+    }
+
+    private fun displayFeatures(features: List<Feature>): Boolean {
+        val clickedFeature: Feature? = features.first { it.geometry() is Point }
+        val clickedPoint: Point? = clickedFeature?.geometry() as Point?
+        clickedPoint?.let {
+            bottomPlayer.clickOnGeoPoint(
+                clickedFeature!!.getStringProperty(PROPERTY_ID),
+                clickedFeature.getStringProperty(PROPERTY_NAME),
+                LatLng(clickedPoint.latitude(), clickedPoint.longitude())
+            )
+            return true
+        }
+        return false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -481,24 +490,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         return handleClickIcon(mapboxMap.projection.toScreenLocation(point))
     }
 
-    /**
-     * Convert a drawable to a bitmap
-     *
-     * @return bitmap
-     */
-    private fun Drawable.toBitmap(): Bitmap {
-        if (this is BitmapDrawable) {
-            return this.bitmap
-        }
-
-        val bitmap = Bitmap.createBitmap(this.intrinsicWidth, this.intrinsicHeight, Bitmap.Config.ARGB_8888)
-        val canvas = Canvas(bitmap)
-        this.setBounds(0, 0, canvas.width, canvas.height)
-        this.draw(canvas)
-
-        return bitmap
-    }
-
     override fun onBackPressed() {
         if (bottomPlayer.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN
             && !supportFragmentManager.fragments.contains(about))
@@ -511,7 +502,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         super.onStart()
         binding.mapView.onStart()
     }
-
 
     override fun onResume() {
         super.onResume()

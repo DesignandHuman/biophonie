@@ -6,6 +6,8 @@ import androidx.room.*
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.network.NetworkSound
 import com.example.biophonie.util.LocationConverter
+import com.example.biophonie.util.coordinatesToString
+import com.mapbox.mapboxsdk.geometry.LatLng
 import java.util.*
 
 @Entity
@@ -46,6 +48,15 @@ fun DatabaseNewSound.asNetworkModel(): NetworkSound {
         urlAudio = soundPath,
         urlPhoto = landscapePath
     )
+}
+
+fun DatabaseNewSound.asDomainModel(): Sound {
+    return Sound(title = title,
+        date = date,
+        amplitudes = amplitudes,
+        coordinates = coordinatesToString(LatLng(latitude, longitude)),
+        landscapePath = landscapePath,
+        soundPath = soundPath)
 }
 
 private const val TAG = "DatabaseEntities"
