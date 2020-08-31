@@ -56,8 +56,10 @@ import com.mapbox.mapboxsdk.location.modes.CameraMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_LEFT
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.PropertyValue
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
@@ -73,6 +75,7 @@ private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
 private const val ID_SOURCE_CACHE: String = "biophonie.cache"
 private const val ID_LAYER_REMOTE: String = "biophonie.sound"
 private const val ID_LAYER_CACHE: String = "biophonie.newsound"
+private const val PROPERTY_SELECTED: String = "selected"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_SETTINGS_TRACKING = 0x1
 private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
@@ -87,6 +90,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
+    private lateinit var remoteFeatures: List<Feature>
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -330,22 +334,27 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 ID_LAYER_CACHE
             ) } as List<Feature>
         return when {
-            features.isNotEmpty() -> displayFeatures(features)
-            cachedFeatures.isNotEmpty() -> displayFeatures(cachedFeatures)
+            features.isNotEmpty() -> displayFeature(features)
+            cachedFeatures.isNotEmpty() -> displayFeature(cachedFeatures)
             else -> false
         }
     }
 
-    private fun displayFeatures(features: List<Feature>): Boolean {
-        val clickedFeature: Feature? = features.first { it.geometry() is Point }
-        val clickedPoint: Point? = clickedFeature?.geometry() as Point?
-        clickedPoint?.let {
-            bottomPlayer.clickOnGeoPoint(
-                clickedFeature!!.getStringProperty(PROPERTY_ID),
-                clickedFeature.getStringProperty(PROPERTY_NAME),
-                LatLng(clickedPoint.latitude(), clickedPoint.longitude())
-            )
-            return true
+    private fun displayFeature(features: List<Feature>): Boolean {
+        val clickedFeature = features.firstOrNull { it.geometry() is Point }
+        clickedFeature?.let { feature ->
+            remoteFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
+            remoteFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
+                PROPERTY_ID) }.addBooleanProperty(PROPERTY_SELECTED, true)
+            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE_REMOTE)?.setGeoJson(
+                FeatureCollection.fromFeatures(remoteFeatures))
+            val clickedPoint = feature.geometry() as Point
+                bottomPlayer.clickOnGeoPoint(
+                    clickedFeature.getStringProperty(PROPERTY_ID),
+                    clickedFeature.getStringProperty(PROPERTY_NAME),
+                    LatLng(clickedPoint.latitude(), clickedPoint.longitude())
+                )
+                return true
         }
         return false
     }
@@ -410,50 +419,56 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
+        remoteFeatures = viewModel.features.value!!
+        val properties = buildPropertyValues()
+        mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
         //val url: URI = URI.create("https://biophonie.fr/geojson")
         mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
             .withImage(ID_ICON, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, theme))!!)
             .withImage(ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker_grey, theme))!!)
-            .withSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
+            .withSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(remoteFeatures)))
             .withLayers(
                 SymbolLayer(ID_LAYER_REMOTE, ID_SOURCE_REMOTE)
-                    .withProperties(
-                        iconImage(ID_ICON),
-                        iconOpacity(8f),
-                        iconSize(0.7f),
-                        iconAllowOverlap(false),
-                        iconIgnorePlacement(false),
-                        textColor(resources.getColor(R.color.colorAccent, theme)),
-                        textField("{name}"),
-                        textSize(12f),
-                        textOffset(arrayOf(0.6f,-0.05f)),
-                        textAnchor(TEXT_ANCHOR_LEFT),
-                        textIgnorePlacement(false),
-                        textAllowOverlap(false)
-                    ),
+                    .withProperties(iconImage(ID_ICON), textColor(resources.getColor(R.color.colorAccent, theme)), *properties),
                 SymbolLayer(ID_LAYER_CACHE, ID_SOURCE_CACHE)
-                    .withProperties(
-                        iconImage(ID_ICON_CACHE),
-                        iconOpacity(1f),
-                        iconSize(0.7f),
-                        iconAllowOverlap(false),
-                        iconIgnorePlacement(false),
-                        textColor(resources.getColor(R.color.colorPrimaryDark, theme)),
-                        textField("{name}"),
-                        textSize(12F),
-                        textOffset(arrayOf(0.6f,-0.05f)),
-                        textAnchor(TEXT_ANCHOR_LEFT),
-                        textIgnorePlacement(false),
-                        textAllowOverlap(false)
-                    )
-            )) {
+                    .withProperties(iconImage(ID_ICON_CACHE), textColor(resources.getColor(R.color.colorPrimaryDark, theme)), *properties)
+            )
+        ) {
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
             setCacheFeatures()
             setDataObservers()
         }
+    }
+
+    private fun buildPropertyValues(): Array<PropertyValue<out Any>> {
+        return arrayOf(
+            iconOpacity(8f),
+            iconSize(
+                switchCase(
+                    eq(get(PROPERTY_SELECTED), true), literal(0.9f),
+                    eq(get(PROPERTY_SELECTED), false), literal(0.7f),
+                    literal(0.7f)
+                )
+            ),
+            iconAllowOverlap(false),
+            iconIgnorePlacement(false),
+            textFont(
+                switchCase(
+                    eq(get(PROPERTY_SELECTED), true), literal(arrayOf("Arial Unicode MS Bold")),
+                    eq(get(PROPERTY_SELECTED), false), literal(arrayOf("Arial Unicode MS Regular")),
+                    literal(arrayOf("Arial Unicode MS Regular"))
+                )
+            ),
+            textField("{name}"),
+            textSize(12f),
+            textOffset(arrayOf(0.6f, -0.05f)),
+            textAnchor(TEXT_ANCHOR_LEFT),
+            textIgnorePlacement(false),
+            textAllowOverlap(false)
+        )
     }
 
     private fun setCacheFeatures(){
