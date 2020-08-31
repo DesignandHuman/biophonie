@@ -2,17 +2,14 @@ package com.example.biophonie.viewmodels
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.work.*
 import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase.Companion.getInstance
 import com.example.biophonie.repositories.GeoJsonRepository
 import com.example.biophonie.util.getRandomString
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 import java.io.IOException
 
 const val PROPERTY_NAME: String = "name"

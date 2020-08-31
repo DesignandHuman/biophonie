@@ -1,16 +1,11 @@
 package com.example.biophonie.util
 
-import android.content.Context
 import android.net.Uri
-import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
-import com.bumptech.glide.GlideBuilder
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.bumptech.glide.module.AppGlideModule
-import com.example.biophonie.R
 
 
 //TODO(use?)

@@ -17,7 +17,7 @@ import androidx.lifecycle.Observer
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
 import com.example.biophonie.viewmodels.RecViewModel
-import java.util.ArrayList
+import java.util.*
 
 
 class TitleFragment : Fragment() {

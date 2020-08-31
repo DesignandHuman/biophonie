@@ -13,13 +13,13 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
-import java.io.File
-import java.io.IOException
-import java.util.*
 import com.example.biophonie.R
 import com.mapbox.mapboxsdk.geometry.LatLng
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
+import java.io.File
+import java.io.IOException
+import java.util.*
 
 private const val TAG = "RecViewModel"
 const val REQUEST_CAMERA = 0

@@ -1,6 +1,5 @@
 package com.example.biophonie.repositories
 
-import android.os.Build
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +7,7 @@ import com.example.biophonie.BuildConfig
 import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.database.asNetworkModel
-import com.example.biophonie.network.*
+import com.example.biophonie.network.GeoPointWeb
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.mapbox.geojson.Feature

@@ -1,10 +1,6 @@
 package com.example.biophonie.domain
 
-import android.content.ContentValues.TAG
-import android.content.res.AssetFileDescriptor
 import android.graphics.drawable.Drawable
-import android.util.Log
-import androidx.annotation.RawRes
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*

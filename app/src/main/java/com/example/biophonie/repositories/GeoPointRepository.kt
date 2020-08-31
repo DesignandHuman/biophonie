@@ -1,10 +1,6 @@
 package com.example.biophonie.repositories
 
-import android.content.ContentValues.TAG
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.database.asDomainModel
 import com.example.biophonie.domain.GeoPoint
@@ -16,7 +12,6 @@ import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import retrofit2.await
 
 class GeoPointRepository(private val database: NewSoundDatabase) {
     suspend fun fetchGeoPoint(id: String, name: String, coordinates: LatLng){

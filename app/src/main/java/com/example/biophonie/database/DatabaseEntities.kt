@@ -1,14 +1,11 @@
 package com.example.biophonie.database
 
-import android.util.Log
-import androidx.core.util.Pair
 import androidx.room.*
 import com.example.biophonie.domain.Sound
 import com.example.biophonie.network.NetworkSound
 import com.example.biophonie.util.LocationConverter
 import com.example.biophonie.util.coordinatesToString
 import com.mapbox.mapboxsdk.geometry.LatLng
-import java.util.*
 
 @Entity
 data class DatabaseNewSound (

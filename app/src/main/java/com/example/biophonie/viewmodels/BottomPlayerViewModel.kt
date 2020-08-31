@@ -4,7 +4,10 @@ import android.content.ContentValues.TAG
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Sound
@@ -14,7 +17,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
