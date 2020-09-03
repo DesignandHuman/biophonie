@@ -12,6 +12,7 @@ import com.example.biophonie.util.getRandomString
 import kotlinx.coroutines.launch
 import java.io.IOException
 
+const val PROPERTY_CACHE: String = "fromCache?"
 const val PROPERTY_NAME: String = "name"
 const val PROPERTY_ID: String = "id"
 private const val TAG = "MapViewModel"

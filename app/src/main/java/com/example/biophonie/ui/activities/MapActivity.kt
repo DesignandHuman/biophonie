@@ -31,6 +31,7 @@ import com.example.biophonie.ui.fragments.BottomPlayerFragment
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
+import com.example.biophonie.viewmodels.PROPERTY_CACHE
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
@@ -66,15 +67,14 @@ import com.mapbox.mapboxsdk.utils.BitmapUtils
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
-private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
-private const val ID_SOURCE_CACHE: String = "biophonie.cache"
-private const val ID_LAYER_REMOTE: String = "biophonie.sound"
-private const val ID_LAYER_CACHE: String = "biophonie.newsound"
+private const val ID_SOURCE: String = "biophonie.remote"
+private const val ID_LAYER: String = "biophonie.sound"
 private const val PROPERTY_SELECTED: String = "selected"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_SETTINGS_TRACKING = 0x1
@@ -90,7 +90,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
-    private lateinit var remoteFeatures: List<Feature>
+    private lateinit var geoPointsFeatures: MutableList<Feature>
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -119,16 +119,20 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private fun setDataObservers() {
         viewModel.newSounds.observe(this, Observer {
-            if (!it.isNullOrEmpty()){
+            if (!it.isNullOrEmpty()) {
+                geoPointsFeatures.plusAssign(Feature.fromGeometry(
+                    Point.fromLngLat(it.last().longitude, it.last().latitude)
+                ).apply {
+                    addStringProperty(PROPERTY_NAME, it.last().title)
+                    addStringProperty(PROPERTY_ID, it.last().id)
+                    addBooleanProperty(PROPERTY_CACHE, true)
+                })
                 mapboxMap.getStyle { style ->
-                    (style.getSource(ID_SOURCE_CACHE) as GeoJsonSource).setGeoJson(
-                        Feature.fromGeometry(
-                            Point.fromLngLat(it.last().longitude, it.last().latitude)
-                        ).apply {
-                            addStringProperty(PROPERTY_NAME, it.last().title)
-                            addStringProperty(PROPERTY_ID, it.last().id.toString())
-                        }
-                    ) }
+                    Log.d(TAG, "setDataObservers: ${geoPointsFeatures.size}")
+                    (style.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
+                        FeatureCollection.fromFeatures(geoPointsFeatures)
+                    )
+                }
             }
         })
     }
@@ -173,7 +177,11 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             val criteria = Criteria()
             criteria.accuracy = Criteria.ACCURACY_FINE
             locationManager.requestSingleUpdate(criteria, object : LocationListener {
-                override fun onLocationChanged(location: Location) = callback.onNewLocationAvailable(location)
+                override fun onLocationChanged(location: Location) =
+                    callback.onNewLocationAvailable(
+                        location
+                    )
+
                 override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                 override fun onProviderEnabled(provider: String?) {}
                 override fun onProviderDisabled(provider: String?) {}
@@ -191,12 +199,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         SingleShotLocationProvider.requestSingleUpdate(this,
             object : LocationCallback {
                 override fun onNewLocationAvailable(location: Location) {
-                    startActivityForResult(Intent(this@MapActivity, RecSoundActivity::class.java).apply {
-                        putExtras(Bundle().apply {
-                            putDouble("latitude", location.latitude)
-                            putDouble("longitude", location.longitude)
-                        })
-                    },
+                    startActivityForResult(
+                        Intent(this@MapActivity, RecSoundActivity::class.java).apply {
+                            putExtras(Bundle().apply {
+                                putDouble("latitude", location.latitude)
+                                putDouble("longitude", location.longitude)
+                            })
+                        },
                         REQUEST_ADD_SOUND
                     )
                 }
@@ -206,13 +215,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
             supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, about, FRAGMENT_TAG +"about")
+                .add(R.id.containerMap, about, FRAGMENT_TAG + "about")
                 .addToBackStack(null)
                 .commit()
         }
         binding.locationFab.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this))
-                activateLocationSettings(REQUEST_SETTINGS_TRACKING,::trackLocation)
+                activateLocationSettings(REQUEST_SETTINGS_TRACKING, ::trackLocation)
             else {
                 permissionsManager = PermissionsManager(this)
                 permissionsManager.requestLocationPermissions(this)
@@ -220,7 +229,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
         binding.rec.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this)){
-                activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE,::launchRecActivity)
+                activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE, ::launchRecActivity)
             } else {
                 permissionsManager = PermissionsManager(this)
                 permissionsManager.requestLocationPermissions(this)
@@ -250,8 +259,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             addOnFailureListener {
                 if (exception is ResolvableApiException){
                     try {
-                        (exception as ResolvableApiException).startResolutionForResult(this@MapActivity,
-                            requestCode)
+                        (exception as ResolvableApiException).startResolutionForResult(
+                            this@MapActivity,
+                            requestCode
+                        )
                     } catch (sendEx: IntentSender.SendIntentException) { }
                 }
             }
@@ -317,37 +328,38 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             }
 
-            setNegativeButton("Annuler") {dialog, _ -> dialog.cancel()}
+            setNegativeButton("Annuler") { dialog, _ -> dialog.cancel()}
             show()
         }
     }
 
     private fun handleClickIcon(screenPoint: PointF?): Boolean {
         var rectF: RectF? = null
-        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 10, screenPoint.y + 10) }
+        screenPoint?.let {rectF = RectF(
+            screenPoint.x - 10,
+            screenPoint.y - 10,
+            screenPoint.x + 10,
+            screenPoint.y + 10
+        ) }
         val features: List<Feature> =
-            rectF?.let { mapboxMap.queryRenderedFeatures(it,
-                ID_LAYER_REMOTE
+            rectF?.let { mapboxMap.queryRenderedFeatures(
+                it,
+                ID_LAYER
             ) } as List<Feature>
-        val cachedFeatures: List<Feature> =
-            rectF?.let { mapboxMap.queryRenderedFeatures(it,
-                ID_LAYER_CACHE
-            ) } as List<Feature>
-        return when {
-            features.isNotEmpty() -> displayFeature(features)
-            cachedFeatures.isNotEmpty() -> displayFeature(cachedFeatures)
-            else -> false
-        }
+        return if (features.isNotEmpty()) displayFeature(features)
+        else false
     }
 
     private fun displayFeature(features: List<Feature>): Boolean {
         val clickedFeature = features.firstOrNull { it.geometry() is Point }
         clickedFeature?.let { feature ->
-            remoteFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
-            remoteFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
-                PROPERTY_ID) }.addBooleanProperty(PROPERTY_SELECTED, true)
-            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE_REMOTE)?.setGeoJson(
-                FeatureCollection.fromFeatures(remoteFeatures))
+            geoPointsFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
+            geoPointsFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
+                PROPERTY_ID
+            ) }.addBooleanProperty(PROPERTY_SELECTED, true)
+            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE)?.setGeoJson(
+                FeatureCollection.fromFeatures(geoPointsFeatures)
+            )
             val clickedPoint = feature.geometry() as Point
                 bottomPlayer.clickOnGeoPoint(
                     clickedFeature.getStringProperty(PROPERTY_ID),
@@ -371,9 +383,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                   permissions: Array<String?>,
-                                   grantResults: IntArray
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
     ) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -405,46 +418,82 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         supportFragmentManager.beginTransaction()
             .add(
                 R.id.containerMap, bottomPlayer,
-                FRAGMENT_TAG +"bottomSheet"
+                FRAGMENT_TAG + "bottomSheet"
             )
             .commit()
     }
 
     // For a future research function...
     fun setFeaturesListener(){
-        viewModel.features.observe(this, Observer<List<Feature>>{features ->
-            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(features))) }
+        viewModel.features.observe(this, Observer<List<Feature>> { features ->
+            mapboxMap.getStyle {
+                it.addSource(
+                    GeoJsonSource(
+                        ID_SOURCE, FeatureCollection.fromFeatures(
+                            features
+                        )
+                    )
+                )
+            }
         })
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
-        remoteFeatures = viewModel.features.value!!
+        geoPointsFeatures = (viewModel.features.value as MutableList<Feature>?)!!
+        //TODO("Bug with the icon color, see dev as a reference")
+        setCacheFeatures() //TODO("Bad practice, should be transparent for activity (repository-only dependent)?")
         val properties = buildPropertyValues()
         mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
         //val url: URI = URI.create("https://biophonie.fr/geojson")
-        mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
-            .withImage(ID_ICON, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, theme))!!)
-            .withImage(ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker_grey, theme))!!)
-            .withSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(remoteFeatures)))
-            .withLayers(
-                SymbolLayer(ID_LAYER_REMOTE, ID_SOURCE_REMOTE)
-                    .withProperties(iconImage(ID_ICON), textColor(resources.getColor(R.color.colorAccent, theme)), *properties),
-                SymbolLayer(ID_LAYER_CACHE, ID_SOURCE_CACHE)
-                    .withProperties(iconImage(ID_ICON_CACHE), textColor(resources.getColor(R.color.colorPrimaryDark, theme)), *properties)
-            )
+        mapboxMap.setStyle(
+            Style.Builder().fromUri(getString(R.string.style_url))
+                .withImage(
+                    ID_ICON, BitmapUtils.getBitmapFromDrawable(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_marker,
+                            theme
+                        )
+                    )!!
+                )
+                .withImage(
+                    ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_marker_grey,
+                            theme
+                        )
+                    )!!
+                )
+                .withSource(
+                    GeoJsonSource(
+                        ID_SOURCE,
+                        FeatureCollection.fromFeatures(geoPointsFeatures)
+                    )
+                )
+                .withLayers(
+                    SymbolLayer(ID_LAYER, ID_SOURCE)
+                        .withProperties(*properties)
+                )
         ) {
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
-            setCacheFeatures()
             setDataObservers()
         }
     }
 
     private fun buildPropertyValues(): Array<PropertyValue<out Any>> {
         return arrayOf(
+            iconImage(
+                switchCase(
+                    eq(get(PROPERTY_CACHE), true), literal(ID_ICON_CACHE),
+                    eq(get(PROPERTY_CACHE), false), literal(ID_ICON),
+                    literal(ID_ICON)
+                )
+            ),
             iconOpacity(8f),
             iconSize(
                 switchCase(
@@ -462,6 +511,26 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     literal(arrayOf("Arial Unicode MS Regular"))
                 )
             ),
+            textColor(
+                switchCase(
+                    eq(get(PROPERTY_CACHE), true), literal(
+                        String.format(
+                            "#%06X",
+                            0xFFFFFF and resources.getColor(R.color.colorPrimaryDark, theme)
+                        )
+                ),
+                eq(get(PROPERTY_CACHE), false), literal(
+                        String.format(
+                            "#%06X",
+                            0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
+                        )
+                ),
+                literal(String.format(
+                    "#%06X",
+                    0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
+                ))
+            )
+        ),
             textField("{name}"),
             textSize(12f),
             textOffset(arrayOf(0.6f, -0.05f)),
@@ -474,7 +543,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun setCacheFeatures(){
         val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
         if (viewModel.newSounds.value.isNullOrEmpty())
-            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE_CACHE)) }
+            return
         else {
             for (i in viewModel.newSounds.value!!) {
                 symbolLayerIconFeatureList.add(
@@ -482,15 +551,16 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         Point.fromLngLat(i.longitude, i.latitude)
                     ).apply {
                         addStringProperty(PROPERTY_NAME, i.title)
-                        addStringProperty(PROPERTY_ID, i.id.toString())
+                        addStringProperty(PROPERTY_ID, i.id)
+                        addBooleanProperty(PROPERTY_CACHE, true)
                     }
                 )
             }
-            mapboxMap.getStyle { it.addSource(
-                GeoJsonSource(
-                    ID_SOURCE_CACHE,
-                    FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
-                )
+            geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
+            mapboxMap.getStyle {
+                Log.d(TAG, "setCacheFeatures: ${geoPointsFeatures.size}")
+                (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
+                FeatureCollection.fromFeatures(geoPointsFeatures)
             ) }
         }
     }
