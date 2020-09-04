@@ -65,10 +65,7 @@ import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
 import kotlinx.android.synthetic.main.activity_map.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
@@ -91,7 +88,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private lateinit var geoPointsFeatures: MutableList<Feature>
-    private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
+    private lateinit var bottomPlayer: BottomPlayerFragment
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
         override fun turnedOn() {
@@ -135,19 +132,16 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 //This is only to avoid duplicates inside geoPointsFeatures
                 var firstCache = 0
                 for (feature in geoPointsFeatures) {
-                    if (feature.getBooleanProperty(PROPERTY_CACHE) != null
-                        || !feature.getBooleanProperty(PROPERTY_CACHE)
-                    )
+                    Log.d(TAG, "setDataObservers: ${feature.getBooleanProperty(PROPERTY_CACHE)}")
+                    if (feature.getBooleanProperty(PROPERTY_CACHE))
                         break
                     firstCache++
                 }
-                if (firstCache != geoPointsFeatures.size)
+                if (firstCache != geoPointsFeatures.size) {
                     geoPointsFeatures =
-                        geoPointsFeatures.subList(firstCache, geoPointsFeatures.size)
-
-                //TODO still a bug somewhere
+                        geoPointsFeatures.subList(0, firstCache)
+                }
                 geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
-                Log.d(TAG, "setDataObservers: ${geoPointsFeatures.size}")
                 mapboxMap.getStyle {
                     (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
                         FeatureCollection.fromFeatures(geoPointsFeatures)
@@ -435,12 +429,18 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun addBottomSheetFragment() {
-        supportFragmentManager.beginTransaction()
-            .add(
-                R.id.containerMap, bottomPlayer,
-                FRAGMENT_TAG + "bottomSheet"
-            )
-            .commit()
+        val fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG + "bottomSheet")
+        if (fragment!=null) {
+            bottomPlayer = fragment as BottomPlayerFragment
+        } else {
+            bottomPlayer = BottomPlayerFragment()
+            supportFragmentManager.beginTransaction()
+                .add(
+                    R.id.containerMap, bottomPlayer,
+                    FRAGMENT_TAG + "bottomSheet"
+                )
+                .commit()
+        }
     }
 
     // For a future research function...

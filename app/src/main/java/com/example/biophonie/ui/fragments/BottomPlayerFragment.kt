@@ -2,8 +2,11 @@ package com.example.biophonie.ui.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.res.Configuration.ORIENTATION_LANDSCAPE
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +25,13 @@ import com.example.biophonie.databinding.FragmentBottomPlayerBinding
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
+
+private const val TAG = "BottomPlayerFragment"
 class BottomPlayerFragment : Fragment() {
 
     private var heightExpanded: Int = 400
@@ -30,7 +39,9 @@ class BottomPlayerFragment : Fragment() {
     private var shortAnimationDuration: Int = 0
 
     private val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(BottomPlayerViewModel::class.java)
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(
+            BottomPlayerViewModel::class.java
+        )
     }
     private lateinit var binding: FragmentBottomPlayerBinding
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
@@ -44,9 +55,10 @@ class BottomPlayerFragment : Fragment() {
             inflater,
             R.layout.fragment_bottom_player,
             container,
-            false)
+            false
+        )
         binding.viewModel = viewModel.apply {
-            //TODO(run that somehow on another thread)
+            //TODO(run that somehow on another thread or not ?)
             setPlayerController(requireContext(), binding.playerView) }
         binding.lifecycleOwner = this
 
@@ -103,7 +115,10 @@ class BottomPlayerFragment : Fragment() {
                         if (imageDisplayed) {
                             displayWaveForm()
                         }
-                        binding.playerView.apply { requestLayout() }.layoutParams.height = resources.getDimensionPixelSize(R.dimen.wave_form)
+                        binding.playerView.apply { requestLayout() }.layoutParams.height =
+                            resources.getDimensionPixelSize(
+                                R.dimen.wave_form
+                            )
                     }
                     BottomSheetBehavior.STATE_EXPANDED -> {
                         binding.close.setImageResource(R.drawable.arrow_down)
@@ -129,26 +144,48 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setUpObservers() {
-        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {setArrowClickable(binding.left,it)})
-        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {setArrowClickable(binding.right,it)})
-        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean>{changeWidgetsVisibility(it)})
-        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int>{bottomSheetBehavior.state = it})
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
-            if (isNetworkError) onNetworkError()
+        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+            setArrowClickable(
+                binding.left,
+                it
+            )
         })
-        viewModel.date.observe(viewLifecycleOwner, Observer<String>{
+        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+            setArrowClickable(
+                binding.right,
+                it
+            )
+        })
+        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean> {
+            changeWidgetsVisibility(
+                it
+            )
+        })
+        viewModel.bottomSheetState.observe(
+            viewLifecycleOwner,
+            Observer<Int> { bottomSheetBehavior.state = it })
+        viewModel.eventNetworkError.observe(
+            viewLifecycleOwner,
+            Observer<Boolean> { isNetworkError ->
+                if (isNetworkError) onNetworkError()
+            })
+        viewModel.date.observe(viewLifecycleOwner, Observer<String> {
             viewModel.playerController.setTitle(SpannableStringBuilder()
                 .bold { append("Le : ") }
                 .append(it.split("\\s".toRegex())[0])
-                .bold { append( " à ") }
+                .bold { append(" à ") }
                 .append(it.split("\\s".toRegex())[1]))
         })
     }
 
     private fun setArrowClickable(view: TextView, clickable: Boolean) {
         if (clickable) {
-            view.setTextColor(ContextCompat.getColor(requireContext(),
-                R.color.colorPrimaryDark))
+            view.setTextColor(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.colorPrimaryDark
+                )
+            )
             view.isClickable = true
         }
         else{
@@ -202,11 +239,25 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun measure() {
-        binding.apply{
-            bottomSheetBehavior.peekHeight = pin.height*2
-            heightExpanded = container.top - container.height // A bit mysterious but it works
-            bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
-        }
+            binding.apply{
+                bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
+                val previousState = bottomSheetBehavior.state
+                // Very very mysterious but it works
+                if (previousState == BottomSheetBehavior.STATE_HIDDEN){
+                    heightExpanded = container.top - container.height // A bit mysterious but it works
+                } else {
+                    if (activity?.resources?.configuration?.orientation == ORIENTATION_LANDSCAPE) {
+                        heightExpanded = (container.top - container.height) / 2
+                        pin.translationY =
+                            (container.top + heightExpanded - container.height).toFloat()
+                    } else {
+                        CoroutineScope(SupervisorJob() + Dispatchers.Main).launch {
+                            heightExpanded = (root.height - root.top)*4
+                            pin.translationY = (heightExpanded - root.top).toFloat()
+                        }
+                    }
+                }
+            }
     }
 
     private fun changeWidgetsVisibility(makeVisible: Boolean){
