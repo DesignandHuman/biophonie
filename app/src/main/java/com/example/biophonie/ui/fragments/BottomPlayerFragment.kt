@@ -239,25 +239,12 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun measure() {
-            binding.apply{
-                bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
-                val previousState = bottomSheetBehavior.state
-                // Very very mysterious but it works
-                if (previousState == BottomSheetBehavior.STATE_HIDDEN){
-                    heightExpanded = container.top - container.height // A bit mysterious but it works
-                } else {
-                    if (activity?.resources?.configuration?.orientation == ORIENTATION_LANDSCAPE) {
-                        heightExpanded = (container.top - container.height) / 2
-                        pin.translationY =
-                            (container.top + heightExpanded - container.height).toFloat()
-                    } else {
-                        CoroutineScope(SupervisorJob() + Dispatchers.Main).launch {
-                            heightExpanded = (root.height - root.top)*4
-                            pin.translationY = (heightExpanded - root.top).toFloat()
-                        }
-                    }
-                }
-            }
+        binding.apply{
+            bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
+            val previousState = bottomSheetBehavior.state
+            // Very very mysterious but it works
+            heightExpanded = container.top - container.height
+        }
     }
 
     private fun changeWidgetsVisibility(makeVisible: Boolean){

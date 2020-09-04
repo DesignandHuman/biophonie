@@ -88,7 +88,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private lateinit var geoPointsFeatures: MutableList<Feature>
-    private lateinit var bottomPlayer: BottomPlayerFragment
+    private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
         override fun turnedOn() {
@@ -109,7 +109,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
         setUpFabResource()
-        addBottomSheetFragment()
+        addBottomPlayerFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
     }
@@ -132,7 +132,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 //This is only to avoid duplicates inside geoPointsFeatures
                 var firstCache = 0
                 for (feature in geoPointsFeatures) {
-                    Log.d(TAG, "setDataObservers: ${feature.getBooleanProperty(PROPERTY_CACHE)}")
                     if (feature.getBooleanProperty(PROPERTY_CACHE))
                         break
                     firstCache++
@@ -428,19 +427,14 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
     }
 
-    private fun addBottomSheetFragment() {
-        val fragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG + "bottomSheet")
-        if (fragment!=null) {
-            bottomPlayer = fragment as BottomPlayerFragment
-        } else {
-            bottomPlayer = BottomPlayerFragment()
-            supportFragmentManager.beginTransaction()
-                .add(
-                    R.id.containerMap, bottomPlayer,
-                    FRAGMENT_TAG + "bottomSheet"
-                )
-                .commit()
-        }
+    private fun addBottomPlayerFragment() {
+        bottomPlayer = BottomPlayerFragment()
+        supportFragmentManager.beginTransaction()
+            .replace(
+                R.id.containerMap, bottomPlayer,
+                FRAGMENT_TAG + "bottomSheet"
+            )
+            .commit()
     }
 
     // For a future research function...
