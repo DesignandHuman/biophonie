@@ -119,17 +119,37 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private fun setDataObservers() {
         viewModel.newSounds.observe(this, Observer {
-            if (!it.isNullOrEmpty()) {
-                geoPointsFeatures.plusAssign(Feature.fromGeometry(
-                    Point.fromLngLat(it.last().longitude, it.last().latitude)
-                ).apply {
-                    addStringProperty(PROPERTY_NAME, it.last().title)
-                    addStringProperty(PROPERTY_ID, it.last().id)
-                    addBooleanProperty(PROPERTY_CACHE, true)
-                })
-                mapboxMap.getStyle { style ->
-                    Log.d(TAG, "setDataObservers: ${geoPointsFeatures.size}")
-                    (style.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
+            val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+            if (!viewModel.newSounds.value.isNullOrEmpty()) {
+                for (i in viewModel.newSounds.value!!) {
+                    symbolLayerIconFeatureList.add(
+                        Feature.fromGeometry(
+                            Point.fromLngLat(i.longitude, i.latitude)
+                        ).apply {
+                            addStringProperty(PROPERTY_NAME, i.title)
+                            addStringProperty(PROPERTY_ID, i.id)
+                            addBooleanProperty(PROPERTY_CACHE, true)
+                        }
+                    )
+                }
+                //This is only to avoid duplicates inside geoPointsFeatures
+                var firstCache = 0
+                for (feature in geoPointsFeatures) {
+                    if (feature.getBooleanProperty(PROPERTY_CACHE) != null
+                        || !feature.getBooleanProperty(PROPERTY_CACHE)
+                    )
+                        break
+                    firstCache++
+                }
+                if (firstCache != geoPointsFeatures.size)
+                    geoPointsFeatures =
+                        geoPointsFeatures.subList(firstCache, geoPointsFeatures.size)
+
+                //TODO still a bug somewhere
+                geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
+                Log.d(TAG, "setDataObservers: ${geoPointsFeatures.size}")
+                mapboxMap.getStyle {
+                    (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
                         FeatureCollection.fromFeatures(geoPointsFeatures)
                     )
                 }
@@ -442,7 +462,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         this.mapboxMap = mapboxMap
         geoPointsFeatures = (viewModel.features.value as MutableList<Feature>?)!!
         //TODO("Bug with the icon color, see dev as a reference")
-        setCacheFeatures() //TODO("Bad practice, should be transparent for activity (repository-only dependent)?")
         val properties = buildPropertyValues()
         mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
@@ -454,7 +473,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     ID_ICON, BitmapUtils.getBitmapFromDrawable(
                         ResourcesCompat.getDrawable(
                             resources,
-                            R.drawable.ic_marker,
+                            R.drawable.marker,
                             theme
                         )
                     )!!
@@ -463,7 +482,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(
                         ResourcesCompat.getDrawable(
                             resources,
-                            R.drawable.ic_marker_grey,
+                            R.drawable.marker_grey,
                             theme
                         )
                     )!!
@@ -491,10 +510,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 switchCase(
                     eq(get(PROPERTY_CACHE), true), literal(ID_ICON_CACHE),
                     eq(get(PROPERTY_CACHE), false), literal(ID_ICON),
-                    literal(ID_ICON)
+                    literal(ID_ICON_CACHE)
                 )
             ),
-            iconOpacity(8f),
+            iconOpacity(1f),
             iconSize(
                 switchCase(
                     eq(get(PROPERTY_SELECTED), true), literal(0.9f),
@@ -538,31 +557,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             textIgnorePlacement(false),
             textAllowOverlap(false)
         )
-    }
-
-    private fun setCacheFeatures(){
-        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-        if (viewModel.newSounds.value.isNullOrEmpty())
-            return
-        else {
-            for (i in viewModel.newSounds.value!!) {
-                symbolLayerIconFeatureList.add(
-                    Feature.fromGeometry(
-                        Point.fromLngLat(i.longitude, i.latitude)
-                    ).apply {
-                        addStringProperty(PROPERTY_NAME, i.title)
-                        addStringProperty(PROPERTY_ID, i.id)
-                        addBooleanProperty(PROPERTY_CACHE, true)
-                    }
-                )
-            }
-            geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
-            mapboxMap.getStyle {
-                Log.d(TAG, "setCacheFeatures: ${geoPointsFeatures.size}")
-                (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
-                FeatureCollection.fromFeatures(geoPointsFeatures)
-            ) }
-        }
     }
 
     private fun updateScaleBar(mapboxMap: MapboxMap) {
