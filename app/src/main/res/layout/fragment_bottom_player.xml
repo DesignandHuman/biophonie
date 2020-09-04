@@ -39,6 +39,8 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/BottomPlayerTextView"
             android:id="@+id/location"
+            android:layout_height="wrap_content"
+            android:minHeight="@dimen/pinnable"
             android:gravity="center_vertical"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
@@ -54,13 +56,15 @@
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/BottomPlayerTextView"
             android:id="@+id/coordinates"
+            android:layout_height="0dp"
             android:text="@{viewModel.geoPoint.coordinates}"
             android:gravity="center"
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toEndOf="@+id/close"
             app:layout_constraintHorizontal_weight="4"
             app:layout_constraintStart_toEndOf="@id/location"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="@id/location"
+            app:layout_constraintBottom_toBottomOf="@id/location"/>
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/close"
@@ -77,8 +81,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
             app:layout_constraintStart_toEndOf="@id/coordinates"
-            app:layout_constraintBottom_toBottomOf="@id/coordinates"
-            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/location"
+            app:layout_constraintTop_toTopOf="@id/location"
             style="@style/ButtonStyle"/>
 
         <fr.haran.soundwave.ui.PlayerView
