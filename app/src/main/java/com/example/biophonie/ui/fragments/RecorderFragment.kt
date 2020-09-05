@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -70,7 +71,14 @@ class RecorderFragment : Fragment() {
     // The separation of concerns is not respected because of this. But I do not see another way
     // of using compound views in MVVM architecture.
     private fun setRecorderController() {
-        viewModel.setRecorderController(binding.recPlayerView)
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                viewModel.setRecorderController(binding.recPlayerView)
+                val obs: ViewTreeObserver = binding.root.viewTreeObserver
+                obs.removeOnGlobalLayoutListener(this)
+            }
+        })
     }
 
     private fun setClickListeners() {

@@ -220,6 +220,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             recorderController?.prepareRecorder()
         } else {
             recorderController!!.recPlayerView = recPlayerView
+            recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
         }
     }
