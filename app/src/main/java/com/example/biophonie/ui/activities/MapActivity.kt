@@ -428,13 +428,17 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun addBottomPlayerFragment() {
-        bottomPlayer = BottomPlayerFragment()
-        supportFragmentManager.beginTransaction()
-            .replace(
-                R.id.containerMap, bottomPlayer,
-                FRAGMENT_TAG + "bottomSheet"
-            )
-            .commit()
+        val previousFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG + "bottomSheet") as? BottomPlayerFragment
+        if (previousFragment == null){
+            bottomPlayer = BottomPlayerFragment()
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.containerMap, bottomPlayer,
+                    FRAGMENT_TAG + "bottomSheet"
+                )
+                .commit()
+        } else
+            bottomPlayer = previousFragment
     }
 
     // For a future research function...
