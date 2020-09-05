@@ -1,5 +1,6 @@
 package com.example.biophonie.ui.fragments
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +40,7 @@ class RecorderFragment : Fragment() {
             false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         setClickListeners()
         setRecorderController()
         setDataObserver()

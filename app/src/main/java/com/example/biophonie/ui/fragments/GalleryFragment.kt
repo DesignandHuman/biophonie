@@ -5,6 +5,7 @@ import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.TypedValue
@@ -16,6 +17,7 @@ import android.widget.ListAdapter
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -56,6 +58,7 @@ class GalleryFragment : Fragment(),
             false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setLiveDataObservers()
         setClickListeners()
         setUpRecyclerView()
@@ -95,11 +98,12 @@ class GalleryFragment : Fragment(),
 
     private fun setUpRecyclerView(){
         defaultLandscapes = viewModel.defaultDrawableIds.mapIndexed { index, id ->
-            Landscape(resources.getDrawable(id, activity?.theme), viewModel.defaultLandscapeTitle[index])
+            Landscape(ResourcesCompat.getDrawable(resources, id, requireActivity().theme)!!,
+                viewModel.defaultLandscapeTitle[index]
+            )
         }
         viewManager = GridLayoutManager(context,2)
-        viewAdapter =
-            LandscapesAdapter(defaultLandscapes, this)
+        viewAdapter = LandscapesAdapter(defaultLandscapes, this)
 
         binding.recyclerView.apply {
             setHasFixedSize(true)
@@ -120,18 +124,10 @@ class GalleryFragment : Fragment(),
             okButton.ok.setOnClickListener { view: View ->
                 view.findNavController().navigate(R.id.action_galleryFragment_to_titleFragment)
             }
-            topPanel.close.setOnClickListener {
-                activity?.finish()
-            }
-            topPanel.previous.setOnClickListener {
-                activity?.onBackPressed()
-            }
-            importPicture.setOnClickListener {
-                getOriginOfLandscape()
-            }
-            thumbnail.setOnClickListener {
-                viewModel?.restorePreviewFromThumbnail()
-            }
+            topPanel.close.setOnClickListener { activity?.finish() }
+            topPanel.previous.setOnClickListener { activity?.onBackPressed() }
+            importPicture.setOnClickListener { getOriginOfLandscape() }
+            thumbnail.setOnClickListener { viewModel?.restorePreviewFromThumbnail() }
         }
     }
 
@@ -155,7 +151,6 @@ class GalleryFragment : Fragment(),
     }
 
     override fun onLandscapeClick(position: Int) {
-        //binding.landscape.setImageDrawable(defaultLandscapes[position].image)
         viewModel.onClickDefault(position)
     }
 
