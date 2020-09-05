@@ -2,6 +2,7 @@ package com.example.biophonie.ui
 
 import android.content.Context
 import android.graphics.Rect
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,12 +39,12 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
         init {
             binding.root.setOnClickListener(this)
         }
+
         override fun onClick(v: View) {
-            if(adapterPosition == RecyclerView.NO_POSITION) return
-            notifyItemChanged(selectedPosition)
+            if (adapterPosition == RecyclerView.NO_POSITION) return
+            if (selectedPosition != RecyclerView.NO_POSITION) notifyItemChanged(selectedPosition)
             selectedPosition = layoutPosition
             notifyItemChanged(selectedPosition)
-            //binding.background.setBackgroundColor(ColorUtils.setAlphaComponent(ContextCompat.getColor(v.context, R.color.colorPrimaryDark), (50F/100*255).toInt()))
             onLandscapeListener.onLandscapeClick(adapterPosition)
         }
 
