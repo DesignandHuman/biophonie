@@ -65,10 +65,19 @@ class BottomPlayerFragment : Fragment() {
         addCallbackOnBottomSheet()
         setUpObservers()
         setPeekHeight()
+        setProgressBarPosition()
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
         return binding.root
+    }
+
+    private fun setProgressBarPosition() {
+        if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val params = binding.progressBar.layoutParams as ConstraintLayout.LayoutParams
+            params.verticalBias = 0.2f
+            binding.progressBar.layoutParams = params
+        }
     }
 
     private fun setPeekHeight() {
