@@ -14,7 +14,7 @@
     </style>
 
     <style name="SplashTheme" parent="AppTheme">
-        <item name="android:windowActionBarOverlay">@drawable/splash_screen</item>
+        <item name="android:windowBackground">@drawable/splash_screen</item>
     </style>
 
     <style name="ExampleProgressBar" parent="@style/Widget.AppCompat.ProgressBar">

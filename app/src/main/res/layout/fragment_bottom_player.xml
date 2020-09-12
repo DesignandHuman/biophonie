@@ -23,13 +23,14 @@
         app:behavior_skipCollapsed="false"
         app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
-        <ProgressBar
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/progress_bar"
-            style="@style/ExampleProgressBar"
             android:layout_width="100dp"
             android:layout_height="100dp"
-            android:padding="20dp"
+            android:padding="35dp"
             android:visibility="invisible"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/loader"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"

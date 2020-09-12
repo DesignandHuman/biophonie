@@ -1,11 +1,15 @@
 package com.example.biophonie.ui.fragments
 
+import android.R.attr.animation
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.content.res.Configuration
+import android.graphics.drawable.AnimatedVectorDrawable
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.util.DisplayMetrics
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,11 +22,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.mapboxsdk.style.expressions.Expression.image
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -70,6 +77,22 @@ class BottomPlayerFragment : Fragment() {
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val animated = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader)
+        animated?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                binding.progressBar.post { animated.start() }
+            }
+        })
+        binding.progressBar.setImageDrawable(animated)
+        animated?.start()
+        /*val drawable = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader)
+        binding.progressBar.setImageDrawable(drawable)
+        drawable?.start()*/
+
     }
 
     private fun setProgressBarPosition() {
