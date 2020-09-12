@@ -480,7 +480,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(
                         ResourcesCompat.getDrawable(
                             resources,
-                            R.drawable.marker_grey,
+                            R.drawable.syncing,
                             theme
                         )
                     )!!
