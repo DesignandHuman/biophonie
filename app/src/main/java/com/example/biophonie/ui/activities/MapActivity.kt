@@ -54,6 +54,7 @@ import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
 import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
@@ -291,22 +292,25 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 .locationComponentOptions(styleLocation())
                 .build()
         )
+        locationComponent.renderMode = RenderMode.COMPASS
         locationComponent.isLocationComponentEnabled = true
     }
 
     private fun styleLocation(): LocationComponentOptions =
         LocationComponentOptions.builder(this)
-            .foregroundTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.design_default_color_background,
-                    theme
-                )
-            )
+            .foregroundDrawable(R.drawable.location)
             .backgroundTintColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.colorPrimaryDark,
+                    R.color.colorPrimary,
+                    theme
+                )
+            )
+            .bearingDrawable(R.drawable.bearing)
+            .bearingTintColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.colorAccent,
                     theme
                 )
             )
@@ -320,12 +324,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             .backgroundStaleTintColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.colorPrimary,
+                    R.color.colorPrimaryDark,
                     theme
                 )
             )
+            .accuracyColor(R.color.colorPrimaryDark)
             .elevation(0F)
-            .bearingTintColor(ResourcesCompat.getColor(resources, R.color.colorPrimaryDark, theme))
             .trackingGesturesManagement(true)
             .build()
 
