@@ -518,9 +518,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             iconOpacity(1f),
             iconSize(
                 switchCase(
-                    eq(get(PROPERTY_SELECTED), true), literal(0.9f),
-                    eq(get(PROPERTY_SELECTED), false), literal(0.7f),
-                    literal(0.7f)
+                    eq(get(PROPERTY_SELECTED), true), literal(0.7f),
+                    eq(get(PROPERTY_SELECTED), false), literal(0.5f),
+                    literal(0.5f)
                 )
             ),
             iconAllowOverlap(false),
@@ -554,7 +554,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         ),
             textField("{name}"),
             textSize(12f),
-            textOffset(arrayOf(0.6f, -0.05f)),
+            textOffset(arrayOf(0.8f, -0.05f)),
             textAnchor(TEXT_ANCHOR_LEFT),
             textIgnorePlacement(false),
             textAllowOverlap(false)
