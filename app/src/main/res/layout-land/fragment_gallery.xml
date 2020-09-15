@@ -58,7 +58,7 @@
             android:layout_marginHorizontal="50dp"
             android:layout_marginVertical="20dp"
             android:paddingHorizontal="20dp"
-            android:drawableEnd="@drawable/arrow_upward"
+            android:drawableEnd="@drawable/arrow_up"
             android:background="@drawable/border_rect"
             android:textColor="@color/colorPrimaryDark"
             android:theme="@style/ClickableButton"
