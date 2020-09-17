@@ -60,7 +60,7 @@ class RecorderFragment : Fragment() {
                 else
                     Toast.makeText(
                         requireContext(),
-                        "Une durée de plus de ${MINIMUM_DURATION /60000} minute est nécessaire",
+                        "Une durée de plus de ${MINIMUM_DURATION /60000} minutes est nécessaire",
                         Toast.LENGTH_SHORT
                     ).show()
             }
@@ -74,7 +74,8 @@ class RecorderFragment : Fragment() {
         binding.root.viewTreeObserver.addOnGlobalLayoutListener(object :
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
-                viewModel.setRecorderController(binding.recPlayerView)
+                val recordedPreviously = viewModel.setRecorderController(binding.recPlayerView)
+                if (recordedPreviously) viewModel.startRecording()
                 val obs: ViewTreeObserver = binding.root.viewTreeObserver
                 obs.removeOnGlobalLayoutListener(this)
             }

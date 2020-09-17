@@ -206,7 +206,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         currentAmplitudes = amplitudes
     }
 
-    fun setRecorderController(recPlayerView: RecPlayerView) {
+    fun setRecorderController(recPlayerView: RecPlayerView): Boolean {
         if (recorderController == null){
             recorderController = context.externalCacheDir?.absolutePath?.let {
                 DefaultRecorderController(recPlayerView,
@@ -218,10 +218,12 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                     validate = { _goToNext.value = true })}
             }
             recorderController?.prepareRecorder()
+            return true
         } else {
             recorderController!!.recPlayerView = recPlayerView
             recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
+            return false
         }
     }
 
@@ -238,6 +240,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         extras?.let {
             coordinates = LatLng(it.getDouble("latitude"), it.getDouble("longitude"))
         }
+    }
+
+    fun startRecording() {
+        recorderController?.startRecording()
     }
 
     data class Result(val title: String,

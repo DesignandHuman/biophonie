@@ -89,10 +89,6 @@ class BottomPlayerFragment : Fragment() {
         })
         binding.progressBar.setImageDrawable(animated)
         animated?.start()
-        /*val drawable = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader)
-        binding.progressBar.setImageDrawable(drawable)
-        drawable?.start()*/
-
     }
 
     private fun setProgressBarPosition() {
