@@ -1,20 +1,18 @@
 package com.example.biophonie.ui.fragments
 
-import android.R.attr.animation
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.res.ColorStateList
 import android.content.res.Configuration
-import android.graphics.drawable.AnimatedVectorDrawable
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.text.bold
@@ -29,7 +27,6 @@ import com.example.biophonie.databinding.FragmentBottomPlayerBinding
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.style.expressions.Expression.image
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -148,15 +145,15 @@ class BottomPlayerFragment : Fragment() {
                 when (newState) {
                     // Maybe try with a collapsing toolbar ? or a motion layout ?
                     BottomSheetBehavior.STATE_COLLAPSED -> {
-                        binding.close.setImageResource(R.drawable.ic_marker)
+                        binding.close.setImageResource(R.drawable.close)
                         if (imageDisplayed)
                             displayWaveForm()
                     }
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        binding.close.setImageResource(R.drawable.arrow_down)
+                        binding.close.setImageResource(R.drawable.stripe_down)
                         binding.playerView.apply { requestLayout() }.layoutParams.height = 0
                     }
-                    else -> binding.close.setImageResource(R.drawable.ic_marker)
+                    else -> binding.close.setImageResource(R.drawable.close)
                 }
             }
         })
@@ -180,17 +177,12 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setUpObservers() {
+        //TODO little bug where you need to click twice to have next sound
         viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {
-            setArrowClickable(
-                binding.left,
-                it
-            )
+            binding.left.isEnabled = it
         })
         viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {
-            setArrowClickable(
-                binding.right,
-                it
-            )
+            binding.right.isEnabled = it
         })
         viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean> {
             changeWidgetsVisibility(
@@ -212,22 +204,6 @@ class BottomPlayerFragment : Fragment() {
                 .bold { append(" à ") }
                 .append(it.split("\\s".toRegex())[1]))
         })
-    }
-
-    private fun setArrowClickable(view: TextView, clickable: Boolean) {
-        if (clickable) {
-            view.setTextColor(
-                ContextCompat.getColor(
-                    requireContext(),
-                    R.color.colorPrimaryDark
-                )
-            )
-            view.isClickable = true
-        }
-        else{
-            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
-            view.isClickable = false
-        }
     }
 
     private fun onClose() {
