@@ -129,6 +129,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
             try {
                 repository.fetchGeoPoint(id, name, coordinates)
                 sound = geoPoint.value!!.sounds!!.first()
+                currentIndex = 0
                 displaySound(sound!!)
                 _isNetworkErrorShown.value = true
                 _eventNetworkError.value = false
