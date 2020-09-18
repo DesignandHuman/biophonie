@@ -134,10 +134,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
                 _eventNetworkError.value = false
             } catch (networkError: IOException) {
                 // Show a Toast error message and hide the progress bar.
-                if(geoPoint.value == null) {
-                    _isNetworkErrorShown.value = false
-                    _eventNetworkError.value = true
-                }
+                _isNetworkErrorShown.value = false
+                _eventNetworkError.value = true
             }
         }
     }

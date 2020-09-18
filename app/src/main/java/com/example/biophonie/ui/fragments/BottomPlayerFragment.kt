@@ -178,7 +178,6 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setUpObservers() {
-        //TODO little bug where you need to click twice to have next sound
         viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {
             binding.left.isEnabled = it
         })
@@ -186,18 +185,14 @@ class BottomPlayerFragment : Fragment() {
             binding.right.isEnabled = it
         })
         viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean> {
-            changeWidgetsVisibility(
-                it
-            )
+            changeWidgetsVisibility(it)
         })
-        viewModel.bottomSheetState.observe(
-            viewLifecycleOwner,
-            Observer<Int> { bottomSheetBehavior.state = it })
-        viewModel.eventNetworkError.observe(
-            viewLifecycleOwner,
-            Observer<Boolean> { isNetworkError ->
-                if (isNetworkError) onNetworkError()
-            })
+        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int> {
+            bottomSheetBehavior.state = it
+        })
+        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> {
+            if (it) onNetworkError()
+        })
         viewModel.date.observe(viewLifecycleOwner, Observer<String> {
             viewModel.playerController.setTitle(SpannableStringBuilder()
                 .bold { append("Le : ") }
