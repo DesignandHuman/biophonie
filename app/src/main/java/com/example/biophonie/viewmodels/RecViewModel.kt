@@ -28,18 +28,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     val mTitle = ObservableField<String>()
 
-    fun validationAndSubmit(){
-        val date = Calendar.getInstance().time
-        val dateAsString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(date)
-        val title = mTitle.get()
-        title?.let {
-            if (it.length < 7)
-                _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
-            else
-                _result.value = Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath,_landscapeUri.value!!.path!!)
-        }
-    }
-
     private var recorderController: DefaultRecorderController? = null
     //Necessary to retrieve files
     private val context = getApplication<Application>().applicationContext
@@ -224,6 +212,18 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
             return false
+        }
+    }
+
+    fun validationAndSubmit(){
+        val date = Calendar.getInstance().time
+        val dateAsString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(date)
+        val title = mTitle.get()
+        title?.let {
+            if (it.length < 7)
+                _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
+            else
+                _result.value = Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath,_landscapeUri.value!!.path!!)
         }
     }
 
