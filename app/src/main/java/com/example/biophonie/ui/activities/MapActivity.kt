@@ -243,6 +243,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
         binding.rec.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this)){
+                it.isEnabled = false
                 activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE, ::launchRecActivity)
             } else {
                 permissionsManager = PermissionsManager(this)
@@ -585,6 +586,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onResume() {
         super.onResume()
+        binding.rec.isEnabled = true
         binding.mapView.onResume()
         registerReceiver(gpsReceiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
         syncToServer()
