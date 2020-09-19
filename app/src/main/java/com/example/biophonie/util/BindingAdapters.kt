@@ -34,7 +34,7 @@ private const val TAG = "BindingAdapters"
 fun setImageUri(view: AppCompatImageView, imageUri: Uri){
     Glide.with(view.context)
         .load(imageUri)
-        /*.placeholder(R.drawable.pine)*/
+        /*.placeholder(R.drawable.ic_pine)*/
         .transition(DrawableTransitionOptions.withCrossFade())
         .into(view)
 }

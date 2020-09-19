@@ -140,8 +140,8 @@ class GalleryFragment : Fragment(),
         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
             viewModel.dispatchTakePictureIntent(REQUEST_GALLERY)
         } else {
-            val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.photo_camera),
-                DialogAdapterItem("Galerie", R.drawable.photo_library))
+            val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
+                DialogAdapterItem("Galerie", R.drawable.ic_library))
             activity?.supportFragmentManager?.let { ChooseMeanDialog(
                 requireContext(),
                 items,

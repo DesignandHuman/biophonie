@@ -20,9 +20,9 @@ import fr.haran.soundwave.controller.DefaultRecorderController
 import kotlin.properties.Delegates
 
 private const val MINIMUM_DURATION = 60000
+//TODO something takes a very long time before recording
 class RecorderFragment : Fragment() {
 
-    private var startTime by Delegates.notNull<Long>()
     private var duration by Delegates.notNull<Long>()
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)

@@ -2,20 +2,16 @@ package com.example.biophonie.ui.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
-import android.content.res.ColorStateList
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
 import android.util.DisplayMetrics
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.appcompat.widget.AppCompatImageButton
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.content.ContextCompat
 import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -146,15 +142,15 @@ class BottomPlayerFragment : Fragment() {
                 when (newState) {
                     // Maybe try with a collapsing toolbar ? or a motion layout ?
                     BottomSheetBehavior.STATE_COLLAPSED -> {
-                        binding.close.setImageResource(R.drawable.close)
+                        binding.close.setImageResource(R.drawable.ic_close)
                         if (imageDisplayed)
                             displayWaveForm()
                     }
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        binding.close.setImageResource(R.drawable.stripe_down)
+                        binding.close.setImageResource(R.drawable.ic_stripe_down)
                         binding.playerView.apply { requestLayout() }.layoutParams.height = 0
                     }
-                    else -> binding.close.setImageResource(R.drawable.close)
+                    else -> binding.close.setImageResource(R.drawable.ic_close)
                 }
             }
         })

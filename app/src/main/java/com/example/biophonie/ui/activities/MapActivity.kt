@@ -299,7 +299,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private fun styleLocation(): LocationComponentOptions =
         LocationComponentOptions.builder(this)
-            .foregroundDrawable(R.drawable.location)
+            .foregroundDrawable(R.drawable.ic_location)
             .backgroundTintColor(
                 ResourcesCompat.getColor(
                     resources,
@@ -476,7 +476,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     ID_ICON, BitmapUtils.getBitmapFromDrawable(
                         ResourcesCompat.getDrawable(
                             resources,
-                            R.drawable.marker,
+                            R.drawable.ic_marker,
                             theme
                         )
                     )!!
@@ -485,7 +485,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(
                         ResourcesCompat.getDrawable(
                             resources,
-                            R.drawable.syncing,
+                            R.drawable.ic_syncing,
                             theme
                         )
                     )!!
