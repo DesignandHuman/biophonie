@@ -2,6 +2,7 @@ package com.example.biophonie.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ApplicationErrorReport
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -113,6 +114,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         addBottomPlayerFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
+        ApplicationErrorReport.BatteryInfo
     }
 
     private fun setDataObservers() {
@@ -464,7 +466,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
         geoPointsFeatures = (viewModel.features.value as MutableList<Feature>?)!!
-        //TODO("Bug with the icon color, see dev as a reference")
         val properties = buildPropertyValues()
         mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
@@ -501,6 +502,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         .withProperties(*properties)
                 )
         ) {
+            Log.d(TAG, "onMapReady: ${it.json}")
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
             setDataObservers()
@@ -528,9 +530,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             iconIgnorePlacement(false),
             textFont(
                 switchCase(
-                    eq(get(PROPERTY_SELECTED), true), literal(arrayOf("Arial Unicode MS Bold")),
-                    eq(get(PROPERTY_SELECTED), false), literal(arrayOf("Arial Unicode MS Regular")),
-                    literal(arrayOf("Arial Unicode MS Regular"))
+                    eq(get(PROPERTY_SELECTED), true), literal(arrayOf("IBM Plex Mono Bold")),
+                    eq(get(PROPERTY_SELECTED), false), literal(arrayOf("IBM Plex Mono Regular")),
+                    literal(arrayOf("IBM Plex Mono Regular"))
                 )
             ),
             textColor(
@@ -554,7 +556,11 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             )
         ),
             textField("{name}"),
-            textSize(12f),
+            textSize(switchCase(
+                eq(get(PROPERTY_SELECTED), true), literal(14f),
+                eq(get(PROPERTY_SELECTED), false), literal(12f),
+                literal(12f)
+            )),
             textOffset(arrayOf(0.8f, -0.05f)),
             textAnchor(TEXT_ANCHOR_LEFT),
             textIgnorePlacement(false),
