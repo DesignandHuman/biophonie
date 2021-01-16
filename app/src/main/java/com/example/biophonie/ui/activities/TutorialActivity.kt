@@ -124,7 +124,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         }
     }
 
-    // Used only to check if keyboard has opened
+    // Used only to ic_check if keyboard has opened
     override fun onGlobalLayout() {
         val r = Rect()
         binding.root.getWindowVisibleDisplayFrame(r)

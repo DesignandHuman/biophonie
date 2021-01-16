@@ -2,6 +2,7 @@ package com.example.biophonie.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.ApplicationErrorReport
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -31,6 +32,7 @@ import com.example.biophonie.ui.fragments.BottomPlayerFragment
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
+import com.example.biophonie.viewmodels.PROPERTY_CACHE
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
@@ -53,26 +55,26 @@ import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
 import com.mapbox.mapboxsdk.location.LocationComponentOptions
 import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
 import com.mapbox.mapboxsdk.location.modes.CameraMode
+import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_LEFT
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
+import com.mapbox.mapboxsdk.style.layers.PropertyValue
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
 import kotlinx.android.synthetic.main.activity_map.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
-private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
-private const val ID_SOURCE_CACHE: String = "biophonie.cache"
-private const val ID_LAYER_REMOTE: String = "biophonie.sound"
-private const val ID_LAYER_CACHE: String = "biophonie.newsound"
+private const val ID_SOURCE: String = "biophonie.remote"
+private const val ID_LAYER: String = "biophonie.sound"
+private const val PROPERTY_SELECTED: String = "selected"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_SETTINGS_TRACKING = 0x1
 private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
@@ -87,6 +89,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
+    private lateinit var geoPointsFeatures: MutableList<Feature>
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -108,23 +111,44 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
         setUpFabResource()
-        addBottomSheetFragment()
+        addBottomPlayerFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
+        ApplicationErrorReport.BatteryInfo
     }
 
     private fun setDataObservers() {
         viewModel.newSounds.observe(this, Observer {
-            if (!it.isNullOrEmpty()){
-                mapboxMap.getStyle { style ->
-                    (style.getSource(ID_SOURCE_CACHE) as GeoJsonSource).setGeoJson(
+            val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+            if (!viewModel.newSounds.value.isNullOrEmpty()) {
+                for (i in viewModel.newSounds.value!!) {
+                    symbolLayerIconFeatureList.add(
                         Feature.fromGeometry(
-                            Point.fromLngLat(it.last().longitude, it.last().latitude)
+                            Point.fromLngLat(i.longitude, i.latitude)
                         ).apply {
-                            addStringProperty(PROPERTY_NAME, it.last().title)
-                            addStringProperty(PROPERTY_ID, it.last().id.toString())
+                            addStringProperty(PROPERTY_NAME, i.title)
+                            addStringProperty(PROPERTY_ID, i.id)
+                            addBooleanProperty(PROPERTY_CACHE, true)
                         }
-                    ) }
+                    )
+                }
+                //This is only to avoid duplicates inside geoPointsFeatures
+                var firstCache = 0
+                for (feature in geoPointsFeatures) {
+                    if (feature.getBooleanProperty(PROPERTY_CACHE))
+                        break
+                    firstCache++
+                }
+                if (firstCache != geoPointsFeatures.size) {
+                    geoPointsFeatures =
+                        geoPointsFeatures.subList(0, firstCache)
+                }
+                geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
+                mapboxMap.getStyle {
+                    (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
+                        FeatureCollection.fromFeatures(geoPointsFeatures)
+                    )
+                }
             }
         })
     }
@@ -169,7 +193,11 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             val criteria = Criteria()
             criteria.accuracy = Criteria.ACCURACY_FINE
             locationManager.requestSingleUpdate(criteria, object : LocationListener {
-                override fun onLocationChanged(location: Location) = callback.onNewLocationAvailable(location)
+                override fun onLocationChanged(location: Location) =
+                    callback.onNewLocationAvailable(
+                        location
+                    )
+
                 override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
                 override fun onProviderEnabled(provider: String?) {}
                 override fun onProviderDisabled(provider: String?) {}
@@ -187,12 +215,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         SingleShotLocationProvider.requestSingleUpdate(this,
             object : LocationCallback {
                 override fun onNewLocationAvailable(location: Location) {
-                    startActivityForResult(Intent(this@MapActivity, RecSoundActivity::class.java).apply {
-                        putExtras(Bundle().apply {
-                            putDouble("latitude", location.latitude)
-                            putDouble("longitude", location.longitude)
-                        })
-                    },
+                    startActivityForResult(
+                        Intent(this@MapActivity, RecSoundActivity::class.java).apply {
+                            putExtras(Bundle().apply {
+                                putDouble("latitude", location.latitude)
+                                putDouble("longitude", location.longitude)
+                            })
+                        },
                         REQUEST_ADD_SOUND
                     )
                 }
@@ -202,13 +231,13 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
             supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, about, FRAGMENT_TAG +"about")
+                .add(R.id.containerMap, about, FRAGMENT_TAG + "about")
                 .addToBackStack(null)
                 .commit()
         }
         binding.locationFab.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this))
-                activateLocationSettings(REQUEST_SETTINGS_TRACKING,::trackLocation)
+                activateLocationSettings(REQUEST_SETTINGS_TRACKING, ::trackLocation)
             else {
                 permissionsManager = PermissionsManager(this)
                 permissionsManager.requestLocationPermissions(this)
@@ -216,7 +245,8 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
         binding.rec.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this)){
-                activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE,::launchRecActivity)
+                it.isEnabled = false
+                activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE, ::launchRecActivity)
             } else {
                 permissionsManager = PermissionsManager(this)
                 permissionsManager.requestLocationPermissions(this)
@@ -246,8 +276,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             addOnFailureListener {
                 if (exception is ResolvableApiException){
                     try {
-                        (exception as ResolvableApiException).startResolutionForResult(this@MapActivity,
-                            requestCode)
+                        (exception as ResolvableApiException).startResolutionForResult(
+                            this@MapActivity,
+                            requestCode
+                        )
                     } catch (sendEx: IntentSender.SendIntentException) { }
                 }
             }
@@ -263,22 +295,25 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 .locationComponentOptions(styleLocation())
                 .build()
         )
+        locationComponent.renderMode = RenderMode.COMPASS
         locationComponent.isLocationComponentEnabled = true
     }
 
     private fun styleLocation(): LocationComponentOptions =
         LocationComponentOptions.builder(this)
-            .foregroundTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.design_default_color_background,
-                    theme
-                )
-            )
+            .foregroundDrawable(R.drawable.ic_location)
             .backgroundTintColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.colorPrimaryDark,
+                    R.color.colorPrimary,
+                    theme
+                )
+            )
+            .bearingDrawable(R.drawable.bearing)
+            .bearingTintColor(
+                ResourcesCompat.getColor(
+                    resources,
+                    R.color.colorAccent,
                     theme
                 )
             )
@@ -292,12 +327,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             .backgroundStaleTintColor(
                 ResourcesCompat.getColor(
                     resources,
-                    R.color.colorPrimary,
+                    R.color.colorPrimaryDark,
                     theme
                 )
             )
+            .accuracyColor(R.color.colorPrimaryDark)
             .elevation(0F)
-            .bearingTintColor(ResourcesCompat.getColor(resources, R.color.colorPrimaryDark, theme))
             .trackingGesturesManagement(true)
             .build()
 
@@ -313,39 +348,45 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
             }
 
-            setNegativeButton("Annuler") {dialog, _ -> dialog.cancel()}
+            setNegativeButton("Annuler") { dialog, _ -> dialog.cancel()}
             show()
         }
     }
 
     private fun handleClickIcon(screenPoint: PointF?): Boolean {
         var rectF: RectF? = null
-        screenPoint?.let {rectF = RectF(screenPoint.x - 10, screenPoint.y - 10, screenPoint.x + 10, screenPoint.y + 10) }
+        screenPoint?.let {rectF = RectF(
+            screenPoint.x - 10,
+            screenPoint.y - 10,
+            screenPoint.x + 10,
+            screenPoint.y + 10
+        ) }
         val features: List<Feature> =
-            rectF?.let { mapboxMap.queryRenderedFeatures(it,
-                ID_LAYER_REMOTE
+            rectF?.let { mapboxMap.queryRenderedFeatures(
+                it,
+                ID_LAYER
             ) } as List<Feature>
-        val cachedFeatures: List<Feature> =
-            rectF?.let { mapboxMap.queryRenderedFeatures(it,
-                ID_LAYER_CACHE
-            ) } as List<Feature>
-        return when {
-            features.isNotEmpty() -> displayFeatures(features)
-            cachedFeatures.isNotEmpty() -> displayFeatures(cachedFeatures)
-            else -> false
-        }
+        return if (features.isNotEmpty()) displayFeature(features)
+        else false
     }
 
-    private fun displayFeatures(features: List<Feature>): Boolean {
-        val clickedFeature: Feature? = features.first { it.geometry() is Point }
-        val clickedPoint: Point? = clickedFeature?.geometry() as Point?
-        clickedPoint?.let {
-            bottomPlayer.clickOnGeoPoint(
-                clickedFeature!!.getStringProperty(PROPERTY_ID),
-                clickedFeature.getStringProperty(PROPERTY_NAME),
-                LatLng(clickedPoint.latitude(), clickedPoint.longitude())
+    private fun displayFeature(features: List<Feature>): Boolean {
+        val clickedFeature = features.firstOrNull { it.geometry() is Point }
+        clickedFeature?.let { feature ->
+            geoPointsFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
+            geoPointsFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
+                PROPERTY_ID
+            ) }.addBooleanProperty(PROPERTY_SELECTED, true)
+            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE)?.setGeoJson(
+                FeatureCollection.fromFeatures(geoPointsFeatures)
             )
-            return true
+            val clickedPoint = feature.geometry() as Point
+                bottomPlayer.clickOnGeoPoint(
+                    clickedFeature.getStringProperty(PROPERTY_ID),
+                    clickedFeature.getStringProperty(PROPERTY_NAME),
+                    LatLng(clickedPoint.latitude(), clickedPoint.longitude())
+                )
+                return true
         }
         return false
     }
@@ -362,9 +403,10 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
     }
 
-    override fun onRequestPermissionsResult(requestCode: Int,
-                                   permissions: Array<String?>,
-                                   grantResults: IntArray
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String?>,
+        grantResults: IntArray
     ) {
         permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
@@ -392,92 +434,138 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
     }
 
-    private fun addBottomSheetFragment() {
-        supportFragmentManager.beginTransaction()
-            .add(
-                R.id.containerMap, bottomPlayer,
-                FRAGMENT_TAG +"bottomSheet"
-            )
-            .commit()
+    private fun addBottomPlayerFragment() {
+        val previousFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG + "bottomSheet") as? BottomPlayerFragment
+        if (previousFragment == null){
+            bottomPlayer = BottomPlayerFragment()
+            supportFragmentManager.beginTransaction()
+                .replace(
+                    R.id.containerMap, bottomPlayer,
+                    FRAGMENT_TAG + "bottomSheet"
+                )
+                .commit()
+        } else
+            bottomPlayer = previousFragment
     }
 
     // For a future research function...
     fun setFeaturesListener(){
-        viewModel.features.observe(this, Observer<List<Feature>>{features ->
-            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(features))) }
+        viewModel.features.observe(this, Observer<List<Feature>> { features ->
+            mapboxMap.getStyle {
+                it.addSource(
+                    GeoJsonSource(
+                        ID_SOURCE, FeatureCollection.fromFeatures(
+                            features
+                        )
+                    )
+                )
+            }
         })
     }
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
+        geoPointsFeatures = (viewModel.features.value as MutableList<Feature>?)!!
+        val properties = buildPropertyValues()
+        mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
         //val url: URI = URI.create("https://biophonie.fr/geojson")
-        mapboxMap.setStyle(Style.Builder().fromUri(getString(R.string.style_url))
-            .withImage(ID_ICON, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker, theme))!!)
-            .withImage(ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(ResourcesCompat.getDrawable(resources, R.drawable.ic_marker_grey, theme))!!)
-            .withSource(GeoJsonSource(ID_SOURCE_REMOTE, FeatureCollection.fromFeatures(viewModel.features.value as MutableList<Feature>)))
-            .withLayers(
-                SymbolLayer(ID_LAYER_REMOTE, ID_SOURCE_REMOTE)
-                    .withProperties(
-                        iconImage(ID_ICON),
-                        iconOpacity(8f),
-                        iconSize(0.7f),
-                        iconAllowOverlap(false),
-                        iconIgnorePlacement(false),
-                        textColor(resources.getColor(R.color.colorAccent, theme)),
-                        textField("{name}"),
-                        textSize(12f),
-                        textOffset(arrayOf(0.6f,-0.05f)),
-                        textAnchor(TEXT_ANCHOR_LEFT),
-                        textIgnorePlacement(false),
-                        textAllowOverlap(false)
-                    ),
-                SymbolLayer(ID_LAYER_CACHE, ID_SOURCE_CACHE)
-                    .withProperties(
-                        iconImage(ID_ICON_CACHE),
-                        iconOpacity(1f),
-                        iconSize(0.7f),
-                        iconAllowOverlap(false),
-                        iconIgnorePlacement(false),
-                        textColor(resources.getColor(R.color.colorPrimaryDark, theme)),
-                        textField("{name}"),
-                        textSize(12F),
-                        textOffset(arrayOf(0.6f,-0.05f)),
-                        textAnchor(TEXT_ANCHOR_LEFT),
-                        textIgnorePlacement(false),
-                        textAllowOverlap(false)
+        mapboxMap.setStyle(
+            Style.Builder().fromUri(getString(R.string.style_url))
+                .withImage(
+                    ID_ICON, BitmapUtils.getBitmapFromDrawable(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_marker,
+                            theme
+                        )
+                    )!!
+                )
+                .withImage(
+                    ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(
+                        ResourcesCompat.getDrawable(
+                            resources,
+                            R.drawable.ic_syncing,
+                            theme
+                        )
+                    )!!
+                )
+                .withSource(
+                    GeoJsonSource(
+                        ID_SOURCE,
+                        FeatureCollection.fromFeatures(geoPointsFeatures)
                     )
-            )) {
+                )
+                .withLayers(
+                    SymbolLayer(ID_LAYER, ID_SOURCE)
+                        .withProperties(*properties)
+                )
+        ) {
+            Log.d(TAG, "onMapReady: ${it.json}")
             //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
-            setCacheFeatures()
             setDataObservers()
         }
     }
 
-    private fun setCacheFeatures(){
-        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-        if (viewModel.newSounds.value.isNullOrEmpty())
-            mapboxMap.getStyle { it.addSource(GeoJsonSource(ID_SOURCE_CACHE)) }
-        else {
-            for (i in viewModel.newSounds.value!!) {
-                symbolLayerIconFeatureList.add(
-                    Feature.fromGeometry(
-                        Point.fromLngLat(i.longitude, i.latitude)
-                    ).apply {
-                        addStringProperty(PROPERTY_NAME, i.title)
-                        addStringProperty(PROPERTY_ID, i.id.toString())
-                    }
+    private fun buildPropertyValues(): Array<PropertyValue<out Any>> {
+        return arrayOf(
+            iconImage(
+                switchCase(
+                    eq(get(PROPERTY_CACHE), true), literal(ID_ICON_CACHE),
+                    eq(get(PROPERTY_CACHE), false), literal(ID_ICON),
+                    literal(ID_ICON_CACHE)
                 )
-            }
-            mapboxMap.getStyle { it.addSource(
-                GeoJsonSource(
-                    ID_SOURCE_CACHE,
-                    FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
+            ),
+            iconOpacity(1f),
+            iconSize(
+                switchCase(
+                    eq(get(PROPERTY_SELECTED), true), literal(0.7f),
+                    eq(get(PROPERTY_SELECTED), false), literal(0.5f),
+                    literal(0.5f)
                 )
-            ) }
-        }
+            ),
+            iconAllowOverlap(false),
+            iconIgnorePlacement(false),
+            textFont(
+                switchCase(
+                    eq(get(PROPERTY_SELECTED), true), literal(arrayOf("IBM Plex Mono Bold")),
+                    eq(get(PROPERTY_SELECTED), false), literal(arrayOf("IBM Plex Mono Regular")),
+                    literal(arrayOf("IBM Plex Mono Regular"))
+                )
+            ),
+            textColor(
+                switchCase(
+                    eq(get(PROPERTY_CACHE), true), literal(
+                        String.format(
+                            "#%06X",
+                            0xFFFFFF and resources.getColor(R.color.colorPrimaryDark, theme)
+                        )
+                ),
+                eq(get(PROPERTY_CACHE), false), literal(
+                        String.format(
+                            "#%06X",
+                            0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
+                        )
+                ),
+                literal(String.format(
+                    "#%06X",
+                    0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
+                ))
+            )
+        ),
+            textField("{name}"),
+            textSize(switchCase(
+                eq(get(PROPERTY_SELECTED), true), literal(14f),
+                eq(get(PROPERTY_SELECTED), false), literal(12f),
+                literal(12f)
+            )),
+            textOffset(arrayOf(0.8f, -0.05f)),
+            textAnchor(TEXT_ANCHOR_LEFT),
+            textIgnorePlacement(false),
+            textAllowOverlap(false)
+        )
     }
 
     private fun updateScaleBar(mapboxMap: MapboxMap) {
@@ -504,6 +592,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onResume() {
         super.onResume()
+        binding.rec.isEnabled = true
         binding.mapView.onResume()
         registerReceiver(gpsReceiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
         syncToServer()

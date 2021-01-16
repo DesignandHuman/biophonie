@@ -2,6 +2,7 @@ package com.example.biophonie.ui.fragments
 
 import android.app.Service
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
@@ -37,6 +38,7 @@ class TitleFragment : Fragment() {
             false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setClickListeners()
         setDataObservers()
         setFiltersOnEditText()

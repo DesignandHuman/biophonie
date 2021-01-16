@@ -30,6 +30,9 @@ class RecSoundActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        viewModel.destroyController()
+        // See if there is a leak on the controller.
+        // Had to remove that line because on rotating screen, the controller was recreated
+        // So we would need to lock screen orientation if there is indeed a leak.
+        //viewModel.destroyController()
     }
 }

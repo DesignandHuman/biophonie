@@ -1,9 +1,11 @@
 package com.example.biophonie.ui.fragments
 
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -18,9 +20,9 @@ import fr.haran.soundwave.controller.DefaultRecorderController
 import kotlin.properties.Delegates
 
 private const val MINIMUM_DURATION = 60000
+//TODO something takes a very long time before recording
 class RecorderFragment : Fragment() {
 
-    private var startTime by Delegates.notNull<Long>()
     private var duration by Delegates.notNull<Long>()
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
@@ -39,6 +41,7 @@ class RecorderFragment : Fragment() {
             false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = this
+        requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
         setClickListeners()
         setRecorderController()
         setDataObserver()
@@ -57,7 +60,7 @@ class RecorderFragment : Fragment() {
                 else
                     Toast.makeText(
                         requireContext(),
-                        "Une durée de plus de ${MINIMUM_DURATION /60000} minute est nécessaire",
+                        "Une durée de plus de ${MINIMUM_DURATION /60000} minutes est nécessaire",
                         Toast.LENGTH_SHORT
                     ).show()
             }
@@ -68,7 +71,15 @@ class RecorderFragment : Fragment() {
     // The separation of concerns is not respected because of this. But I do not see another way
     // of using compound views in MVVM architecture.
     private fun setRecorderController() {
-        viewModel.setRecorderController(binding.recPlayerView)
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object :
+            ViewTreeObserver.OnGlobalLayoutListener {
+            override fun onGlobalLayout() {
+                val recordedPreviously = viewModel.setRecorderController(binding.recPlayerView)
+                if (recordedPreviously) viewModel.startRecording()
+                val obs: ViewTreeObserver = binding.root.viewTreeObserver
+                obs.removeOnGlobalLayoutListener(this)
+            }
+        })
     }
 
     private fun setClickListeners() {

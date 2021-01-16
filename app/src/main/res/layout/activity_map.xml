@@ -42,8 +42,9 @@
             android:id="@+id/about"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@android:color/white"
-            android:src="@drawable/pine"
+            android:backgroundTint="@color/design_default_color_background"
+            android:src="@drawable/ic_pine"
+            android:tint="@color/colorAccent"
             android:layout_gravity="top|start"
             android:layout_margin="15dp"
             android:foreground="@drawable/border_rect"
@@ -76,6 +77,8 @@
             android:layout_gravity="bottom|center"
             android:layout_marginBottom="15dp"
             android:src="@drawable/button_rec"
+            android:tint="@color/buttons_darker"
+            app:backgroundTint="@color/buttons"
             style="@style/FloatingActionButton.Big"/>
 
         <androidx.appcompat.widget.AppCompatTextView

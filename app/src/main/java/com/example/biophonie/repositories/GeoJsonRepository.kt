@@ -8,6 +8,7 @@ import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.database.asNetworkModel
 import com.example.biophonie.network.GeoPointWeb
+import com.example.biophonie.viewmodels.PROPERTY_CACHE
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.mapbox.geojson.Feature
@@ -48,6 +49,7 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
             ).apply {
                 addStringProperty(PROPERTY_NAME, "Point 1")
                 addStringProperty(PROPERTY_ID, "1")
+                addBooleanProperty(PROPERTY_CACHE, false)
             }
         )
         symbolLayerIconFeatureList.add(
@@ -56,6 +58,7 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
             ).apply {
                 addStringProperty(PROPERTY_NAME, "Point 2")
                 addStringProperty(PROPERTY_ID, "2")
+                addBooleanProperty(PROPERTY_CACHE, false)
             }
         )
         symbolLayerIconFeatureList.add(
@@ -64,6 +67,7 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
             ).apply {
                 addStringProperty(PROPERTY_NAME, "Point 3")
                 addStringProperty(PROPERTY_ID, "3")
+                addBooleanProperty(PROPERTY_CACHE, false)
             }
         )
         return symbolLayerIconFeatureList

@@ -2,35 +2,44 @@ package com.example.biophonie.ui.fragments
 
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
+import android.content.res.Configuration
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
+import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
-import android.widget.TextView
 import android.widget.Toast
-import androidx.core.content.ContextCompat
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.mapboxsdk.geometry.LatLng
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
+
+private const val TAG = "BottomPlayerFragment"
 class BottomPlayerFragment : Fragment() {
 
-    private var heightExpanded: Int = 400
     private var imageDisplayed: Boolean = false
-    private var shortAnimationDuration: Int = 0
+    private var animationDuration: Int = 0
 
     private val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(BottomPlayerViewModel::class.java)
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(
+            BottomPlayerViewModel::class.java
+        )
     }
     private lateinit var binding: FragmentBottomPlayerBinding
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
@@ -44,22 +53,63 @@ class BottomPlayerFragment : Fragment() {
             inflater,
             R.layout.fragment_bottom_player,
             container,
-            false)
+            false
+        )
         binding.viewModel = viewModel.apply {
-            //TODO(run that somehow on another thread)
+            //TODO(run that somehow on another thread or not ?)
             setPlayerController(requireContext(), binding.playerView) }
         binding.lifecycleOwner = this
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
         setUpClickListeners()
-        addListenerForMeasurement()
         addCallbackOnBottomSheet()
         setUpObservers()
+        setPeekHeight()
+        setProgressBarPosition()
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
+        animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
         return binding.root
+    }
+
+    override fun onStart() {
+        super.onStart()
+        val animated = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader)
+        animated?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+            override fun onAnimationEnd(drawable: Drawable?) {
+                binding.progressBar.post { animated.start() }
+            }
+        })
+        binding.progressBar.setImageDrawable(animated)
+        animated?.start()
+    }
+
+    private fun setProgressBarPosition() {
+        if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            val params = binding.progressBar.layoutParams as ConstraintLayout.LayoutParams
+            params.verticalBias = 0.2f
+            binding.progressBar.layoutParams = params
+        }
+    }
+
+    private fun setPeekHeight() {
+        val screenHeight =
+            DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
+        bottomSheetBehavior.peekHeight =
+            if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) screenHeight / 2
+            else screenHeight / 3
+        binding.apply {
+            CoroutineScope(Dispatchers.Main).launch {
+                withContext(Dispatchers.Main){
+                    pin.translationY = - root.top.toFloat()
+                    if (imageDisplayed)
+                        updateViewMargins(soundImage, root.top)
+                    else
+                        updateViewMargins(playerView, root.top)
+                }
+            }
+        }
     }
 
     private fun setUpClickListeners() {
@@ -76,45 +126,40 @@ class BottomPlayerFragment : Fragment() {
         }
     }
 
-    private fun addListenerForMeasurement() {
-        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                measure()
-                val obs: ViewTreeObserver = binding.root.viewTreeObserver
-                obs.removeOnGlobalLayoutListener(this)
-            }
-        })
-    }
-
     private fun addCallbackOnBottomSheet() {
         bottomSheetBehavior.addBottomSheetCallback(object :
             BottomSheetBehavior.BottomSheetCallback() {
             // No other solution was found to pin a view to the bottom of the BottomSheet
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                binding.pin.translationY = (heightExpanded - bottomSheet.top).toFloat()
+                binding.pin.translationY = -bottomSheet.top.toFloat()
+                if (imageDisplayed)
+                    updateViewMargins(binding.soundImage, bottomSheet.top)
+                else
+                    updateViewMargins(binding.playerView, bottomSheet.top)
             }
 
             override fun onStateChanged(bottomSheet: View, newState: Int) {
                 when (newState) {
-                    //easier with setFitToContent = false
                     // Maybe try with a collapsing toolbar ? or a motion layout ?
                     BottomSheetBehavior.STATE_COLLAPSED -> {
-                        binding.close.setImageResource(R.drawable.ic_marker)
-                        if (imageDisplayed) {
+                        binding.close.setImageResource(R.drawable.ic_close)
+                        if (imageDisplayed)
                             displayWaveForm()
-                        }
-                        binding.playerView.apply { requestLayout() }.layoutParams.height = resources.getDimensionPixelSize(R.dimen.wave_form)
                     }
                     BottomSheetBehavior.STATE_EXPANDED -> {
-                        binding.close.setImageResource(R.drawable.arrow_down)
+                        binding.close.setImageResource(R.drawable.ic_stripe_down)
                         binding.playerView.apply { requestLayout() }.layoutParams.height = 0
                     }
-                    else -> {
-                        binding.close.setImageResource(R.drawable.ic_marker)
-                    }
+                    else -> binding.close.setImageResource(R.drawable.ic_close)
                 }
             }
         })
+    }
+
+    private fun updateViewMargins(view: View, margin: Int) {
+        val params = view.layoutParams as ConstraintLayout.LayoutParams
+        params.bottomMargin = margin
+        view.layoutParams = params
     }
 
     private fun onNetworkError() {
@@ -129,32 +174,28 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setUpObservers() {
-        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {setArrowClickable(binding.left,it)})
-        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {setArrowClickable(binding.right,it)})
-        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean>{changeWidgetsVisibility(it)})
-        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int>{bottomSheetBehavior.state = it})
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> { isNetworkError ->
-            if (isNetworkError) onNetworkError()
+        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+            binding.left.isEnabled = it
         })
-        viewModel.date.observe(viewLifecycleOwner, Observer<String>{
+        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+            binding.right.isEnabled = it
+        })
+        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean> {
+            changeWidgetsVisibility(it)
+        })
+        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int> {
+            bottomSheetBehavior.state = it
+        })
+        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> {
+            if (it) onNetworkError()
+        })
+        viewModel.date.observe(viewLifecycleOwner, Observer<String> {
             viewModel.playerController.setTitle(SpannableStringBuilder()
                 .bold { append("Le : ") }
                 .append(it.split("\\s".toRegex())[0])
-                .bold { append( " à ") }
+                .bold { append(" à ") }
                 .append(it.split("\\s".toRegex())[1]))
         })
-    }
-
-    private fun setArrowClickable(view: TextView, clickable: Boolean) {
-        if (clickable) {
-            view.setTextColor(ContextCompat.getColor(requireContext(),
-                R.color.colorPrimaryDark))
-            view.isClickable = true
-        }
-        else{
-            view.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorPrimary))
-            view.isClickable = false
-        }
     }
 
     private fun onClose() {
@@ -166,47 +207,51 @@ class BottomPlayerFragment : Fragment() {
 
     private fun crossFade(fadeIn: View, fadeOut: View) {
         fadeIn.apply {
-            // Set the content view to 0% opacity but visible
+            // Sets the content view to 0% opacity but visible
             alpha = 0f
             visibility = View.VISIBLE
 
             // Animate the content view to 100% opacity
             animate()
                 .alpha(1f)
-                .setDuration(shortAnimationDuration.toLong())
+                .setDuration(animationDuration.toLong())
                 .setListener(null)
         }
         // Animate the loading view to 0% opacity.
         // After the animation ends, set its visibility to GONE
         fadeOut.animate()
             .alpha(0f)
-            .setDuration(shortAnimationDuration.toLong())
+            .setDuration(animationDuration.toLong())
             .setListener(object : AnimatorListenerAdapter() {
                 override fun onAnimationEnd(animation: Animator) {
+                    changePinBottomConstraint(fadeIn)
+                    updateViewMargins(fadeIn, binding.root.top)
                     fadeOut.visibility = View.GONE
                 }
             })
     }
 
+    private fun changePinBottomConstraint(destination: View){
+        val params = binding.pin.layoutParams as ConstraintLayout.LayoutParams
+        params.topToBottom = destination.id
+        binding.pin.layoutParams = params
+    }
+
     private fun displayImage(){
-        crossFade(binding.soundImage, binding.playerView)
-        binding.expand.text = "Voir le son"
+        binding.apply {
+            crossFade(soundImage, playerView)
+            expand.text = "Voir le son"
+        }
         imageDisplayed = true
     }
 
     private fun displayWaveForm(){
-        crossFade(binding.playerView, binding.soundImage)
-        binding.playerView.layoutParams.height = 0
-        binding.expand.text = "Voir l'image"
-        imageDisplayed = false
-    }
-
-    private fun measure() {
-        binding.apply{
-            bottomSheetBehavior.peekHeight = pin.height*2
-            heightExpanded = container.top - container.height // A bit mysterious but it works
-            bottomSheetBehavior.peekHeight = pin.height*2 + playerView.height
+        binding.apply {
+            crossFade(playerView, soundImage)
+            playerView.layoutParams.height = 0
+            expand.text = "Voir l'image"
         }
+        imageDisplayed = false
     }
 
     private fun changeWidgetsVisibility(makeVisible: Boolean){
