@@ -114,7 +114,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         addBottomPlayerFragment()
         bindMap(savedInstanceState)
         setOnClickListeners()
-        ApplicationErrorReport.BatteryInfo
     }
 
     private fun setDataObservers() {
