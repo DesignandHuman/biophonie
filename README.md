@@ -6,18 +6,20 @@
 This application aims to allow people of all horizons to record and share with everybody a sound produced by a natural environment.
 
 ## Previews
-Geolocalised sounds
-<p align="center">
-  <img src="https://github.com/DesignandHuman/biophonie/blob/assets/Screenshot_20210117-155328.png"><br><br>
-</p>
-Recording an ambient sound
-<p align="center">
-  <img src="https://github.com/DesignandHuman/biophonie/blob/assets/Screenshot_20210117-155445.png"><br><br>
-</p>
-Choosing a picture for the sound
-<p align="center">
-  <img src="https://github.com/DesignandHuman/biophonie/blob/assets/Screenshot_20210117-155626.png"><br><br>
-</p>
+
+<table>
+  <tr>
+    <td>Geolocalised sounds</td>
+     <td>Recording a sound</td>
+     <td>Choosing a picture for the sound</td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/DesignandHuman/biophonie/blob/assets/Screenshot_20210117-155328.png" width="300"></td>
+    <td><img src="https://github.com/DesignandHuman/biophonie/blob/assets/Screenshot_20210117-155445.png" width="300"></td>
+    <td><img src="https://github.com/DesignandHuman/biophonie/blob/assets/Screenshot_20210117-155626.png" width="300"></td>
+  </tr>
+</table>
+
 (Note that you are able to compile and test it by yourself.
 Every action performed is "emulated" locally.)
 
