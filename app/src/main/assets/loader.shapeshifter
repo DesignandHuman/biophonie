@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "layers": {
+    "vectorLayer": {
+      "id": "213",
+      "name": "vector",
+      "type": "vector",
+      "width": 22,
+      "height": 15,
+      "children": [
+        {
+          "id": "214",
+          "name": "first_1",
+          "type": "path",
+          "pathData": "M 0 15 L 2 15 L 2 15 L 0 15 Z",
+          "fillColor": "#000000",
+          "strokeWidth": 1,
+          "trimPathOffset": 1
+        },
+        {
+          "id": "215",
+          "name": "first_2",
+          "type": "path",
+          "pathData": "M 0 15 L 2 15 L 2 15 L 0 15 Z",
+          "fillColor": "#000000"
+        },
+        {
+          "id": "216",
+          "name": "second_1",
+          "type": "path",
+          "pathData": "M 10 15 L 12 15 L 12 15 L 10 15 Z",
+          "fillColor": "#000000",
+          "strokeWidth": 1
+        },
+        {
+          "id": "217",
+          "name": "second_2",
+          "type": "path",
+          "pathData": "M 10 15 L 12 15 L 12 15 L 10 15 Z",
+          "fillColor": "#000000"
+        },
+        {
+          "id": "218",
+          "name": "third_1",
+          "type": "path",
+          "pathData": "M 20 15 L 22 15 L 22 15 L 20 15 Z",
+          "fillColor": "#000000",
+          "strokeWidth": 1
+        },
+        {
+          "id": "219",
+          "name": "third_2",
+          "type": "path",
+          "pathData": "M 20 15 L 22 15 L 22 15 L 20 15 Z",
+          "fillColor": "#000000"
+        }
+      ]
+    },
+    "hiddenLayerIds": []
+  },
+  "timeline": {
+    "animation": {
+      "id": "220",
+      "name": "anim",
+      "duration": 2800,
+      "blocks": [
+        {
+          "id": "221",
+          "layerId": "214",
+          "propertyName": "pathData",
+          "startTime": 0,
+          "endTime": 400,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 0 15 L 2 15 L 2 15 L 0 15 Z",
+          "toValue": "M 0 15 L 2 15 L 2 0 L 0 0 Z"
+        },
+        {
+          "id": "222",
+          "layerId": "214",
+          "propertyName": "pathData",
+          "startTime": 700,
+          "endTime": 1100,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 0 0 L 2 0 L 2 15 L 0 15 Z",
+          "toValue": "M 0 0 L 2 0 L 2 0 L 0 0 Z"
+        },
+        {
+          "id": "223",
+          "layerId": "215",
+          "propertyName": "pathData",
+          "startTime": 900,
+          "endTime": 1300,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 0 15 L 2 15 L 2 15 L 0 15 Z",
+          "toValue": "M 0 15 L 2 15 L 2 0 L 0 0 Z"
+        },
+        {
+          "id": "224",
+          "layerId": "215",
+          "propertyName": "pathData",
+          "startTime": 1600,
+          "endTime": 2000,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 0 0 L 2 0 L 2 15 L 0 15 Z",
+          "toValue": "M 0 0 L 2 0 L 2 0 L 0 0 Z"
+        },
+        {
+          "id": "225",
+          "layerId": "216",
+          "propertyName": "pathData",
+          "startTime": 200,
+          "endTime": 600,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 10 15 L 12 15 L 12 15 L 10 15 Z",
+          "toValue": "M 10 0 L 12 0 L 12 15 L 10 15 Z"
+        },
+        {
+          "id": "226",
+          "layerId": "216",
+          "propertyName": "pathData",
+          "startTime": 900,
+          "endTime": 1300,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 10 0 L 12 0 L 12 15 L 10 15 Z",
+          "toValue": "M 10 0 L 12 0 L 12 0 L 10 0 Z"
+        },
+        {
+          "id": "227",
+          "layerId": "218",
+          "propertyName": "pathData",
+          "startTime": 300,
+          "endTime": 700,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 20 15 L 22 15 L 22 15 L 20 15 Z",
+          "toValue": "M 20 0 L 22 0 L 22 15 L 20 15 Z"
+        },
+        {
+          "id": "228",
+          "layerId": "217",
+          "propertyName": "pathData",
+          "startTime": 1100,
+          "endTime": 1500,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 10 15 L 12 15 L 12 15 L 10 15 Z",
+          "toValue": "M 10 15 L 12 15 L 12 0 L 10 0 Z"
+        },
+        {
+          "id": "229",
+          "layerId": "217",
+          "propertyName": "pathData",
+          "startTime": 1800,
+          "endTime": 2200,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 10 0 L 12 0 L 12 15 L 10 15 Z",
+          "toValue": "M 10 0 L 12 0 L 12 0 L 10 0 Z"
+        },
+        {
+          "id": "230",
+          "layerId": "218",
+          "propertyName": "pathData",
+          "startTime": 1000,
+          "endTime": 1400,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 20 0 L 22 0 L 22 15 L 20 15 Z",
+          "toValue": "M 20 0 L 22 0 L 22 0 L 20 0 Z"
+        },
+        {
+          "id": "231",
+          "layerId": "219",
+          "propertyName": "pathData",
+          "startTime": 1200,
+          "endTime": 1600,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 20 15 L 22 15 L 22 15 L 20 15 Z",
+          "toValue": "M 20 0 L 22 0 L 22 15 L 20 15 Z"
+        },
+        {
+          "id": "232",
+          "layerId": "219",
+          "propertyName": "pathData",
+          "startTime": 1900,
+          "endTime": 2300,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 20 0 L 22 0 L 22 15 L 20 15 Z",
+          "toValue": "M 20 0 L 22 0 L 22 0 L 20 0 Z"
+        },
+        {
+          "id": "175131",
+          "layerId": "219",
+          "propertyName": "pathData",
+          "startTime": 2300,
+          "endTime": 2800,
+          "interpolator": "LINEAR",
+          "type": "path",
+          "fromValue": "M 20 15 L 22 15 L 22 15 L 20 15 Z",
+          "toValue": "M 20 15 L 22 15 L 22 15 L 20 15 Z"
+        }
+      ]
+    }
+  }
+}

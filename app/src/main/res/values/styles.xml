@@ -1,10 +1,96 @@
 <resources>
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:textViewStyle">@style/DefaultTextView</item>
+        <item name="android:alertDialogStyle">@style/AlertDialogIBM</item>
+    </style>
+
+    <style name="AlertDialogIBM" parent="Theme.AppCompat.Light.Dialog">
+        <item name="android:fontFamily">@font/ibm_plex_mono</item>
+        <item name="fontFamily">@font/ibm_plex_mono</item>
+    </style>
+
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+    </style>
+
+    <style name="ButtonStyle" parent="@style/Widget.AppCompat.Button.Borderless">
+        <item name="android:gravity">center</item>
+        <item name="android:foreground">?android:attr/selectableItemBackground</item>
+        <item name="android:textSize">@dimen/button_font_size</item>
+        <item name="android:textAppearance">@style/MyTextAppearance</item>
+    </style>
+
+    <style name="ClickableButton">
+        <item name="colorControlHighlight">#ddd</item>
+    </style>
+
+    <style name="ClickableButton.Dark">
+        <item name="colorControlHighlight">@color/design_default_color_background</item>
+    </style>
+
+    <style name="ButtonStyle.Dark" parent="ButtonStyle">
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+        <item name="android:textAppearance">@style/MyTextAppearance.Dark</item>
+    </style>
+
+    <style name="ButtonStyle.BottomPlayer" parent="ButtonStyle">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/pinnable</item>
+        <item name="android:textSize">@dimen/default_font_size</item>
+    </style>
+
+    <style name="FloatingActionButton">
+        <item name="android:backgroundTint">@color/design_default_color_background</item>
+        <item name="android:focusable">true</item>
+        <item name="android:clickable">true</item>
+        <item name="fabCustomSize">50dp</item>
+        <item name="borderWidth">1dp</item>
+    </style>
+
+    <style name="FloatingActionButton.Big" parent="FloatingActionButton">
+        <item name="fabCustomSize">60dp</item>
+        <item name="maxImageSize">42dp</item>
+    </style>
+
+    <style name="DefaultTextView" parent="Widget.AppCompat.TextView">
+        <item name="android:textAppearance">@style/MyTextAppearance</item>
+    </style>
+
+    <style name="MyTextAppearance" parent="TextAppearance.AppCompat.Medium">
+        <item name="android:fontFamily">@font/ibm_plex_mono</item>
+        <item name="fontFamily">@font/ibm_plex_mono</item>
+        <item name="android:textSize">@dimen/default_font_size</item>
+        <item name="android:textColor">@color/colorPrimaryDark</item>
+    </style>
+
+    <style name="MyTextAppearance.Dark" parent="MyTextAppearance">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="Title" parent="MyTextAppearance">
+        <item name="android:textStyle">italic</item>
+        <item name="android:gravity">center</item>
+        <item name="android:textSize">@dimen/title_size</item>
+    </style>
+
+    <style name="Title.Dark" parent="Title">
+        <item name="android:textColor">@color/colorPrimary</item>
+    </style>
+
+    <style name="BottomPlayerTextView" parent="DefaultTextView">
+        <item name="android:textAppearance">@style/MyTextAppearance</item>
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">@dimen/pinnable</item>
+        <item name="android:gravity">center</item>
+    </style>
+
+    <style name="FabSquare" parent="ShapeAppearance.MaterialComponents.SmallComponent">
+        <item name="cornerFamily">cut</item>
+        <item name="cornerSize">0dp</item>
     </style>
 
 </resources>
