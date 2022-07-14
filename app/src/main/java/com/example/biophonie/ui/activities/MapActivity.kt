@@ -68,6 +68,7 @@ import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
 import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.coroutines.*
+import java.net.URI
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
@@ -469,7 +470,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
-        //val url: URI = URI.create("https://biophonie.fr/geojson")
         mapboxMap.setStyle(
             Style.Builder().fromUri(getString(R.string.style_url))
                 .withImage(
@@ -493,7 +493,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 .withSource(
                     GeoJsonSource(
                         ID_SOURCE,
-                        FeatureCollection.fromFeatures(geoPointsFeatures)
+                        URI.create(getString(R.string.geojson_url))
                     )
                 )
                 .withLayers(
@@ -501,8 +501,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         .withProperties(*properties)
                 )
         ) {
-            Log.d(TAG, "onMapReady: ${it.json}")
-            //LoadGeoJsonDataTask(this).execute()
             mapboxMap.addOnMapClickListener(this)
             setDataObservers()
         }

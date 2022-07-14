@@ -1,11 +1,16 @@
 package com.example.biophonie.ui.activities
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.viewpager.widget.ViewPager
 import com.example.biophonie.R
+import java.net.URI
 
 
 class MainActivity : AppCompatActivity() {
@@ -24,10 +29,10 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.toTutorial).setOnClickListener {
             startActivity(Intent(this, TutorialActivity::class.java))
         }
-        //checkTutorial()
+        checkTutorial()
     }
 
-    /*private fun checkTutorial() {
+    private fun checkTutorial() {
         val sp = getSharedPreferences(myPrefs, Context.MODE_PRIVATE)
         if (!sp.getBoolean("first", false)) {
             val editor = sp.edit()
@@ -35,8 +40,8 @@ class MainActivity : AppCompatActivity() {
             editor.apply()
             Toast.makeText(this, "First", Toast.LENGTH_SHORT).show()
             val intent =
-                Intent(this, ViePager::class.java) //call your ViewPager class
+                Intent(this, ViewPager::class.java) //call your ViewPager class
             startActivity(intent)
         }
-    }*/
+    }
 }

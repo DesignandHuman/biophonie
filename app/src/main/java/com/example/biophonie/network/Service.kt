@@ -17,9 +17,9 @@ interface WebService {
     suspend fun getGeoPoint(@Query("id") id: String): Response<NetworkGeoPoint>
 
     @Multipart
-    @POST("/sounds/new")
+    @POST("/geopoint")
     suspend fun postNewSound(@Part("sound") sound: NetworkSound,
-                             @Part soudfile: MultipartBody.Part,
+                             @Part soundfile: MultipartBody.Part,
                              @Part imagefile: MultipartBody.Part
     ): Response<Message>
 }
