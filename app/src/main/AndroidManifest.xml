@@ -21,7 +21,8 @@
         <activity android:name=".ui.activities.RecSoundActivity" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.activities.TutorialActivity" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.activities.MapActivity"/>
-        <activity android:name=".ui.activities.MainActivity" android:theme="@style/SplashTheme">
+        <activity android:name=".ui.activities.MainActivity" android:theme="@style/SplashTheme"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
