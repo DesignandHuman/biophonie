@@ -2,7 +2,6 @@ package com.example.biophonie.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ApplicationErrorReport
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
@@ -49,6 +48,7 @@ import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
 import com.mapbox.mapboxsdk.Mapbox
+import com.mapbox.mapboxsdk.camera.CameraPosition
 import com.mapbox.mapboxsdk.geometry.LatLng
 import com.mapbox.mapboxsdk.location.LocationComponent
 import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
@@ -59,6 +59,7 @@ import com.mapbox.mapboxsdk.location.modes.RenderMode
 import com.mapbox.mapboxsdk.maps.MapboxMap
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
 import com.mapbox.mapboxsdk.maps.Style
+import com.mapbox.mapboxsdk.style.expressions.Expression
 import com.mapbox.mapboxsdk.style.expressions.Expression.*
 import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_LEFT
 import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
@@ -73,9 +74,11 @@ import java.net.URI
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
-private const val ID_SOURCE: String = "biophonie.remote"
-private const val ID_LAYER: String = "biophonie.sound"
-private const val PROPERTY_SELECTED: String = "selected"
+private const val ID_SOURCE_LOCAL: String = "biophonie.local"
+private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
+private const val ID_LAYER_LOCAL: String = "biophonie.sound.local"
+private const val ID_LAYER_REMOTE: String = "biophonie.sound.remote"
+private const val ID_LAYER_REMOTE_SELECTED: String = "biophonie.sound.remote.selected"
 private const val FRAGMENT_TAG: String = "fragment"
 private const val REQUEST_SETTINGS_TRACKING = 0x1
 private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
@@ -90,7 +93,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
-    private lateinit var geoPointsFeatures: MutableList<Feature>
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -132,21 +134,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                         }
                     )
                 }
-                //This is only to avoid duplicates inside geoPointsFeatures
-                var firstCache = 0
-                for (feature in geoPointsFeatures) {
-                    if (feature.getBooleanProperty(PROPERTY_CACHE))
-                        break
-                    firstCache++
-                }
-                if (firstCache != geoPointsFeatures.size) {
-                    geoPointsFeatures =
-                        geoPointsFeatures.subList(0, firstCache)
-                }
-                geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
                 mapboxMap.getStyle {
-                    (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
-                        FeatureCollection.fromFeatures(geoPointsFeatures)
+                    (it.getSource(ID_SOURCE_LOCAL) as GeoJsonSource).setGeoJson(
+                        FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
                     )
                 }
             }
@@ -364,7 +354,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         val features: List<Feature> =
             rectF?.let { mapboxMap.queryRenderedFeatures(
                 it,
-                ID_LAYER
+                ID_LAYER_LOCAL, ID_LAYER_REMOTE
             ) } as List<Feature>
         return if (features.isNotEmpty()) displayFeature(features)
         else false
@@ -373,20 +363,33 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     private fun displayFeature(features: List<Feature>): Boolean {
         val clickedFeature = features.firstOrNull { it.geometry() is Point }
         clickedFeature?.let { feature ->
-            geoPointsFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
+            val selectedLayer = mapboxMap.style?.getLayerAs(ID_LAYER_REMOTE_SELECTED) as SymbolLayer?
+            val id = feature.getNumberProperty(PROPERTY_ID)
+            val selectedExpression = any(
+                eq(get(PROPERTY_ID), literal(id))
+            )
+            selectedLayer?.setFilter(selectedExpression)
+            (feature.geometry() as Point).run {
+                mapboxMap.cameraPosition = CameraPosition.Builder()
+                    .target(LatLng(this.latitude(),this.longitude()))
+                    .padding(.0,25.0,.0,.0) //TODO
+                    .build()
+            }
+
+            /*geoPointsFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
             geoPointsFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
                 PROPERTY_ID
             ) }.addBooleanProperty(PROPERTY_SELECTED, true)
-            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE)?.setGeoJson(
+            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE_LOCAL)?.setGeoJson(
                 FeatureCollection.fromFeatures(geoPointsFeatures)
-            )
-            val clickedPoint = feature.geometry() as Point
-                bottomPlayer.clickOnGeoPoint(
-                    clickedFeature.getStringProperty(PROPERTY_ID),
-                    clickedFeature.getStringProperty(PROPERTY_NAME),
-                    LatLng(clickedPoint.latitude(), clickedPoint.longitude())
-                )
-                return true
+            )*/
+            /*val clickedPoint = feature.geometry() as Point
+            bottomPlayer.clickOnGeoPoint(
+                feature.getStringProperty(PROPERTY_ID),
+                feature.getStringProperty(PROPERTY_NAME),
+                LatLng(clickedPoint.latitude(), clickedPoint.longitude())
+            )*/
+            return true
         }
         return false
     }
@@ -454,7 +457,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             mapboxMap.getStyle {
                 it.addSource(
                     GeoJsonSource(
-                        ID_SOURCE, FeatureCollection.fromFeatures(
+                        ID_SOURCE_LOCAL, FeatureCollection.fromFeatures(
                             features
                         )
                     )
@@ -465,8 +468,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onMapReady(mapboxMap: MapboxMap) {
         this.mapboxMap = mapboxMap
-        geoPointsFeatures = (viewModel.features.value as MutableList<Feature>?)!!
-        val properties = buildPropertyValues()
         mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
         mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
         mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
@@ -492,13 +493,17 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                 )
                 .withSource(
                     GeoJsonSource(
-                        ID_SOURCE,
+                        ID_SOURCE_REMOTE,
                         URI.create(getString(R.string.geojson_url))
                     )
                 )
                 .withLayers(
-                    SymbolLayer(ID_LAYER, ID_SOURCE)
-                        .withProperties(*properties)
+                    SymbolLayer(ID_LAYER_LOCAL, ID_SOURCE_LOCAL)
+                        .withProperties(*buildPropertyValues()),
+                    SymbolLayer(ID_LAYER_REMOTE, ID_SOURCE_REMOTE)
+                        .withProperties(*buildPropertyValues()),
+                    SymbolLayer(ID_LAYER_REMOTE_SELECTED, ID_SOURCE_REMOTE)
+                        .withProperties(*buildPropertyValuesSelected()).withFilter(literal(false))
                 )
         ) {
             mapboxMap.addOnMapClickListener(this)
@@ -517,20 +522,12 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             ),
             iconOpacity(1f),
             iconSize(
-                switchCase(
-                    eq(get(PROPERTY_SELECTED), true), literal(0.7f),
-                    eq(get(PROPERTY_SELECTED), false), literal(0.5f),
                     literal(0.5f)
-                )
             ),
             iconAllowOverlap(false),
             iconIgnorePlacement(false),
             textFont(
-                switchCase(
-                    eq(get(PROPERTY_SELECTED), true), literal(arrayOf("IBM Plex Mono Bold")),
-                    eq(get(PROPERTY_SELECTED), false), literal(arrayOf("IBM Plex Mono Regular")),
                     literal(arrayOf("IBM Plex Mono Regular"))
-                )
             ),
             textColor(
                 switchCase(
@@ -553,11 +550,56 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             )
         ),
             textField("{name}"),
-            textSize(switchCase(
-                eq(get(PROPERTY_SELECTED), true), literal(14f),
-                eq(get(PROPERTY_SELECTED), false), literal(12f),
+            textSize(
                 literal(12f)
-            )),
+            ),
+            textOffset(arrayOf(0.8f, -0.05f)),
+            textAnchor(TEXT_ANCHOR_LEFT),
+            textIgnorePlacement(false),
+            textAllowOverlap(false)
+        )
+    }
+
+    private fun buildPropertyValuesSelected(): Array<PropertyValue<out Any>> {
+        return arrayOf(
+            iconImage(
+                switchCase(
+                    eq(get(PROPERTY_CACHE), true), literal(ID_ICON_CACHE),
+                    eq(get(PROPERTY_CACHE), false), literal(ID_ICON),
+                    literal(ID_ICON_CACHE)
+                )
+            ),
+            iconOpacity(1f),
+            iconSize(
+                    literal(0.7f)
+            ),
+            iconAllowOverlap(false),
+            iconIgnorePlacement(false),
+            textFont(
+                literal(arrayOf("IBM Plex Mono Bold"))
+            ),
+            textColor(
+                switchCase(
+                    eq(get(PROPERTY_CACHE), true), literal(
+                        String.format(
+                            "#%06X",
+                            0xFFFFFF and resources.getColor(R.color.colorPrimaryDark, theme)
+                        )
+                ),
+                eq(get(PROPERTY_CACHE), false), literal(
+                        String.format(
+                            "#%06X",
+                            0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
+                        )
+                ),
+                literal(String.format(
+                    "#%06X",
+                    0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
+                ))
+            )
+        ),
+            textField("{name}"),
+            textSize(literal(14f)),
             textOffset(arrayOf(0.8f, -0.05f)),
             textAnchor(TEXT_ANCHOR_LEFT),
             textIgnorePlacement(false),

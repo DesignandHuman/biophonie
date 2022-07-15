@@ -21,20 +21,6 @@ class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
     val features = repository.geoFeatures
     val newSounds = repository.newSounds
 
-    init {
-        refreshDataFromRepository()
-    }
-
-    private fun refreshDataFromRepository() {
-        viewModelScope.launch {
-            try {
-                repository.refreshFeatures()
-            } catch (networkError: IOException) {
-                // Show a Toast error message and hide the progress bar.
-            }
-        }
-    }
-
     fun requestAddSound(extras: Bundle?) {
         extras?.let {
             val date = extras.getString("date")

@@ -24,11 +24,6 @@ import java.io.File
 private const val TAG = "GeoJsonRepository"
 class GeoJsonRepository(private val database: NewSoundDatabase) {
 
-    fun refreshFeatures(){
-        // TODO fetch from network (use GeoJsonSource)
-        geoFeatures.value = createTestLayers()
-    }
-
     suspend fun insertNewSound(newSound: DatabaseNewSound){
         withContext(Dispatchers.IO) {
             database.soundDao.insert(newSound)
@@ -39,38 +34,6 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
         withContext(Dispatchers.IO) {
             database.soundDao.delete(newSound)
         }
-    }
-
-    private fun createTestLayers(): MutableList<Feature> {
-        val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-        symbolLayerIconFeatureList.add(
-            Feature.fromGeometry(
-                Point.fromLngLat(-1.803165, 47.516218)
-            ).apply {
-                addStringProperty(PROPERTY_NAME, "Point 1")
-                addStringProperty(PROPERTY_ID, "1")
-                addBooleanProperty(PROPERTY_CACHE, false)
-            }
-        )
-        symbolLayerIconFeatureList.add(
-            Feature.fromGeometry(
-                Point.fromLngLat(-1.814496, 47.534516)
-            ).apply {
-                addStringProperty(PROPERTY_NAME, "Point 2")
-                addStringProperty(PROPERTY_ID, "2")
-                addBooleanProperty(PROPERTY_CACHE, false)
-            }
-        )
-        symbolLayerIconFeatureList.add(
-            Feature.fromGeometry(
-                Point.fromLngLat(-1.778381, 47.512238)
-            ).apply {
-                addStringProperty(PROPERTY_NAME, "Point 3")
-                addStringProperty(PROPERTY_ID, "3")
-                addBooleanProperty(PROPERTY_CACHE, false)
-            }
-        )
-        return symbolLayerIconFeatureList
     }
 
     suspend fun sendNewSound(newSound: DatabaseNewSound): Boolean{
