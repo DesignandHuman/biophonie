@@ -67,7 +67,6 @@ import com.mapbox.mapboxsdk.style.layers.PropertyValue
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
 import com.mapbox.mapboxsdk.utils.BitmapUtils
-import kotlinx.android.synthetic.main.activity_map.*
 import kotlinx.coroutines.*
 import java.net.URI
 
@@ -189,8 +188,6 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
                     )
 
                 override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                override fun onProviderEnabled(provider: String?) {}
-                override fun onProviderDisabled(provider: String?) {}
             }, null)
         }
     }
@@ -609,7 +606,7 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     private fun updateScaleBar(mapboxMap: MapboxMap) {
         val cameraPosition = mapboxMap.cameraPosition
-        scaleView.update(cameraPosition.zoom.toFloat(), cameraPosition.target.latitude)
+        binding.scaleView.update(cameraPosition.zoom.toFloat(), cameraPosition.target.latitude)
     }
 
     override fun onMapClick(point: LatLng): Boolean {
