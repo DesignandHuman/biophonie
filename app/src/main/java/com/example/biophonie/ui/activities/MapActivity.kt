@@ -143,11 +143,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
                 },
                 object : OnMapLoadErrorListener {
                     override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                        Toast.makeText(
-                            this@MapActivity,
-                            "Could not refresh sounds, retry later",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        Log.i(TAG, "onMapLoadError: could not refresh sounds, retry later")
                     }
                 }
             )
