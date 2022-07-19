@@ -8,13 +8,13 @@ import com.example.biophonie.network.GeoPointWeb
 import com.example.biophonie.network.NetworkGeoPoint
 import com.example.biophonie.network.asDomainModel
 import com.example.biophonie.util.coordinatesToString
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
 class GeoPointRepository(private val database: NewSoundDatabase) {
-    suspend fun fetchGeoPoint(id: String, name: String, coordinates: LatLng){
+    suspend fun fetchGeoPoint(id: String, name: String, coordinates: Point){
         withContext(Dispatchers.IO){
             val cachedNewSound = database.soundDao.getNewSound(id)
             if (cachedNewSound == null){

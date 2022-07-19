@@ -6,16 +6,16 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.location.LocationManager
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun coordinatesToString(coordinates: LatLng): String{
+fun coordinatesToString(coordinates: Point): String{
     return LocationConverter.latitudeAsDMS(
-        coordinates.latitude,
+        coordinates.latitude(),
         4
-    ) + LocationConverter.longitudeAsDMS(coordinates.longitude, 4)
+    ) + LocationConverter.longitudeAsDMS(coordinates.longitude(), 4)
 }
 
 fun getRandomString(length: Int) : String {

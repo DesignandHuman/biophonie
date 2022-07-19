@@ -5,7 +5,7 @@ import com.example.biophonie.domain.Sound
 import com.example.biophonie.network.NetworkSound
 import com.example.biophonie.util.LocationConverter
 import com.example.biophonie.util.coordinatesToString
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 
 @Entity
 data class DatabaseNewSound (
@@ -51,7 +51,7 @@ fun DatabaseNewSound.asDomainModel(): Sound {
     return Sound(title = title,
         date = date,
         amplitudes = amplitudes,
-        coordinates = coordinatesToString(LatLng(latitude, longitude)),
+        coordinates = coordinatesToString(Point.fromLngLat(latitude, longitude)),
         landscapePath = landscapePath,
         soundPath = soundPath)
 }

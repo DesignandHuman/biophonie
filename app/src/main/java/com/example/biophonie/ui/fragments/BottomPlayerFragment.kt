@@ -23,7 +23,7 @@ import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -169,7 +169,7 @@ class BottomPlayerFragment : Fragment() {
         }
     }
 
-    fun clickOnGeoPoint(id: String, name: String, coordinates: LatLng){
+    fun clickOnGeoPoint(id: String, name: String, coordinates: Point){
         viewModel.getGeoPoint(id, name, coordinates)
     }
 

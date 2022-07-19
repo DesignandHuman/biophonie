@@ -14,7 +14,7 @@ import com.example.biophonie.domain.Sound
 import com.example.biophonie.domain.dateAsCalendar
 import com.example.biophonie.repositories.GeoPointRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
 import kotlinx.coroutines.CoroutineScope
@@ -120,7 +120,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         _visibility.value = true
     }
 
-    fun getGeoPoint(id: String, name: String, coordinates: LatLng){
+    fun getGeoPoint(id: String, name: String, coordinates: Point){
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         if (geoPoint.value?.id == id)
             return

@@ -14,7 +14,7 @@ import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.example.biophonie.R
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 import java.io.File
@@ -34,7 +34,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentPhotoPath: String
     private lateinit var currentSoundPath: String
-    private lateinit var coordinates: LatLng
+    private lateinit var coordinates: Point
     var currentId: Int = 0
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
@@ -238,7 +238,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     fun setCoordinates(extras: Bundle?) {
         extras?.let {
-            coordinates = LatLng(it.getDouble("latitude"), it.getDouble("longitude"))
+            coordinates = Point.fromLngLat(it.getDouble("latitude"), it.getDouble("longitude"))
         }
     }
 
@@ -249,7 +249,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     data class Result(val title: String,
                       val date: String,
                       val amplitudes: List<Int>,
-                      val coordinates: LatLng,
+                      val coordinates: Point,
                       val soundPath: String,
                       val landscapePath: String)
 }

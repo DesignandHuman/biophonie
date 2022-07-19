@@ -100,8 +100,8 @@ class TitleFragment : Fragment() {
                 putString("title", it.title)
                 putString("date", it.date)
                 putIntegerArrayList("amplitudes", it.amplitudes as ArrayList<Int>)
-                putDouble("latitude", it.coordinates.latitude)
-                putDouble("longitude", it.coordinates.longitude)
+                putDouble("latitude", it.coordinates.latitude())
+                putDouble("longitude", it.coordinates.longitude())
                 putString("soundPath", it.soundPath)
                 putString("landscapePath", it.landscapePath)
             }

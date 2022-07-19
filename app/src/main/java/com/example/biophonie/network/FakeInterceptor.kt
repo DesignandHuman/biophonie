@@ -2,6 +2,7 @@ package com.example.biophonie.network
 
 import android.os.SystemClock
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import java.io.IOException
 import java.net.URI
 
@@ -16,10 +17,10 @@ class FakeInterceptor : Interceptor {
     private val TAG = FakeInterceptor::class.java.simpleName
 
     @Throws(IOException::class)
-    override fun intercept(chain: Interceptor.Chain): Response? {
+    override fun intercept(chain: Interceptor.Chain): Response {
         val responseString: String
         // Get Request URI.
-        val uri: URI = chain.request().url().uri()
+        val uri: URI = chain.request().url.toUri()
         // Get Query String.
         val query: String? = uri.query
         // Parse the Query String.
@@ -44,7 +45,7 @@ class FakeInterceptor : Interceptor {
                 .protocol(Protocol.HTTP_2)
                 .body(
                     ResponseBody.create(
-                        MediaType.parse("application/json"),
+                        "application/json".toMediaTypeOrNull(),
                         responseString.toByteArray()
                     )
                 )
@@ -58,7 +59,7 @@ class FakeInterceptor : Interceptor {
                 .protocol(Protocol.HTTP_2)
                 .body(
                     ResponseBody.create(
-                        MediaType.parse("application/json"),
+                        "application/json".toMediaTypeOrNull(),
                         "{\"message\":\"OK\"}".toByteArray()
                     )
                 )

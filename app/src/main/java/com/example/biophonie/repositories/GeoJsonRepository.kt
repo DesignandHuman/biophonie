@@ -17,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import java.io.File
@@ -45,8 +46,8 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
                 delay(5000)
             val request = GeoPointWeb.geopoints.postNewSound(
                 newSound.asNetworkModel(),
-                MultipartBody.Part.create(RequestBody.create(MediaType.parse("audio"), soundFile)),
-                MultipartBody.Part.create(RequestBody.create(MediaType.parse("image"), pictureFile))
+                MultipartBody.Part.create(RequestBody.create("audio".toMediaTypeOrNull(), soundFile)),
+                MultipartBody.Part.create(RequestBody.create("image".toMediaTypeOrNull(), pictureFile))
             )
             return@withContext request.isSuccessful
         }
