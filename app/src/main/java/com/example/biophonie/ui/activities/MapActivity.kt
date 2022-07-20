@@ -16,6 +16,7 @@ import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
@@ -42,6 +43,7 @@ import com.google.android.gms.location.SettingsClient
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
@@ -50,20 +52,23 @@ import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.extension.style.expressions.dsl.generated.*
 import com.mapbox.maps.extension.style.image.image
-import com.mapbox.maps.extension.style.layers.generated.SymbolLayer
-import com.mapbox.maps.extension.style.layers.generated.SymbolLayerDsl
-import com.mapbox.maps.extension.style.layers.generated.symbolLayer
+import com.mapbox.maps.extension.style.layers.generated.*
 import com.mapbox.maps.extension.style.layers.getLayerAs
 import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.extension.style.style
+import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
+import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
+import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
+import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
 
@@ -80,7 +85,7 @@ private const val REQUEST_SETTINGS_TRACKING = 0x1
 private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
 private const val REQUEST_ADD_SOUND = 0x3
 
-class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener, OnCameraChangeListener {
+class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
 
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory(this)).get(MapViewModel::class.java)
@@ -97,8 +102,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
 
         @SuppressLint("MissingPermission")
         override fun turnedOff() {
-            /*if (mapboxMap.locationComponent.isLocationComponentActivated)
-                mapboxMap.locationComponent.isLocationComponentEnabled = false*/
+            binding.mapView.location.cleanup()
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_disabled)
         }
     })
@@ -229,25 +233,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
     }
 
     private fun trackLocation(){
-        /*mapboxMap.getStyle {
-            enableLocationComponent(it)
-            val locationComponent = mapboxMap.locationComponent
-            locationComponent.addOnCameraTrackingChangedListener(object :
-                OnCameraTrackingChangedListener {
-                override fun onCameraTrackingChanged(currentMode: Int) {
-                    when (currentMode) {
-                        CameraMode.TRACKING -> binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
-                        else -> binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
-                    }
-                }
-
-                override fun onCameraTrackingDismissed() {
-                }
-            })
-
-            // Enable to make component visible
-            locationComponent.cameraMode = CameraMode.TRACKING
-        }*/
+        enableLocation()
+        binding.mapView.run {
+            location.addOnIndicatorPositionChangedListener(this@MapActivity)
+            gestures.addOnMoveListener(this@MapActivity)
+        }
+        binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
     }
 
     object SingleShotLocationProvider {
@@ -352,55 +343,17 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun enableLocationComponent(loadedMapStyle: Style) {
-        /*val locationComponent: LocationComponent = mapboxMap.locationComponent
-        // Activate with options
-        locationComponent.activateLocationComponent(
-            LocationComponentActivationOptions.builder(this, loadedMapStyle)
-                .locationComponentOptions(styleLocation())
-                .build()
-        )
-        locationComponent.renderMode = RenderMode.COMPASS
-        locationComponent.isLocationComponentEnabled = true*/
+    private fun enableLocation() {
+        binding.mapView.location.run {
+            updateSettings {
+                enabled = true
+                locationPuck = LocationPuck2D(
+                    bearingImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.bearing),
+                    topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
+                )
+            }
+        }
     }
-
-    /*private fun styleLocation(): LocationComponentOptions =
-        LocationComponentOptions.builder(this)
-            .foregroundDrawable(R.drawable.ic_location)
-            .backgroundTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.colorPrimary,
-                    theme
-                )
-            )
-            .bearingDrawable(R.drawable.bearing)
-            .bearingTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.colorAccent,
-                    theme
-                )
-            )
-            .foregroundStaleTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.design_default_color_background,
-                    theme
-                )
-            )
-            .backgroundStaleTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.colorPrimaryDark,
-                    theme
-                )
-            )
-            .accuracyColor(R.color.colorPrimaryDark)
-            .elevation(0F)
-            .trackingGesturesManagement(true)
-            .build()*/
 
     /**
      * Unused but might be useful with devices not linked to GooglePlay
@@ -447,7 +400,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-            mapboxMap.getStyle { style -> enableLocationComponent(style) }
+
         } else {
             Toast.makeText(this, R.string.location_permission_not_granted, Toast.LENGTH_LONG)
                 .show()
@@ -522,6 +475,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         unregisterReceiver(gpsReceiver)
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        onCameraTrackingDismissed()
+        mapboxMap.removeOnCameraChangeListener(this)
+    }
+
     override fun onCameraChanged(eventData: CameraChangedEventData) {
         updateScaleBar(mapboxMap)
     }
@@ -572,4 +531,26 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         return false
     }
 
+    override fun onMoveBegin(detector: MoveGestureDetector) {
+        onCameraTrackingDismissed()
+    }
+
+    override fun onMove(detector: MoveGestureDetector): Boolean {
+        return false
+    }
+
+    override fun onMoveEnd(detector: MoveGestureDetector) {}
+
+    override fun onIndicatorPositionChanged(point: Point) {
+        mapboxMap.setCamera(CameraOptions.Builder().center(point).build())
+        binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
+    }
+
+    private fun onCameraTrackingDismissed() {
+        binding.mapView.run {
+            location.removeOnIndicatorPositionChangedListener(this@MapActivity)
+            gestures.removeOnMoveListener(this@MapActivity)
+        }
+        setUpFabResource()
+    }
 }
