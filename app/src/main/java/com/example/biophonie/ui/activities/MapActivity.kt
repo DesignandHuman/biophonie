@@ -1,32 +1,30 @@
 package com.example.biophonie.ui.activities
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.IntentSender
 import android.graphics.*
-import android.location.Criteria
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.location.*
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
+import com.example.biophonie.util.CustomLocationProvider
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
@@ -34,13 +32,8 @@ import com.example.biophonie.viewmodels.PROPERTY_CACHE
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.SettingsClient
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
@@ -67,8 +60,7 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
-import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.maps.plugin.locationcomponent.*
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
 
@@ -93,6 +85,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
     private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
+    private lateinit var customLocationProvider: CustomLocationProvider
+
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -114,7 +108,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         setUpMapbox()
         setUpFabResource()
         addBottomPlayerFragment()
-        bindMap()
+        bindScaleView()
         setOnClickListeners()
     }
 
@@ -156,6 +150,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
             setDataObservers()
         }
         binding.mapView.scalebar.enabled = false
+        binding.mapView.location.updateSettings {
+            locationPuck = LocationPuck2D(
+                bearingImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.bearing),
+                topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
+            )
+        }
     }
 
     private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String) {
@@ -204,7 +204,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
 
 
     private fun setDataObservers() {
-        viewModel.newSounds.observe(this, Observer {
+        viewModel.newSounds.observe(this, {
             val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
             if (!viewModel.newSounds.value.isNullOrEmpty()) {
                 for (i in viewModel.newSounds.value!!) {
@@ -311,46 +311,34 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         }
     }
 
-    private fun createLocationRequest(): LocationRequest? =
-        LocationRequest.create()?.apply {
-            interval = 10000
-            fastestInterval = 3000
-            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        }
-
     private fun activateLocationSettings(requestCode: Int, onSuccess: () -> Unit){
-        val googleApiClient = GoogleApiClient.Builder(this).addApi(LocationServices.API).build()
-        googleApiClient.connect()
-        val builder = createLocationRequest()?.let {
-            LocationSettingsRequest.Builder()
-                .addLocationRequest(it).apply { setAlwaysShow(true) }
-        }
-        val client: SettingsClient = LocationServices.getSettingsClient(this)
-        client.checkLocationSettings(builder?.build()).apply {
-            addOnSuccessListener {
-                onSuccess()
-            }
-            addOnFailureListener {
-                if (exception is ResolvableApiException){
-                    try {
-                        (exception as ResolvableApiException).startResolutionForResult(
-                            this@MapActivity,
-                            requestCode
-                        )
-                    } catch (sendEx: IntentSender.SendIntentException) { }
+        val locationPermissionRequest = registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions()
+        ) { permissions ->
+            when {
+                permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) -> {
+                    // Precise location access granted.
                 }
+                permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
+                    // Only approximate location access granted.
+                } else -> {
+                // No location access granted.
+            }
             }
         }
+        locationPermissionRequest.launch(arrayOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION))
     }
 
     private fun enableLocation() {
+        if (!this::customLocationProvider.isInitialized) {
+            customLocationProvider = CustomLocationProvider(this)
+            binding.mapView.location.setLocationProvider(customLocationProvider)
+        }
         binding.mapView.location.run {
             updateSettings {
                 enabled = true
-                locationPuck = LocationPuck2D(
-                    bearingImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.bearing),
-                    topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
-                )
             }
         }
     }
@@ -400,14 +388,14 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
 
     override fun onPermissionResult(granted: Boolean) {
         if (granted) {
-
+            //TODO maybe ?
         } else {
             Toast.makeText(this, R.string.location_permission_not_granted, Toast.LENGTH_LONG)
                 .show()
         }
     }
 
-    private fun bindMap() {
+    private fun bindScaleView() {
         binding.apply {
             scaleView.metersOnly()
             scaleView.setTextFont(getFont(this@MapActivity, R.font.ibm_plex_mono))
