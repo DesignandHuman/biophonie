@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.toTutorial).setOnClickListener {
             startActivity(Intent(this, TutorialActivity::class.java))
         }
-        checkTutorial()
+        //checkTutorial()
     }
 
     private fun checkTutorial() {

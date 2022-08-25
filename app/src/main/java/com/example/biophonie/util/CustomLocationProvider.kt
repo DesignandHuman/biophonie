@@ -30,7 +30,6 @@ class CustomLocationProvider(
         private val provider = WeakReference(provider)
 
         override fun onSuccess(result: LocationEngineResult?) {
-            println("CustomLocationProvider.LocationUpdatedCallback.onSuccess - (${result?.lastLocation})")
             result?.lastLocation?.let {
                 provider.get()!!.updateLocation(Point.fromLngLat(it.longitude, it.latitude, it.altitude))
                 provider.get()!!.updateBearing(it.bearing.toDouble())
