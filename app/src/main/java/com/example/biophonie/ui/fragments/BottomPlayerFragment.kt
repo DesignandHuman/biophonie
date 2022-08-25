@@ -21,6 +21,7 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
+import com.example.biophonie.util.ScreenMetricsCompat
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.geojson.Point
@@ -48,7 +49,7 @@ class BottomPlayerFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_bottom_player,
@@ -94,11 +95,12 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setPeekHeight() {
-        val screenHeight =
-            DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
-        bottomSheetBehavior.peekHeight =
-            if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) screenHeight / 2
-            else screenHeight / 3
+        val screenHeight = context?.let { ScreenMetricsCompat.getScreenSize(it) }?.height
+        if (screenHeight != null) {
+            bottomSheetBehavior.peekHeight =
+                if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) screenHeight / 2
+                else screenHeight / 3
+        }
         binding.apply {
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.Main){
@@ -174,22 +176,22 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setUpObservers() {
-        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+        viewModel.leftClickable.observe(viewLifecycleOwner, {
             binding.left.isEnabled = it
         })
-        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+        viewModel.rightClickable.observe(viewLifecycleOwner, {
             binding.right.isEnabled = it
         })
-        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean> {
+        viewModel.visibility.observe(viewLifecycleOwner, {
             changeWidgetsVisibility(it)
         })
-        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int> {
+        viewModel.bottomSheetState.observe(viewLifecycleOwner, {
             bottomSheetBehavior.state = it
         })
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> {
+        viewModel.eventNetworkError.observe(viewLifecycleOwner, {
             if (it) onNetworkError()
         })
-        viewModel.date.observe(viewLifecycleOwner, Observer<String> {
+        viewModel.date.observe(viewLifecycleOwner, {
             viewModel.playerController.setTitle(SpannableStringBuilder()
                 .bold { append("Le : ") }
                 .append(it.split("\\s".toRegex())[0])

@@ -13,10 +13,9 @@ class TutorialFragment : Fragment() {
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_tutorial, container, false)
+    ): View = inflater.inflate(R.layout.fragment_tutorial, container, false)
 }
 
-private const val TAG = "FirstLaunchFragments"
 class NameFragment: Fragment(){
     lateinit var name: EditText
     override fun onCreateView(

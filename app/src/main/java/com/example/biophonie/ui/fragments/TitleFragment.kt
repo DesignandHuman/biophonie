@@ -14,7 +14,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
 import com.example.biophonie.viewmodels.RecViewModel
@@ -30,7 +29,7 @@ class TitleFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_title,
@@ -88,13 +87,13 @@ class TitleFragment : Fragment() {
     }
 
     private fun setDataObservers() {
-        viewModel.toast.observe(viewLifecycleOwner, Observer{
+        viewModel.toast.observe(viewLifecycleOwner, {
             it?.let {
                 binding.titleInputLayout.error = it.message
                 viewModel.onToastDisplayed()
             }
         })
-        viewModel.result.observe(viewLifecycleOwner, Observer {
+        viewModel.result.observe(viewLifecycleOwner, {
             val intent = Intent()
             val bundle = Bundle().apply {
                 putString("title", it.title)

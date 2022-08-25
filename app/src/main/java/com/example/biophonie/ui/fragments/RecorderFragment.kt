@@ -33,7 +33,7 @@ class RecorderFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_recording,
@@ -49,7 +49,7 @@ class RecorderFragment : Fragment() {
     }
 
     private fun setDataObserver() {
-        viewModel.goToNext.observe(viewLifecycleOwner, Observer {
+        viewModel.goToNext.observe(viewLifecycleOwner, {
             if (BuildConfig.DEBUG) {
                 if (it){
                     binding.root.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)

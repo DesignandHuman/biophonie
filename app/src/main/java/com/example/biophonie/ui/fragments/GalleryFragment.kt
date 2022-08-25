@@ -4,7 +4,6 @@ import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -16,13 +15,13 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -47,10 +46,18 @@ class GalleryFragment : Fragment(),
     private lateinit var viewAdapter: LandscapesAdapter
     private lateinit var defaultLandscapes: List<Landscape>
 
+    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            result.data?.let {
+                viewModel.activityResult(it.extras?.get("RequestCode") as Int,it)
+            }
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_gallery,
@@ -66,19 +73,20 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setLiveDataObservers() {
-        viewModel.activityIntent.observe(viewLifecycleOwner, Observer {
+        viewModel.activityIntent.observe(viewLifecycleOwner, {
             it?.let {
-                startActivityForResult(it.intent, it.requestCode)
+                it.intent.putExtra("RequestCode", it.requestCode)
+                resultLauncher.launch(it.intent)
                 viewModel.onRequestActivityStarted()
             }
         })
-        viewModel.toast.observe(viewLifecycleOwner, Observer {
+        viewModel.toast.observe(viewLifecycleOwner, {
             it?.let {
                 Toast.makeText(requireContext(), it.message, it.length).show()
                 viewModel.onToastDisplayed()
             }
         })
-        viewModel.fromDefault.observe(viewLifecycleOwner, Observer {
+        viewModel.fromDefault.observe(viewLifecycleOwner, {
             if (it){
                 viewAdapter.apply {
                     selectedPosition = viewModel.currentId
@@ -129,11 +137,6 @@ class GalleryFragment : Fragment(),
             importPicture.setOnClickListener { getOriginOfLandscape() }
             thumbnail.setOnClickListener { viewModel?.restorePreviewFromThumbnail() }
         }
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
-        if (resultCode == Activity.RESULT_OK)
-            viewModel.activityResult(requestCode, imageIntent)
     }
 
     private fun getOriginOfLandscape() {
