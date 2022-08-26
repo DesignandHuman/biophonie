@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
@@ -28,6 +29,7 @@ const val REQUEST_CAMERA = 0
 const val REQUEST_GALLERY = 1
 class RecViewModel(application: Application) : AndroidViewModel(application), DefaultRecorderController.InformationRetriever {
 
+    private var captureUri: Uri? = null
     val mTitle = ObservableField<String>()
 
     private var recorderController: DefaultRecorderController? = null
@@ -39,6 +41,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
 
+    private val _pictureUri = MutableLiveData<Uri>()
+    val pictureUri: LiveData<Uri>
+        get() = _pictureUri
+
     private val _landscapeUri = MutableLiveData(getResourceUri(defaultDrawableIds[0]))
     val landscapeUri: LiveData<Uri>
         get() = _landscapeUri
@@ -46,10 +52,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private val _landscapeThumbnail = MutableLiveData<Uri>()
     val landscapeThumbnail: LiveData<Uri>
         get() = _landscapeThumbnail
-
-    private val _activityIntent = MutableLiveData<ActivityIntent>()
-    val activityIntent: LiveData<ActivityIntent>
-        get() = _activityIntent
 
     private val _toast = MutableLiveData<ToastModel>()
     val toast: LiveData<ToastModel>
@@ -71,18 +73,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val result: LiveData<Result>
         get() = _result
 
-    fun activityResult(requestCode: Int, imageIntent: Intent?){
+    fun pictureResult(picture: Uri?){
         updateFromDefault(false)
-        when(requestCode){
-            REQUEST_CAMERA -> {
-                _landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
-                _landscapeThumbnail.value = _landscapeUri.value
-            }
-            REQUEST_GALLERY -> {
-                _landscapeUri.value = imageIntent?.data
-                _landscapeThumbnail.value = _landscapeUri.value
-            }
-        }
+        _landscapeUri.value = picture ?: captureUri
+        _landscapeThumbnail.value = _landscapeUri.value
     }
 
     @Throws(IOException::class)
@@ -96,21 +90,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         }
     }
 
-    fun dispatchTakePictureIntent(choice: Int){
-        Log.d(TAG, "dispatchTakePictureIntent: $choice")
-        when(choice){
-            REQUEST_CAMERA -> {
-                captureImage()?.also { _activityIntent.value = ActivityIntent(it, REQUEST_CAMERA) }
-            }
-            REQUEST_GALLERY -> Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            ).also {
-                _activityIntent.value = ActivityIntent(it, REQUEST_GALLERY)
-                }
-        }
-    }
-
     /**
      * Takes a picture from a camera.
      * It is to be noted that the picture will be stored inside the external
@@ -119,8 +98,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
      * See https://stackoverflow.com/questions/6390163/deleting-a-gallery-image-after-camera-intent-photo-taken
      *
      */
-    private fun captureImage() : Intent {
-        val pictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+    fun createCaptureUri() : Uri? {
         val photoFile: File? = try {
             createImageFile()
         } catch (ex: IOException) {
@@ -128,25 +106,15 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                 ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
             null
         }
-        photoFile?.let {
-            currentPhotoPath = it.absolutePath
-            val photoURI: Uri = FileProvider.getUriForFile(
+        if (photoFile != null) {
+            currentPhotoPath = photoFile.absolutePath
+            captureUri = FileProvider.getUriForFile(
                 getApplication<Application>().applicationContext,
                 "com.example.biophonie.fileprovider",
                 photoFile
             )
-            pictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
         }
-        try {
-            startActivity(getApplication<Application>().applicationContext, pictureIntent, null)
-        } catch (ex: ActivityNotFoundException) {
-            Toast.makeText(getApplication<Application>().applicationContext, "Could not communicate with camera", Toast.LENGTH_SHORT).show()
-        }
-        return pictureIntent
-    }
-
-    fun onRequestActivityStarted(){
-        _activityIntent.value = null
+        return captureUri
     }
 
     fun onToastDisplayed(){
@@ -186,7 +154,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         }
     }
 
-    data class ActivityIntent(var intent: Intent, var requestCode: Int)
     data class ToastModel(var message: String, var length: Int)
 
     override fun setPath(path: String) {
@@ -242,6 +209,11 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     fun startRecording() {
         recorderController?.startRecording()
+    }
+
+    fun destroyController(){
+        recorderController?.destroyController()
+        recorderController = null
     }
 
     data class Result(val title: String,

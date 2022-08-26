@@ -1,12 +1,12 @@
 package com.example.biophonie.ui.fragments
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -31,9 +31,11 @@ import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
 import com.example.biophonie.ui.GridItemDecoration
 import com.example.biophonie.ui.LandscapesAdapter
+import com.example.biophonie.viewmodels.REQUEST_CAMERA
 import com.example.biophonie.viewmodels.REQUEST_GALLERY
 import com.example.biophonie.viewmodels.RecViewModel
 
+private const val TAG = "GalleryFragment"
 class GalleryFragment : Fragment(),
     LandscapesAdapter.OnLandscapeListener,
     ChooseMeanDialog.ChooseMeanListener {
@@ -41,18 +43,22 @@ class GalleryFragment : Fragment(),
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
+
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+        if (it) {
+            viewModel.pictureResult(null)
+        } else {
+            Log.i(TAG, "onChoiceClick: could not take picture")
+        }
+    }
+    private val fetchGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
+        viewModel.pictureResult(it)
+    }
+
     private lateinit var binding: FragmentGalleryBinding
     private lateinit var viewManager: GridLayoutManager
     private lateinit var viewAdapter: LandscapesAdapter
     private lateinit var defaultLandscapes: List<Landscape>
-
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-        if (result.resultCode == Activity.RESULT_OK) {
-            result.data?.let {
-                viewModel.activityResult(it.extras?.get("RequestCode") as Int,it)
-            }
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -73,12 +79,8 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setLiveDataObservers() {
-        viewModel.activityIntent.observe(viewLifecycleOwner, {
-            it?.let {
-                it.intent.putExtra("RequestCode", it.requestCode)
-                resultLauncher.launch(it.intent)
-                viewModel.onRequestActivityStarted()
-            }
+        viewModel.pictureUri.observe(viewLifecycleOwner, {
+
         })
         viewModel.toast.observe(viewLifecycleOwner, {
             it?.let {
@@ -141,7 +143,7 @@ class GalleryFragment : Fragment(),
 
     private fun getOriginOfLandscape() {
         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
-            viewModel.dispatchTakePictureIntent(REQUEST_GALLERY)
+            getPicture(REQUEST_GALLERY)
         } else {
             val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
                 DialogAdapterItem("Galerie", R.drawable.ic_library))
@@ -153,12 +155,26 @@ class GalleryFragment : Fragment(),
         }
     }
 
+    private fun getPicture(choice: Int) {
+        when(choice) {
+            REQUEST_CAMERA -> {
+                val uri = viewModel.createCaptureUri()
+                if (uri != null) {
+                    takePicture.launch(uri)
+                }
+            }
+            REQUEST_GALLERY -> {
+                fetchGallery.launch("image/*")
+            }
+        }
+    }
+
     override fun onLandscapeClick(position: Int) {
         viewModel.onClickDefault(position)
     }
 
     override fun onChoiceClick(choice: Int) {
-        viewModel.dispatchTakePictureIntent(choice)
+        getPicture(choice)
     }
 }
 
