@@ -45,11 +45,10 @@ class GalleryFragment : Fragment(),
     }
 
     private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-        if (it) {
+        if (it)
             viewModel.pictureResult(null)
-        } else {
+        else
             Log.i(TAG, "onChoiceClick: could not take picture")
-        }
     }
     private val fetchGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
         viewModel.pictureResult(it)
@@ -159,9 +158,8 @@ class GalleryFragment : Fragment(),
         when(choice) {
             REQUEST_CAMERA -> {
                 val uri = viewModel.createCaptureUri()
-                if (uri != null) {
+                if (uri != null)
                     takePicture.launch(uri)
-                }
             }
             REQUEST_GALLERY -> {
                 fetchGallery.launch("image/*")

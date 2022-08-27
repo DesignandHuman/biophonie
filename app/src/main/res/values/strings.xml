@@ -12,7 +12,7 @@
     <string name="georges">Georges</string>
     <string name="sound_title">Forêt à l\'aube</string>
     <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
-    <string name="location_permission_not_granted">Permission refusée, retour</string>
+    <string name="permission_not_granted">Permission refusée, retour</string>
     <string name="validation">Je valide</string>
     <string name="description_title"><b>Pour finir</b>, donnez un titre à votre enregistrement</string>
     <string name="title">Titre</string>

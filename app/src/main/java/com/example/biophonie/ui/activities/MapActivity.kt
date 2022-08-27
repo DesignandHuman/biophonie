@@ -1,12 +1,13 @@
 package com.example.biophonie.ui.activities
 
-import android.Manifest
+import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.*
 import android.location.*
 import android.os.Build
@@ -38,7 +39,6 @@ import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.android.core.location.*
-import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
@@ -78,19 +78,20 @@ private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
 private const val ID_LAYER_LOCAL: String = "biophonie.sound.local"
 private const val ID_LAYER_REMOTE: String = "biophonie.sound.remote"
 private const val ID_LAYER_REMOTE_SELECTED: String = "biophonie.sound.remote.selected"
-private const val REQUEST_RECORD_AUDIO: Int = 1234
+private const val REQUEST_RECORD: Int = 0x01
+private const val REQUEST_LOCATION: Int = 0x02
 private const val FRAGMENT_TAG: String = "fragment"
 
-class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
+class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
 
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory(this)).get(MapViewModel::class.java)
     }
-    private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private lateinit var customLocationProvider: CustomLocationProvider
 
+    private var trackingExpected = false
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -105,7 +106,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         }
     })
 
-    private val resultLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val locationSettings = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             if (data?.extras != null) {
@@ -169,7 +170,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
                 topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
             )
         }
-        permissionsManager = PermissionsManager(this)
     }
 
     private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String) {
@@ -278,7 +278,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
     }
 
     private fun launchRecActivity(location: Location) {
-        resultLauncher.launch(
+        locationSettings.launch(
             Intent(this@MapActivity, RecSoundActivity::class.java).apply {
                 putExtras(Bundle().apply {
                     putDouble("latitude", location.latitude)
@@ -303,17 +303,17 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
                     askLocationSettings()
                 }
             else {
-                permissionsManager = PermissionsManager(this)
-                permissionsManager.requestLocationPermissions(this)
+                trackingExpected = true
+                ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
             }
         }
         binding.rec.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this,
-                    Manifest.permission.RECORD_AUDIO)
-                != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.RECORD_AUDIO),
-                    REQUEST_RECORD_AUDIO)
+                    RECORD_AUDIO
+                )
+                != PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), REQUEST_RECORD)
+                trackingExpected = false
                 return@setOnClickListener
             }
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
@@ -323,7 +323,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
                     askLocationSettings()
                 }
             } else {
-                permissionsManager.requestLocationPermissions(this)
+                trackingExpected = false
+                ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
             }
         }
     }
@@ -334,7 +335,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
             setMessage("Le GPS n'est pas actif. Voulez-vous l'activer dans les menus ?")
             setPositiveButton("Paramètres") { _, _ ->
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                resultLauncher.launch(intent)
+                locationSettings.launch(intent)
             }
             setNegativeButton("Annuler") { dialog, _ -> dialog.cancel() }
             show()
@@ -359,24 +360,21 @@ class MapActivity : FragmentActivity(), OnMapClickListener, PermissionsListener,
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            if (requestCode == REQUEST_RECORD_AUDIO) {
-                retrieveLocation()
+        if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
+            when (requestCode) {
+                REQUEST_RECORD -> {
+                    if (PermissionsManager.areLocationPermissionsGranted(this))
+                        retrieveLocation()
+                    else
+                        ActivityCompat.requestPermissions(this,arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
+                }
+                REQUEST_LOCATION -> {
+                    if (trackingExpected) trackLocation()
+                    else retrieveLocation()
+                }
             }
-        }
-    }
-
-    override fun onExplanationNeeded(permissionsToExplain: List<String?>?) {
-        Toast.makeText(this, R.string.location_permission_explanation, Toast.LENGTH_LONG)
-            .show()
-    }
-
-    override fun onPermissionResult(granted: Boolean) {
-        if (granted) {
-            //TODO maybe ?
         } else {
-            Toast.makeText(this, R.string.location_permission_not_granted, Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG)
                 .show()
         }
     }
