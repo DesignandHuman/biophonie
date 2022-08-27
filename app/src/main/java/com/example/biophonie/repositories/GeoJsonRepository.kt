@@ -7,19 +7,15 @@ import com.example.biophonie.BuildConfig
 import com.example.biophonie.database.DatabaseNewSound
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.database.asNetworkModel
-import com.example.biophonie.network.GeoPointWeb
-import com.example.biophonie.viewmodels.PROPERTY_CACHE
-import com.example.biophonie.viewmodels.PROPERTY_ID
-import com.example.biophonie.viewmodels.PROPERTY_NAME
+import com.example.biophonie.network.ClientWeb
 import com.mapbox.geojson.Feature
-import com.mapbox.geojson.Point
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 private const val TAG = "GeoJsonRepository"
@@ -44,10 +40,10 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
             val pictureFile = File(newSound.landscapePath)
             if (BuildConfig.DEBUG)
                 delay(5000)
-            val request = GeoPointWeb.geopoints.postNewSound(
+            val request = ClientWeb.webService.postNewSound(
                 newSound.asNetworkModel(),
-                MultipartBody.Part.create(RequestBody.create("audio".toMediaTypeOrNull(), soundFile)),
-                MultipartBody.Part.create(RequestBody.create("image".toMediaTypeOrNull(), pictureFile))
+                MultipartBody.Part.create(soundFile.asRequestBody("audio".toMediaTypeOrNull())),
+                MultipartBody.Part.create(pictureFile.asRequestBody("image".toMediaTypeOrNull()))
             )
             return@withContext request.isSuccessful
         }

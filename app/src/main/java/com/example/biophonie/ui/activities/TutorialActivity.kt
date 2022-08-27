@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
@@ -22,12 +21,22 @@ import com.example.biophonie.databinding.ActivityTutorialBinding
 import com.example.biophonie.ui.fragments.NameFragment
 import com.example.biophonie.ui.fragments.TutorialFragment
 import com.google.android.material.tabs.TabLayoutMediator
+import android.content.SharedPreferences
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
+import com.example.biophonie.viewmodels.TutorialViewModel
+import kotlinx.coroutines.launch
+
 
 private const val NUM_PAGES = 3
 
-//TODO maybe get permissions inside tutorial ?
 class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
 
+    private val viewModel: TutorialViewModel by lazy {
+        ViewModelProvider(this, TutorialViewModel.ViewModelFactory(application)).get(TutorialViewModel::class.java)
+    }
     private var keyboardShown = false
     private lateinit var binding: ActivityTutorialBinding
     private val adapter = TutorialPagerAdapter(this)
@@ -38,6 +47,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
 
         setUpViewPager()
         setUpListeners()
+        setUpDataObservers()
     }
 
     private fun setUpListeners() {
@@ -48,7 +58,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
                     if (position == NUM_PAGES - 1){
-                        next.setOnClickListener { startMapActivity() }
+                        next.setOnClickListener { viewModel.onClickEnter(adapter.nameFragment.name.text.toString()) }
                         next.text = getString(R.string.done)
                         next.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.button_font_size))
                         skip.visibility = View.INVISIBLE
@@ -64,22 +74,17 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         }
     }
 
-    private fun startMapActivity() {
-        if(adapter.nameFragment.name.text.toString().isNotEmpty()){
-            storeName(adapter.nameFragment.name.text.toString())
-            startActivity(
-                Intent(this, MapActivity::class.java)
-                    .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) })
-        }
-        else
-            Toast.makeText(this, "Veuillez donner un nom", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun storeName(name: String){
-        val prefs = getSharedPreferences(null, Context.MODE_PRIVATE)
-        val editor = prefs.edit()
-        editor.putString("name", name)
-        editor.apply()
+    private fun setUpDataObservers() {
+        viewModel.warning.observe(this, {
+            adapter.nameFragment.textInput.error = it
+        })
+        viewModel.shouldStartActivity.observe(this, {
+            if (it) {
+                startActivity(
+                    Intent(this@TutorialActivity, MapActivity::class.java)
+                        .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) })
+            }
+        })
     }
 
     private fun setUpViewPager() {
@@ -124,7 +129,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         }
     }
 
-    // Used only to ic_check if keyboard has opened
+    // Used only to check if keyboard has opened
     override fun onGlobalLayout() {
         val r = Rect()
         binding.root.getWindowVisibleDisplayFrame(r)

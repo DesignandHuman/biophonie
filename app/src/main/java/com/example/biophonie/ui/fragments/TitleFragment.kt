@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
+import com.example.biophonie.util.setFiltersOnEditText
 import com.example.biophonie.viewmodels.RecViewModel
 import java.util.*
 
@@ -40,7 +41,7 @@ class TitleFragment : Fragment() {
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setClickListeners()
         setDataObservers()
-        setFiltersOnEditText()
+        binding.titleEditText.setFiltersOnEditText()
         return binding.root
     }
 
@@ -54,36 +55,6 @@ class TitleFragment : Fragment() {
                 imm.hideSoftInputFromWindow(root.windowToken, 0)
             }
         }
-    }
-
-    private fun setFiltersOnEditText() {
-        val filter = InputFilter { source, start, end, _, _, _ ->
-            return@InputFilter if (source is SpannableStringBuilder) {
-                for (i in end - 1 downTo start) {
-                    val currentChar: Char = source[i]
-                    if (!Character.isLetterOrDigit(currentChar) && !Character.isSpaceChar(
-                            currentChar
-                        )
-                    ) {
-                        source.delete(i, i + 1)
-                    }
-                }
-                source
-            } else {
-                val filteredStringBuilder = StringBuilder()
-                for (i in start until end) {
-                    val currentChar: Char = source[i]
-                    if (Character.isLetterOrDigit(currentChar) || Character.isSpaceChar(
-                            currentChar
-                        )
-                    ) {
-                        filteredStringBuilder.append(currentChar)
-                    }
-                }
-                filteredStringBuilder.toString()
-            }
-        }
-        binding.titleEditText.filters += filter
     }
 
     private fun setDataObservers() {

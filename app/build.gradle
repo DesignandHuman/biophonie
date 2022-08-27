@@ -48,6 +48,7 @@ android {
 
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha02'
     def nav_version = "2.3.0"
 
     implementation fileTree(dir: "libs", include: ["*.jar"])

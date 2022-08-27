@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.biophonie.database.NewSoundDatabase
 import com.example.biophonie.database.asDomainModel
 import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.network.GeoPointWeb
+import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.network.NetworkGeoPoint
 import com.example.biophonie.network.asDomainModel
 import com.example.biophonie.util.coordinatesToString
@@ -18,7 +18,7 @@ class GeoPointRepository(private val database: NewSoundDatabase) {
         withContext(Dispatchers.IO){
             val cachedNewSound = database.soundDao.getNewSound(id)
             if (cachedNewSound == null){
-                val response: Response<NetworkGeoPoint> = GeoPointWeb.geopoints.getGeoPoint(id)
+                val response: Response<NetworkGeoPoint> = ClientWeb.webService.getGeoPoint(id)
                 if (response.isSuccessful && response.body() != null)
                     withContext(Dispatchers.Main){
                         geoPoint.value = response.body()?.asDomainModel(name, coordinates)

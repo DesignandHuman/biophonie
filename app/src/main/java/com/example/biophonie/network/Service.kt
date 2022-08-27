@@ -13,6 +13,9 @@ import retrofit2.http.*
 const val BASE_URL = "https://biophonie.fr"
 
 interface WebService {
+    @POST("/user")
+    suspend fun postUser(@Query("name") name: String): Response<NetworkUser>
+
     @GET("/geopoint")
     suspend fun getGeoPoint(@Query("id") id: String): Response<NetworkGeoPoint>
 
@@ -26,12 +29,9 @@ interface WebService {
 
 data class Message(val message: String)
 
-object GeoPointWeb {
+object ClientWeb {
 
-    private val client: OkHttpClient = OkHttpClient.Builder().apply {
-        if (BuildConfig.DEBUG)
-            addInterceptor(FakeInterceptor())
-    }.build()
+    private val client: OkHttpClient = OkHttpClient.Builder().build()
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
@@ -44,5 +44,5 @@ object GeoPointWeb {
         .client(client)
         .build()
 
-    val geopoints: WebService by lazy { retrofit.create(WebService::class.java) }
+    val webService: WebService by lazy { retrofit.create(WebService::class.java) }
 }
