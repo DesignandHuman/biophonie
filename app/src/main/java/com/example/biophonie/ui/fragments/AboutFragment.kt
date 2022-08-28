@@ -26,7 +26,7 @@ class AboutFragment : Fragment() {
             R.layout.fragment_about,
             container,
             false)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         setUpClickListeners()
         return binding.root
     }

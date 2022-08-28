@@ -37,7 +37,7 @@ class TitleFragment : Fragment() {
             container,
             false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setClickListeners()
         setDataObservers()

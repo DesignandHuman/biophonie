@@ -59,7 +59,9 @@ class BottomPlayerFragment : Fragment() {
         binding.viewModel = viewModel.apply {
             //TODO(run that somehow on another thread or not ?)
             setPlayerController(requireContext(), binding.playerView) }
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
+        //TODO maybe a leak
+        //https://stackoverflow.com/questions/57647751/android-databinding-is-leaking-memory
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 

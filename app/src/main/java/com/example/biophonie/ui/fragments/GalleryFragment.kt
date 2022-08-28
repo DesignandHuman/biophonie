@@ -69,7 +69,7 @@ class GalleryFragment : Fragment(),
             container,
             false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setLiveDataObservers()
         setClickListeners()
