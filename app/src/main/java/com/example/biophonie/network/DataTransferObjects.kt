@@ -23,6 +23,9 @@ data class NetworkGeoPoint(var id: String,
                     var sounds: List<NetworkSound>)
 
 @JsonClass(generateAdapter = true)
+data class NetworkAddUser(val name: String)
+
+@JsonClass(generateAdapter = true)
 data class NetworkUser(val userId: Int,
                        val admin: Boolean,
                        val createdOn: String,

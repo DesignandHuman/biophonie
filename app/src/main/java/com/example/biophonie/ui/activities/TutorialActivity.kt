@@ -75,16 +75,16 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     }
 
     private fun setUpDataObservers() {
-        viewModel.warning.observe(this, {
+        viewModel.warning.observe(this) {
             adapter.nameFragment.textInput.error = it
-        })
-        viewModel.shouldStartActivity.observe(this, {
+        }
+        viewModel.shouldStartActivity.observe(this) {
             if (it) {
                 startActivity(
                     Intent(this@TutorialActivity, MapActivity::class.java)
                         .apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK) })
             }
-        })
+        }
     }
 
     private fun setUpViewPager() {

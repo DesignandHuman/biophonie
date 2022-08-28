@@ -3,6 +3,7 @@ package com.example.biophonie.ui.activities
 import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter

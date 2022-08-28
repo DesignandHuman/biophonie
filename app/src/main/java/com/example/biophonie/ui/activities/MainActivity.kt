@@ -3,22 +3,21 @@ package com.example.biophonie.ui.activities
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.widget.Button
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.viewpager.widget.ViewPager
+import androidx.security.crypto.EncryptedSharedPreferences
+import androidx.security.crypto.MasterKey
 import com.example.biophonie.R
-import java.net.URI
-
+import com.example.biophonie.ENCRYPTED_PREFS_NAME
+import com.example.biophonie.PREFS_NAME
 
 class MainActivity : AppCompatActivity() {
 
     init {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
     }
-    private val myPrefs = "Preferences"
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -29,19 +28,18 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.toTutorial).setOnClickListener {
             startActivity(Intent(this, TutorialActivity::class.java))
         }
-        //checkTutorial()
+        checkTutorial()
     }
 
     private fun checkTutorial() {
-        val sp = getSharedPreferences(myPrefs, Context.MODE_PRIVATE)
-        if (!sp.getBoolean("first", false)) {
-            val editor = sp.edit()
-            editor.putBoolean("first", true)
-            editor.apply()
-            Toast.makeText(this, "First", Toast.LENGTH_SHORT).show()
-            val intent =
-                Intent(this, ViewPager::class.java) //call your ViewPager class
-            startActivity(intent)
+        with (getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) {
+            val name = getString("username","")
+            if (name.isNullOrBlank()) {
+                Toast.makeText(this@MainActivity, "name: $name", Toast.LENGTH_SHORT).show()
+                val intent =
+                    Intent(this@MainActivity, TutorialActivity::class.java) //call your ViewPager class
+                startActivity(intent)
+            }
         }
     }
 }
