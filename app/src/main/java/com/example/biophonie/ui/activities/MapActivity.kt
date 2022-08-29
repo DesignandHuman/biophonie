@@ -187,8 +187,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         iconSize(iconSize)
         textFont(listOf("IBM Plex Mono $fontFamily"))
         iconOpacity(1.0)
-        iconAllowOverlap(false)
-        iconIgnorePlacement(false)
+        iconAllowOverlap(true)
+        iconPadding(.0)
         textColor(
             switchCase {
                 boolean {
@@ -213,13 +213,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         textSize(12.0)
         textOffset(listOf(0.8, -0.05))
         textAnchor(TextAnchor.LEFT)
-        textIgnorePlacement(false)
-        textAllowOverlap(false)
+        textOptional(true)
     }
 
 
     private fun setDataObservers() {
-        viewModel.newSounds.observe(this, {
+        viewModel.newSounds.observe(this) {
             val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
             if (!viewModel.newSounds.value.isNullOrEmpty()) {
                 for (i in viewModel.newSounds.value!!) {
@@ -234,10 +233,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     )
                 }
                 mapboxMap.getStyle {
-                    it.getSourceAs<GeoJsonSource>(ID_SOURCE_LOCAL)?.featureCollection(FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
+                    it.getSourceAs<GeoJsonSource>(ID_SOURCE_LOCAL)?.featureCollection(
+                        FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
+                    )
                 }
             }
-        })
+        }
     }
 
     private fun setUpFabResource(){
