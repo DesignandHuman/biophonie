@@ -41,10 +41,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
 
-    private val _pictureUri = MutableLiveData<Uri>()
-    val pictureUri: LiveData<Uri>
-        get() = _pictureUri
-
     private val _landscapeUri = MutableLiveData(getResourceUri(defaultDrawableIds[0]))
     val landscapeUri: LiveData<Uri>
         get() = _landscapeUri

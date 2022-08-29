@@ -79,9 +79,6 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setLiveDataObservers() {
-        viewModel.pictureUri.observe(viewLifecycleOwner) {
-
-        }
         viewModel.toast.observe(viewLifecycleOwner) {
             it?.let {
                 Toast.makeText(requireContext(), it.message, it.length).show()
