@@ -27,14 +27,15 @@ class RecorderFragment : Fragment() {
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
-    private lateinit var binding: FragmentRecordingBinding
+    private var _binding: FragmentRecordingBinding? = null
+    private val binding get() = _binding!!
     private var recorderController: DefaultRecorderController? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_recording,
             container,
@@ -49,22 +50,25 @@ class RecorderFragment : Fragment() {
     }
 
     private fun setDataObserver() {
-        viewModel.goToNext.observe(viewLifecycleOwner, {
+        viewModel.goToNext.observe(viewLifecycleOwner) {
             if (BuildConfig.DEBUG) {
-                if (it){
-                    binding.root.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
-                    viewModel.onNextFragment()}
+                if (it) {
+                    binding.root.findNavController()
+                        .navigate(R.id.action_recordingFragment_to_galleryFragment)
+                    viewModel.onNextFragment()
+                }
             } else {
                 if (duration >= MINIMUM_DURATION)
-                    binding.root.findNavController().navigate(R.id.action_recordingFragment_to_galleryFragment)
+                    binding.root.findNavController()
+                        .navigate(R.id.action_recordingFragment_to_galleryFragment)
                 else
                     Toast.makeText(
                         requireContext(),
-                        "Une durée de plus de ${MINIMUM_DURATION /60000} minutes est nécessaire",
+                        "Une durée de plus de ${MINIMUM_DURATION / 60000} minutes est nécessaire",
                         Toast.LENGTH_SHORT
                     ).show()
             }
-        })
+        }
     }
 
     // The controller is inside the Fragment because it needs a reference to the recplayerview
@@ -91,5 +95,6 @@ class RecorderFragment : Fragment() {
         super.onDestroyView()
         recorderController?.destroyController()
         recorderController = null
+        _binding = null
     }
 }

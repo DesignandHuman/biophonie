@@ -22,7 +22,8 @@ import java.util.*
 
 
 class TitleFragment : Fragment() {
-    private lateinit var binding: FragmentTitleBinding
+    private var _binding: FragmentTitleBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
@@ -31,7 +32,7 @@ class TitleFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_title,
             container,
@@ -58,13 +59,13 @@ class TitleFragment : Fragment() {
     }
 
     private fun setDataObservers() {
-        viewModel.toast.observe(viewLifecycleOwner, {
+        viewModel.toast.observe(viewLifecycleOwner) {
             it?.let {
                 binding.titleInputLayout.error = it.message
                 viewModel.onToastDisplayed()
             }
-        })
-        viewModel.result.observe(viewLifecycleOwner, {
+        }
+        viewModel.result.observe(viewLifecycleOwner) {
             val intent = Intent()
             val bundle = Bundle().apply {
                 putString("title", it.title)
@@ -80,6 +81,11 @@ class TitleFragment : Fragment() {
                 setResult(AppCompatActivity.RESULT_OK, intent)
                 requireActivity().finish()
             }
-        })
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

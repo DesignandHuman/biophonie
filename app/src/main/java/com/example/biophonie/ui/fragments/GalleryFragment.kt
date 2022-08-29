@@ -54,7 +54,8 @@ class GalleryFragment : Fragment(),
         viewModel.pictureResult(it)
     }
 
-    private lateinit var binding: FragmentGalleryBinding
+    private var _binding: FragmentGalleryBinding? = null
+    private val binding get() = _binding!!
     private lateinit var viewManager: GridLayoutManager
     private lateinit var viewAdapter: LandscapesAdapter
     private lateinit var defaultLandscapes: List<Landscape>
@@ -63,7 +64,7 @@ class GalleryFragment : Fragment(),
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_gallery,
             container,
@@ -78,17 +79,17 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setLiveDataObservers() {
-        viewModel.pictureUri.observe(viewLifecycleOwner, {
+        viewModel.pictureUri.observe(viewLifecycleOwner) {
 
-        })
-        viewModel.toast.observe(viewLifecycleOwner, {
+        }
+        viewModel.toast.observe(viewLifecycleOwner) {
             it?.let {
                 Toast.makeText(requireContext(), it.message, it.length).show()
                 viewModel.onToastDisplayed()
             }
-        })
-        viewModel.fromDefault.observe(viewLifecycleOwner, {
-            if (it){
+        }
+        viewModel.fromDefault.observe(viewLifecycleOwner) {
+            if (it) {
                 viewAdapter.apply {
                     selectedPosition = viewModel.currentId
                     notifyItemChanged(selectedPosition)
@@ -102,7 +103,7 @@ class GalleryFragment : Fragment(),
                 }
                 binding.thumbnail.isSelected = true
             }
-        })
+        }
     }
 
     private fun setUpRecyclerView(){
@@ -174,6 +175,11 @@ class GalleryFragment : Fragment(),
     override fun onChoiceClick(choice: Int) {
         getPicture(choice)
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 }
 
 class ChooseMeanDialog(context: Context, items: Array<DialogAdapterItem>, private var listener: ChooseMeanListener) : DialogFragment() {
@@ -200,6 +206,7 @@ class ChooseMeanDialog(context: Context, items: Array<DialogAdapterItem>, privat
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
+
 }
 
 class DialogListAdapter(private val adapterContext: Context,

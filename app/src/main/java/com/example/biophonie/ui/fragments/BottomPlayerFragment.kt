@@ -42,7 +42,8 @@ class BottomPlayerFragment : Fragment() {
             BottomPlayerViewModel::class.java
         )
     }
-    private lateinit var binding: FragmentBottomPlayerBinding
+    private var _binding: FragmentBottomPlayerBinding? = null
+    private val binding get() = _binding!!
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
@@ -50,7 +51,7 @@ class BottomPlayerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        binding = DataBindingUtil.inflate(
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_bottom_player,
             container,
@@ -284,6 +285,12 @@ class BottomPlayerFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         viewModel.playerController.pause()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+        viewModel.playerController.destroyPlayer()
     }
 
     override fun onDestroy() {
