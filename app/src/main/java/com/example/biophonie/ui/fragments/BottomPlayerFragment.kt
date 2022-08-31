@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,7 +14,6 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
@@ -61,7 +59,7 @@ class BottomPlayerFragment : Fragment() {
         )
         binding.viewModel = viewModel.apply {
             //TODO(run that somehow on another thread or not ?)
-            setPlayerController(requireContext(), binding.playerView) }
+            setPlayerController(binding.playerView) }
         binding.lifecycleOwner = viewLifecycleOwner
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
@@ -247,10 +245,7 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun displayImage(){
-        binding.apply {
-            crossFade(soundImage, playerView)
-            expand.text = "Voir le son"
-        }
+        binding.expand.text = "Voir le son"
         imageDisplayed = true
     }
 
