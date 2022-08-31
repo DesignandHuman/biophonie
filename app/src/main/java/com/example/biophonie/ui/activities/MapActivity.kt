@@ -227,7 +227,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                             Point.fromLngLat(i.longitude, i.latitude)
                         ).apply {
                             addStringProperty(PROPERTY_NAME, i.title)
-                            addStringProperty(PROPERTY_ID, i.id)
+                            addNumberProperty(PROPERTY_ID, i.id)
                             addBooleanProperty(PROPERTY_CACHE, true)
                         }
                     )
@@ -469,38 +469,28 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     ScreenCoordinate(screenCoor.x+10,screenCoor.y+10)
                 )
             ),
-            RenderedQueryOptions(listOf(ID_LAYER_REMOTE, ID_LAYER_LOCAL), literal(true)))
+            RenderedQueryOptions(listOf(ID_LAYER_REMOTE, ID_LAYER_REMOTE_SELECTED, ID_LAYER_LOCAL), literal(true)))
         { expected ->
             val features = expected.value
             val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
                 val selectedLayer = mapboxMap.getStyle()?.getLayerAs<SymbolLayer>(
                     ID_LAYER_REMOTE_SELECTED)
-                val id = feature.getNumberProperty(PROPERTY_ID).toDouble()
+                val id = feature.getNumberProperty(PROPERTY_ID).toLong()
                 selectedLayer?.filter(eq{
                     get(PROPERTY_ID)
                     literal(id)}
                 )
-                val cameraBuilder = mapboxMap.cameraState.toCameraOptions().toBuilder()
-                binding.mapView.camera.flyTo(
-                    cameraBuilder.center(clickedFeature.feature.geometry() as Point).build(),
-                )
-            }
 
-            /*geoPointsFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
-            geoPointsFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
-                PROPERTY_ID
-            ) }.addBooleanProperty(PROPERTY_SELECTED, true)
-            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE_LOCAL)?.setGeoJson(
-                FeatureCollection.fromFeatures(geoPointsFeatures)
-            )
-            val clickedPoint = feature.geometry() as Point
-            bottomPlayer.clickOnGeoPoint(
-                feature.getStringProperty(PROPERTY_ID),
-                feature.getStringProperty(PROPERTY_NAME),
-                LatLng(clickedPoint.latitude(), clickedPoint.longitude())
-            )
-            return true*/
+                with(mapboxMap.cameraState.toCameraOptions().toBuilder()) {
+                    binding.mapView.camera.flyTo(
+                        center(feature.geometry() as Point).build(),
+                    )
+                }
+
+                val name = feature.getStringProperty(PROPERTY_NAME)
+                bottomPlayer.clickOnGeoPoint(id.toInt(),name,feature.geometry() as Point)
+            }
         }
         return false
     }

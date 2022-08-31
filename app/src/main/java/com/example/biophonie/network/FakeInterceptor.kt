@@ -3,6 +3,7 @@ package com.example.biophonie.network
 import android.os.SystemClock
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.ResponseBody.Companion.toResponseBody
 import java.io.IOException
 import java.net.URI
 
@@ -13,7 +14,7 @@ private const val SoundId2 = "{\"id\":2,\"sounds\":[{\"title\":\"Chouette le mat
 
 // Only for testing purpose. Use a MockWebServer for more complete tests
 class FakeInterceptor : Interceptor {
-    
+
     private val TAG = FakeInterceptor::class.java.simpleName
 
     @Throws(IOException::class)
@@ -44,10 +45,8 @@ class FakeInterceptor : Interceptor {
                 .request(chain.request())
                 .protocol(Protocol.HTTP_2)
                 .body(
-                    ResponseBody.create(
-                        "application/json".toMediaTypeOrNull(),
-                        responseString.toByteArray()
-                    )
+                    responseString.toByteArray()
+                        .toResponseBody("application/json".toMediaTypeOrNull())
                 )
                 .addHeader("content-type", "application/json")
                 .build()
@@ -58,10 +57,8 @@ class FakeInterceptor : Interceptor {
                 .request(chain.request())
                 .protocol(Protocol.HTTP_2)
                 .body(
-                    ResponseBody.create(
-                        "application/json".toMediaTypeOrNull(),
-                        "{\"message\":\"OK\"}".toByteArray()
-                    )
+                    "{\"message\":\"OK\"}".toByteArray()
+                        .toResponseBody("application/json".toMediaTypeOrNull())
                 )
                 .addHeader("content-type", "application/json")
                 .build()

@@ -47,7 +47,7 @@
             android:paddingEnd="15dp"
             android:textSize="16sp"
             android:textStyle="bold"
-            android:text="@{viewModel.title}"
+            android:text="@{viewModel.geoPoint.title}"
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toStartOf="@id/coordinates"
             app:layout_constraintHorizontal_weight="6"
@@ -96,7 +96,7 @@
             app:layout_constraintTop_toBottomOf="@id/location"
             app:mainColor="@color/colorAccent"
             app:secondaryColor="@android:color/darker_gray"
-            app:title="Music Title" />
+            app:title="@{viewModel.geoPoint.date}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/sound_image"
@@ -136,7 +136,8 @@
                 style="@style/BottomPlayerTextView"
                 android:id="@+id/date_picker"
                 android:background="@drawable/border_top"
-                android:text="@{viewModel.datePicker}"
+                tools:text="janv. 1970"
+                app:date="@{viewModel.geoPoint.date}"
                 app:layout_constraintHorizontal_weight="4"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@id/left"

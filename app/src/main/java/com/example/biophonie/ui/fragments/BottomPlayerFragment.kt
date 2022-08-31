@@ -29,6 +29,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 private const val TAG = "BottomPlayerFragment"
@@ -61,8 +63,6 @@ class BottomPlayerFragment : Fragment() {
             //TODO(run that somehow on another thread or not ?)
             setPlayerController(requireContext(), binding.playerView) }
         binding.lifecycleOwner = viewLifecycleOwner
-        //TODO maybe a leak
-        //https://stackoverflow.com/questions/57647751/android-databinding-is-leaking-memory
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
@@ -174,33 +174,37 @@ class BottomPlayerFragment : Fragment() {
         }
     }
 
-    fun clickOnGeoPoint(id: String, name: String, coordinates: Point){
+    fun clickOnGeoPoint(id: Int, name: String, coordinates: Point){
         viewModel.getGeoPoint(id, name, coordinates)
     }
 
     private fun setUpObservers() {
-        viewModel.leftClickable.observe(viewLifecycleOwner, {
+        viewModel.leftClickable.observe(viewLifecycleOwner) {
             binding.left.isEnabled = it
-        })
-        viewModel.rightClickable.observe(viewLifecycleOwner, {
+        }
+        viewModel.rightClickable.observe(viewLifecycleOwner) {
             binding.right.isEnabled = it
-        })
-        viewModel.visibility.observe(viewLifecycleOwner, {
+        }
+        viewModel.visibility.observe(viewLifecycleOwner) {
             changeWidgetsVisibility(it)
-        })
-        viewModel.bottomSheetState.observe(viewLifecycleOwner, {
+        }
+        viewModel.bottomSheetState.observe(viewLifecycleOwner) {
             bottomSheetBehavior.state = it
-        })
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, {
+        }
+        viewModel.eventNetworkError.observe(viewLifecycleOwner) {
             if (it) onNetworkError()
-        })
-        viewModel.date.observe(viewLifecycleOwner, {
-            viewModel.playerController.setTitle(SpannableStringBuilder()
-                .bold { append("Le : ") }
-                .append(it.split("\\s".toRegex())[0])
-                .bold { append(" à ") }
-                .append(it.split("\\s".toRegex())[1]))
-        })
+        }
+        viewModel.geoPoint.observe(viewLifecycleOwner) { geoPoint ->
+            geoPoint.date?.let {
+                val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(it.time)
+                viewModel.playerController.setTitle(SpannableStringBuilder()
+                    .bold { append("Le : ") }
+                    .append(date.split("\\s".toRegex())[0])
+                    .bold { append(" à ") }
+                    .append(date.split("\\s".toRegex())[1]))
+            }
+
+        }
     }
 
     private fun onClose() {
@@ -290,11 +294,6 @@ class BottomPlayerFragment : Fragment() {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        viewModel.playerController.destroyPlayer()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
         viewModel.playerController.destroyPlayer()
     }
 }

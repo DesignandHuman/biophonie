@@ -1,26 +1,36 @@
 package com.example.biophonie.network
 
+import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.domain.Sound
-import com.example.biophonie.ui.activities.TutorialActivity
 import com.example.biophonie.util.coordinatesToString
+import com.example.biophonie.util.dateAsCalendar
 import com.example.biophonie.viewmodels.TutorialViewModel
 import com.mapbox.geojson.Point
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.text.SimpleDateFormat
 import java.util.*
 
 @JsonClass(generateAdapter = true)
-data class NetworkSound(val title: String?,
-                        val coordinates: List<Double>?,
-                        val date: String?,
-                        var amplitudes: List<Int>?,
-                        @Json(name = "url_photo") var urlPhoto: String?,
-                        @Json(name = "url_audio")var urlAudio: String?)
+data class NetworkGeoPoint(
+    val id: Int,
+    val userId: Int?,
+    val title: String?,
+    val location: Coordinates,
+    @Json(name="createdOn")
+    val date: String?,
+    val amplitudes: List<Int>?,
+    val sound: String?,
+    val picture: String?
+)
 
-@JsonClass(generateAdapter = true)
-data class NetworkGeoPoint(var id: String,
-                    var sounds: List<NetworkSound>)
+data class Coordinates(
+    @Json(name="X")
+    val x: Double,
+    @Json(name="Y")
+    val y: Double
+)
+
 
 @JsonClass(generateAdapter = true)
 data class NetworkAddUser(val name: String)
@@ -38,14 +48,27 @@ fun NetworkUser.asDomainModel(): TutorialViewModel.User {
 }
 
 fun NetworkGeoPoint.asDomainModel(name: String, coordinates: Point): GeoPoint{
-    return GeoPoint(id, name,
-        coordinatesToString(coordinates),
-        sounds.map {
-            Sound(
-                title = it.title,
-                coordinates = null,
-                date = it.date,
-                amplitudes = it.amplitudes ?: listOf(1),
-                landscapePath = it.urlPhoto ?: "https//biophonie.fr/photos/1",
-                soundPath = it.urlAudio ?: "")})
+    return GeoPoint(
+        id = id,
+        name = name,
+        coordinates = coordinatesToString(coordinates),
+        title = title,
+        date = dateAsCalendar(date),
+        amplitudes = amplitudes ?: listOf(1),
+        landscapePath = picture ?: "", //TODO
+        soundPath = sound ?: "" //TODO
+    )
+}
+
+fun DatabaseGeoPoint.asNetworkModel(): NetworkGeoPoint {
+    return NetworkGeoPoint(
+        id = id,
+        userId = null,
+        title = title,
+        location = Coordinates(longitude,latitude),
+        date = date,
+        amplitudes = amplitudes,
+        picture = landscapePath,
+        sound = soundPath,
+    )
 }

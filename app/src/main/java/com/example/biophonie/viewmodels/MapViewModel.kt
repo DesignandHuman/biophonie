@@ -5,12 +5,11 @@ import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.biophonie.database.DatabaseNewSound
-import com.example.biophonie.database.NewSoundDatabase.Companion.getInstance
+import com.example.biophonie.database.DatabaseGeoPoint
+import com.example.biophonie.database.NewGeoPointDatabase.Companion.getInstance
 import com.example.biophonie.repositories.GeoJsonRepository
 import com.example.biophonie.util.getRandomString
 import kotlinx.coroutines.launch
-import java.io.IOException
 
 const val PROPERTY_CACHE: String = "fromCache?"
 const val PROPERTY_NAME: String = "name"
@@ -31,7 +30,7 @@ class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
-                repository.insertNewSound(DatabaseNewSound(getRandomString(16), title!!, date.toString(), amplitudes as List<Int>, latitude, longitude, landscapePath!!, soundPath!!))
+                repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes as List<Int>, latitude, longitude, landscapePath!!, soundPath!!))
             }
         }
     }

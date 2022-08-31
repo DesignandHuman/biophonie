@@ -18,14 +18,14 @@ interface WebService {
     @POST("/api/v1/user")
     suspend fun postUser(@Body user: NetworkAddUser): Response<NetworkUser>
 
-    @GET("/geopoint")
-    suspend fun getGeoPoint(@Query("id") id: String): Response<NetworkGeoPoint>
+    @GET("/api/v1/geopoint/{id}")
+    suspend fun getGeoPoint(@Path("id") id: Int): Response<NetworkGeoPoint>
 
     @Multipart
-    @POST("/geopoint")
-    suspend fun postNewSound(@Part("sound") sound: NetworkSound,
-                             @Part soundfile: MultipartBody.Part,
-                             @Part imagefile: MultipartBody.Part
+    @POST("/api/v1/restricted/geopoint")
+    suspend fun postNewGeoPoint(@Part geoPoint: NetworkGeoPoint,
+                                @Part sound: MultipartBody.Part,
+                                @Part image: MultipartBody.Part
     ): Response<Message>
 }
 

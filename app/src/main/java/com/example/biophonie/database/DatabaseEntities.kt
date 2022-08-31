@@ -1,16 +1,12 @@
 package com.example.biophonie.database
 
 import androidx.room.*
-import com.example.biophonie.domain.Sound
-import com.example.biophonie.network.NetworkSound
+import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.util.LocationConverter
-import com.example.biophonie.util.coordinatesToString
-import com.mapbox.geojson.Point
+import com.example.biophonie.util.dateAsCalendar
 
 @Entity
-data class DatabaseNewSound (
-    @PrimaryKey
-    val id: String,
+data class DatabaseGeoPoint (
     val title: String,
     val date: String,
     @TypeConverters(Converters::class)
@@ -21,39 +17,21 @@ data class DatabaseNewSound (
     @ColumnInfo(name = "landscape_path")
     val landscapePath: String,
     @ColumnInfo(name = "sound_path")
-    val soundPath: String)
-
-fun List<DatabaseNewSound>.asDomainModel(): List<Sound> {
-    return map {
-        Sound(
-            title = it.title,
-            date = it.date,
-            amplitudes = it.amplitudes,
-            coordinates = LocationConverter.latitudeAsDMS(it.latitude,4)+LocationConverter.longitudeAsDMS(it.longitude, 4),
-            landscapePath = it.landscapePath,
-            soundPath = it.soundPath
-        )
-    }
+    val soundPath: String) {
+    @PrimaryKey(autoGenerate = true)
+    var id: Int = 0
 }
 
-fun DatabaseNewSound.asNetworkModel(): NetworkSound {
-    return NetworkSound(
+fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
+    return GeoPoint(
+        id = id,
         title = title,
-        coordinates = listOf(latitude, longitude),
-        date = date,
+        date = dateAsCalendar(date),
         amplitudes = amplitudes,
-        urlAudio = soundPath,
-        urlPhoto = landscapePath
-    )
-}
-
-fun DatabaseNewSound.asDomainModel(): Sound {
-    return Sound(title = title,
-        date = date,
-        amplitudes = amplitudes,
-        coordinates = coordinatesToString(Point.fromLngLat(latitude, longitude)),
+        coordinates = LocationConverter.latitudeAsDMS(latitude,4)+LocationConverter.longitudeAsDMS(longitude, 4), //coordinatesToString(Point.fromLngLat(latitude, longitude)),
         landscapePath = landscapePath,
-        soundPath = soundPath)
+        soundPath = soundPath
+    )
 }
 
 private const val TAG = "DatabaseEntities"

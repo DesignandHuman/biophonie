@@ -5,19 +5,15 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-@Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-data class Sound(
+data class GeoPoint(
+    var id: Int,
+    var name: String = "",
+    var coordinates: String = "",
     var title: String?,
-    var date: String?,
+    var date: Calendar?,
     var amplitudes: List<Int>,
-    var coordinates: String?,
     var landscapePath: String,
     var soundPath: String)
-
-data class GeoPoint(var id: String?,
-                    var name: String = "",
-                    var coordinates: String = "",
-                    var sounds: List<Sound>?)
 
 data class Landscape(var image: Drawable,
                      var titre: String)
@@ -26,7 +22,8 @@ data class DialogAdapterItem(var text: String, var icon: Int){
     override fun toString(): String = text
 }
 
-fun Sound.dateAsCalendar(): Calendar{
+/*
+fun GeoPoint.dateAsCalendar(): Calendar{
     return if (date != null){
         try {
             Calendar.getInstance().apply {
@@ -40,4 +37,4 @@ fun Sound.dateAsCalendar(): Calendar{
     } else{
         Calendar.getInstance().apply { time = Date(0) }
     }
-}
+}*/

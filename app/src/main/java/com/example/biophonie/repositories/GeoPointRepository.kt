@@ -1,7 +1,7 @@
 package com.example.biophonie.repositories
 
 import androidx.lifecycle.MutableLiveData
-import com.example.biophonie.database.NewSoundDatabase
+import com.example.biophonie.database.NewGeoPointDatabase
 import com.example.biophonie.database.asDomainModel
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.ClientWeb
@@ -13,11 +13,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class GeoPointRepository(private val database: NewSoundDatabase) {
-    suspend fun fetchGeoPoint(id: String, name: String, coordinates: Point){
+class GeoPointRepository(private val database: NewGeoPointDatabase) {
+    suspend fun fetchGeoPoint(id: Int, name: String, coordinates: Point){
         withContext(Dispatchers.IO){
-            val cachedNewSound = database.soundDao.getNewSound(id)
-            if (cachedNewSound == null){
+            val cachedNewGeoPoint = database.geoPointDao.getNewGeoPoint(id)
+            if (cachedNewGeoPoint == null){
                 val response: Response<NetworkGeoPoint> = ClientWeb.webService.getGeoPoint(id)
                 if (response.isSuccessful && response.body() != null)
                     withContext(Dispatchers.Main){
@@ -25,10 +25,7 @@ class GeoPointRepository(private val database: NewSoundDatabase) {
                     }
             } else {
                 withContext(Dispatchers.Main){
-                    geoPoint.value = GeoPoint(id,
-                        name,
-                        coordinatesToString(coordinates),
-                        listOf(cachedNewSound.asDomainModel()))
+                    geoPoint.value = cachedNewGeoPoint.asDomainModel()
                 }
             }
         }

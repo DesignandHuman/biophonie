@@ -4,44 +4,43 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.biophonie.BuildConfig
-import com.example.biophonie.database.DatabaseNewSound
-import com.example.biophonie.database.NewSoundDatabase
-import com.example.biophonie.database.asNetworkModel
+import com.example.biophonie.database.DatabaseGeoPoint
+import com.example.biophonie.database.NewGeoPointDatabase
 import com.example.biophonie.network.ClientWeb
+import com.example.biophonie.network.asNetworkModel
 import com.mapbox.geojson.Feature
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
 private const val TAG = "GeoJsonRepository"
-class GeoJsonRepository(private val database: NewSoundDatabase) {
+class GeoJsonRepository(private val database: NewGeoPointDatabase) {
 
-    suspend fun insertNewSound(newSound: DatabaseNewSound){
+    suspend fun insertNewGeoPoint(geoPoint: DatabaseGeoPoint){
         withContext(Dispatchers.IO) {
-            database.soundDao.insert(newSound)
+            database.geoPointDao.insert(geoPoint)
         }
     }
 
-    suspend fun deleteNewSound(newSound: DatabaseNewSound){
+    suspend fun deleteNewGeoPoint(geoPoint: DatabaseGeoPoint){
         withContext(Dispatchers.IO) {
-            database.soundDao.delete(newSound)
+            database.geoPointDao.delete(geoPoint)
         }
     }
 
-    suspend fun sendNewSound(newSound: DatabaseNewSound): Boolean{
+    suspend fun sendNewGeoPoint(geoPoint: DatabaseGeoPoint): Boolean{
         return withContext(Dispatchers.IO) {
-            val soundFile = File(newSound.soundPath)
+            val soundFile = File(geoPoint.soundPath)
             Log.d(TAG, "sendNewSound: soundPath ${soundFile.path}")
-            val pictureFile = File(newSound.landscapePath)
+            val pictureFile = File(geoPoint.landscapePath)
             if (BuildConfig.DEBUG)
                 delay(5000)
-            val request = ClientWeb.webService.postNewSound(
-                newSound.asNetworkModel(),
+            val request = ClientWeb.webService.postNewGeoPoint(
+                geoPoint.asNetworkModel(),
                 MultipartBody.Part.create(soundFile.asRequestBody("audio".toMediaTypeOrNull())),
                 MultipartBody.Part.create(pictureFile.asRequestBody("image".toMediaTypeOrNull()))
             )
@@ -50,5 +49,5 @@ class GeoJsonRepository(private val database: NewSoundDatabase) {
     }
 
     var geoFeatures: MutableLiveData<List<Feature>> = MutableLiveData()
-    var newSounds: LiveData<List<DatabaseNewSound>> = database.soundDao.getNewSoundsAsLiveData()
+    var newSounds: LiveData<List<DatabaseGeoPoint>> = database.geoPointDao.getNewGeoPointsAsLiveData()
 }

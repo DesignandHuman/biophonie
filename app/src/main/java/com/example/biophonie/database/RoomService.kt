@@ -5,43 +5,43 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
-interface SoundDao {
-    @Query("select * from databasenewsound")
-    fun getNewSoundsAsLiveData(): LiveData<List<DatabaseNewSound>>
+interface GeoPointDao {
+    @Query("select * from databasegeopoint")
+    fun getNewGeoPointsAsLiveData(): LiveData<List<DatabaseGeoPoint>>
 
-    @Query("select * from databasenewsound")
-    fun getNewSounds(): List<DatabaseNewSound>
+    @Query("select * from databasegeopoint")
+    fun getNewGeoPoints(): List<DatabaseGeoPoint>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(newSound: DatabaseNewSound)
+    fun insert(geoPoint: DatabaseGeoPoint)
 
     @Delete
-    fun delete(newSound: DatabaseNewSound)
+    fun delete(geoPoint: DatabaseGeoPoint)
 
-    @Query("select * from databasenewsound where id like :id")
-    fun getNewSound(id: String): DatabaseNewSound?
+    @Query("select * from databasegeopoint where id like :id")
+    fun getNewGeoPoint(id: Int): DatabaseGeoPoint?
 }
 
-@Database(entities = [DatabaseNewSound::class], version = 1, exportSchema = false)
+@Database(entities = [DatabaseGeoPoint::class], version = 1, exportSchema = false)
 @TypeConverters(Converters::class)
-abstract class NewSoundDatabase : RoomDatabase() {
+abstract class NewGeoPointDatabase : RoomDatabase() {
 
-    abstract val soundDao: SoundDao
+    abstract val geoPointDao: GeoPointDao
 
     companion object {
 
         @Volatile
-        private var INSTANCE: NewSoundDatabase? = null
+        private var INSTANCE: NewGeoPointDatabase? = null
 
-        fun getInstance(context: Context): NewSoundDatabase {
+        fun getInstance(context: Context): NewGeoPointDatabase {
             synchronized(this) {
                 var instance = INSTANCE
 
                 if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
-                        NewSoundDatabase::class.java,
-                        "new_sound_database"
+                        NewGeoPointDatabase::class.java,
+                        "new_geopoint_database"
                     )
                         .fallbackToDestructiveMigration()
                         .build()

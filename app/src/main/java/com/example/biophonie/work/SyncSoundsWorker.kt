@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.biophonie.BuildConfig
-import com.example.biophonie.database.NewSoundDatabase
+import com.example.biophonie.database.NewGeoPointDatabase
 import com.example.biophonie.repositories.GeoJsonRepository
 import retrofit2.HttpException
 
@@ -15,16 +15,16 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
         Log.d(TAG, "doWork: ")
-        val database = NewSoundDatabase.getInstance(applicationContext)
+        val database = NewGeoPointDatabase.getInstance(applicationContext)
         val repository = GeoJsonRepository(database)
         var finalResult = true
         try {
-            val newSounds = database.soundDao.getNewSounds()
-            for (newSound in newSounds){
-                val success = repository.sendNewSound(newSound)
-                Log.d(TAG, "doWork: sound ${newSound.title} success? $success")
+            val newGeoPoints = database.geoPointDao.getNewGeoPoints()
+            for (geoPoint in newGeoPoints){
+                val success = repository.sendNewGeoPoint(geoPoint)
+                Log.d(TAG, "doWork: geopoint ${geoPoint.title} success? $success")
                 if (!success) finalResult = false && continue
-                else if (!BuildConfig.DEBUG) repository.deleteNewSound(newSound)
+                else if (!BuildConfig.DEBUG) repository.deleteNewGeoPoint(geoPoint)
             }
         } catch (e: HttpException) {
             Log.d(TAG, "doWork: failure")
