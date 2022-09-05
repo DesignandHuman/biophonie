@@ -8,7 +8,6 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.text.bold
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.biophonie.R
 import com.example.biophonie.network.BASE_URL
@@ -44,6 +43,7 @@ fun setImageUrl(view: AppCompatImageView, imageUrl: String?){
             .load("$BASE_URL/api/v1/assets/picture/$imageUrl")
             .placeholder(R.drawable.loader) //unnecessary ?
             //.transition(DrawableTransitionOptions.withCrossFade())
+            .error(android.R.drawable.stat_notify_error)
             .into(view)
     }
 }
@@ -73,6 +73,6 @@ fun setTitle(view: PlayerView, date: Calendar?) {
 }
 
 @BindingAdapter("amplitudes")
-fun setAmplitudes(view: PlayerView, amplitudes: Array<Double>?) {
-    amplitudes?.let { view.setAmplitudes(it) }
+fun setAmplitudes(view: PlayerView, amplitudes: List<Float>?) {
+    amplitudes?.let { view.setAmplitudes(amplitudes) }
 }

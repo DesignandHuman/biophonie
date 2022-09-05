@@ -3,11 +3,9 @@ package com.example.biophonie.ui.activities
 import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.Application
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.*
 import android.location.*
@@ -39,7 +37,6 @@ import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.android.core.location.*
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
@@ -69,7 +66,6 @@ import com.mapbox.maps.plugin.locationcomponent.*
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
 import java.util.function.Consumer
-
 
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
@@ -488,8 +484,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     )
                 }
 
-                val name = feature.getStringProperty(PROPERTY_NAME)
-                bottomPlayer.clickOnGeoPoint(id.toInt(),name,feature.geometry() as Point)
+                bottomPlayer.clickOnGeoPoint(id.toInt())
             }
         }
         return false

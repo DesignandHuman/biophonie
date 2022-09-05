@@ -172,8 +172,8 @@ class BottomPlayerFragment : Fragment() {
         }
     }
 
-    fun clickOnGeoPoint(id: Int, name: String, coordinates: Point){
-        viewModel.getGeoPoint(id, name, coordinates)
+    fun clickOnGeoPoint(id: Int){
+        viewModel.setGeoPointQuery(id)
     }
 
     private fun setUpObservers() {
@@ -245,7 +245,10 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun displayImage(){
-        binding.expand.text = "Voir le son"
+        binding.apply {
+            crossFade(soundImage, playerView)
+            expand.text = "Voir le son"
+        }
         imageDisplayed = true
     }
 

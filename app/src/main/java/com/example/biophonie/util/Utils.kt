@@ -9,17 +9,10 @@ import android.location.LocationManager
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
 import android.widget.EditText
-import com.mapbox.geojson.Point
+import com.example.biophonie.domain.Coordinates
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
-
-fun coordinatesToString(coordinates: Point): String{
-    return LocationConverter.latitudeAsDMS(
-        coordinates.latitude(),
-        4
-    ) + LocationConverter.longitudeAsDMS(coordinates.longitude(), 4)
-}
 
 fun getRandomString(length: Int) : String {
     val allowedChars = ('A'..'Z') + ('a'..'z') + ('1'..'9')

@@ -1,19 +1,24 @@
 package com.example.biophonie.domain
 
 import android.graphics.drawable.Drawable
+import com.example.biophonie.util.LocationConverter
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
 data class GeoPoint(
     var id: Int,
-    var name: String = "",
-    var coordinates: String = "",
+    var coordinates: Coordinates,
     var title: String?,
     var date: Calendar?,
-    var amplitudes: List<Int>,
+    var amplitudes: List<Float>,
     var landscapePath: String,
     var soundPath: String)
+
+data class Coordinates(val latitude: Double, val longitude: Double) {
+    override fun toString() = LocationConverter.latitudeAsDMS(latitude, 4) +
+            LocationConverter.longitudeAsDMS(longitude, 4)
+}
 
 data class Landscape(var image: Drawable,
                      var titre: String)

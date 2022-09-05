@@ -58,7 +58,7 @@
             style="@style/BottomPlayerTextView"
             android:id="@+id/coordinates"
             android:layout_height="0dp"
-            android:text="@{viewModel.geoPoint.coordinates}"
+            android:text="@{viewModel.geoPoint.coordinates.toString()}"
             android:gravity="center"
             android:background="@drawable/border_bottom_top"
             app:layout_constraintEnd_toEndOf="@+id/close"
@@ -96,7 +96,8 @@
             app:layout_constraintTop_toBottomOf="@id/location"
             app:mainColor="@color/colorAccent"
             app:secondaryColor="@android:color/darker_gray"
-            app:title="@{viewModel.geoPoint.date}" />
+            app:title="@{viewModel.geoPoint.date}"
+            app:amplitudes="@{viewModel.geoPoint.amplitudes}"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/sound_image"

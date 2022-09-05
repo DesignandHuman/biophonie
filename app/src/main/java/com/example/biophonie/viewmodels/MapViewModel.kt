@@ -25,12 +25,12 @@ class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
             val date = extras.getString("date")
             val soundPath = extras.getString("soundPath")
             val landscapePath = extras.getString("landscapePath")
-            val amplitudes = extras.getIntegerArrayList("amplitudes")
+            val amplitudes = extras.getFloatArray("amplitudes")
             val latitude = extras.getDouble("latitude")
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
-                repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes as List<Int>, latitude, longitude, landscapePath!!, soundPath!!))
+                repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes!!.toList(), latitude, longitude, landscapePath!!, soundPath!!))
             }
         }
     }

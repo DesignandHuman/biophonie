@@ -2,10 +2,7 @@ package com.example.biophonie.viewmodels
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.*
 import com.example.biophonie.database.NewGeoPointDatabase
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.BASE_URL
@@ -24,6 +21,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
 
     private var currentIndex = 0
     lateinit var playerController: DefaultPlayerController
+
+    private val geoPointId = MutableLiveData<Int>()
 
     private val _bottomSheetState = MutableLiveData<Int>()
     val bottomSheetState: LiveData<Int>
@@ -49,12 +48,10 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     val rightClickable: LiveData<Boolean>
         get() = _rightClickable
 
-    private val viewModelJob = SupervisorJob()
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    // TODO do not use LiveData for repository as it is bad practice
-    // see https://proandroiddev.com/no-more-livedata-in-your-repository-there-are-better-options-25a7557b0730
-    val geoPoint: LiveData<GeoPoint> = repository.geoPoint
+    val geoPoint: LiveData<GeoPoint> = geoPointId.switchMap { id -> liveData {
+        emit(repository.fetchGeoPoint(id))
+        displayGeoPoint()
+    } }
 
     fun setPlayerController(view: PlayerView){
         playerController = DefaultPlayerController(view).apply { setPlayerListener() }
@@ -89,9 +86,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value?.soundPath}"
         try {
             geoPoint.value?.let {
-                playerController.addAudioUrl(url,
-                it.amplitudes.map { i -> i.toDouble() }.toTypedArray()
-            ) }
+                playerController.addAudioUrl(url, it.amplitudes)
+            }
         } catch (e: IOException) {
             e.printStackTrace()
         }
@@ -100,22 +96,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         _visibility.value = true
     }
 
-    fun getGeoPoint(id: Int, name: String, coordinates: Point){
+    fun setGeoPointQuery(id: Int){
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         if (geoPoint.value?.id == id)
             return
-        _visibility.value = false
-        viewModelScope.launch {
-            try {
-                repository.fetchGeoPoint(id, name, coordinates)
-                displayGeoPoint()
-                _isNetworkErrorShown.value = true
-                _eventNetworkError.value = false
-            } catch (networkError: IOException) {
-                _isNetworkErrorShown.value = false
-                _eventNetworkError.value = true
-            }
-        }
+        geoPointId.value = id
     }
 
     class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {

@@ -1,6 +1,7 @@
 package com.example.biophonie.database
 
 import androidx.room.*
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.util.LocationConverter
 import com.example.biophonie.util.dateAsCalendar
@@ -10,7 +11,7 @@ data class DatabaseGeoPoint (
     val title: String,
     val date: String,
     @TypeConverters(Converters::class)
-    val amplitudes: List<Int>,
+    val amplitudes: List<Float>,
     val latitude: Double,
     val longitude: Double,
 
@@ -28,7 +29,7 @@ fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
         title = title,
         date = dateAsCalendar(date),
         amplitudes = amplitudes,
-        coordinates = LocationConverter.latitudeAsDMS(latitude,4)+LocationConverter.longitudeAsDMS(longitude, 4), //coordinatesToString(Point.fromLngLat(latitude, longitude)),
+        coordinates = Coordinates(latitude,longitude), //coordinatesToString(Point.fromLngLat(latitude, longitude)),
         landscapePath = landscapePath,
         soundPath = soundPath
     )
@@ -37,15 +38,12 @@ fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
 private const val TAG = "DatabaseEntities"
 class Converters {
     @TypeConverter
-    fun stringToList(value: String): List<Int> {
-        val list = value.split(",")
-        return list.map{ if(it.isEmpty()) 0 else it.toInt()}
+    fun fromListOfFloats(list: List<Float>?): String {
+        return list?.joinToString(separator = ";") { it.toString() } ?: ""
     }
 
     @TypeConverter
-    fun listToString(list: List<Int>): String {
-        var value = ""
-        for (i in list) value += "$i,"
-        return value
+    fun toListOfFloats(string: String?): List<Float> {
+        return ArrayList(string?.split(";")?.mapNotNull { it.toFloatOrNull() } ?: emptyList())
     }
 }
