@@ -39,12 +39,18 @@ fun setImageUri(view: AppCompatImageView, imageUri: Uri){
 @BindingAdapter("url")
 fun setImageUrl(view: AppCompatImageView, imageUrl: String?){
     imageUrl?.let {
-        Glide.with(view.context)
-            .load("$BASE_URL/api/v1/assets/picture/$imageUrl")
-            .placeholder(R.drawable.loader) //unnecessary ?
-            //.transition(DrawableTransitionOptions.withCrossFade())
-            .error(android.R.drawable.stat_notify_error)
-            .into(view)
+        when (it) {
+            "forest.jpg" -> view.setImageResource(R.drawable.forest)
+            "mountain.jpg" -> view.setImageResource(R.drawable.mountain)
+            "sea.jpg" -> view.setImageResource(R.drawable.sea)
+            "swamp.jpg" -> view.setImageResource(R.drawable.swamp)
+            else -> Glide.with(view.context)
+                .load("$BASE_URL/api/v1/assets/picture/$it")
+                .placeholder(R.drawable.loader) //unnecessary ?
+                //.transition(DrawableTransitionOptions.withCrossFade())
+                .error(android.R.drawable.stat_notify_error)
+                .into(view)
+        }
     }
 }
 

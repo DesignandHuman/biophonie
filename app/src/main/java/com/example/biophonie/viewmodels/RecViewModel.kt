@@ -1,18 +1,12 @@
 package com.example.biophonie.viewmodels
 
 import android.app.Application
-import android.content.ActivityNotFoundException
 import android.content.ContentResolver
-import android.content.Intent
 import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.DrawableRes
-import androidx.core.content.ContextCompat.startActivity
 import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
@@ -38,7 +32,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private lateinit var currentSoundPath: String
     private lateinit var coordinates: Point
     var currentId: Int = 0
-    val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
+    val defaultDrawableIds = listOf(R.drawable.forest, R.drawable.swamp, R.drawable.mountain, R.drawable.sea)
     val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
 
     private val _landscapeUri = MutableLiveData(getResourceUri(defaultDrawableIds[0]))
