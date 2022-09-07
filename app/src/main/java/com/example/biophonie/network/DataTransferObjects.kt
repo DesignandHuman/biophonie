@@ -11,15 +11,15 @@ import com.squareup.moshi.JsonClass
 @JsonClass(generateAdapter = true)
 data class NetworkGeoPoint(
     val id: Int,
-    val userId: Int?,
-    val title: String?,
+    val userId: Int,
+    val title: String,
     val latitude: Double,
     val longitude: Double,
     @Json(name="createdOn")
-    val date: String?,
-    val amplitudes: List<Float>?,
-    val sound: String?,
-    val picture: String?
+    val date: String,
+    val amplitudes: List<Float>,
+    val sound: String,
+    val picture: String
 )
 
 @JsonClass(generateAdapter = true)
@@ -43,22 +43,21 @@ fun NetworkGeoPoint.asDomainModel(): GeoPoint{
         title = title,
         coordinates = Coordinates(latitude,longitude),
         date = dateAsCalendar(date),
-        amplitudes = amplitudes ?: listOf(1f),
-        landscapePath = picture ?: "", //TODO
-        soundPath = sound ?: "" //TODO
+        amplitudes = amplitudes,
+        landscapePath = picture,
+        soundPath = sound
     )
 }
 
-fun DatabaseGeoPoint.asNetworkModel(): NetworkGeoPoint {
-    return NetworkGeoPoint(
-        id = id,
-        userId = null,
+fun NetworkGeoPoint.asDatabaseModel(): DatabaseGeoPoint{
+    return DatabaseGeoPoint(
         title = title,
-        longitude = longitude,
         latitude = latitude,
+        longitude = longitude,
         date = date,
         amplitudes = amplitudes,
-        picture = landscapePath,
-        sound = soundPath,
+        landscapePath = picture,
+        soundPath = sound,
+        remoteId = id,
     )
 }

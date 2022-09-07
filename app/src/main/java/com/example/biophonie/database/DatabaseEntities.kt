@@ -3,6 +3,7 @@ package com.example.biophonie.database
 import androidx.room.*
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
+import com.example.biophonie.network.NetworkGeoPoint
 import com.example.biophonie.util.LocationConverter
 import com.example.biophonie.util.dateAsCalendar
 
@@ -14,24 +15,49 @@ data class DatabaseGeoPoint (
     val amplitudes: List<Float>,
     val latitude: Double,
     val longitude: Double,
-
     @ColumnInfo(name = "landscape_path")
     val landscapePath: String,
     @ColumnInfo(name = "sound_path")
-    val soundPath: String) {
+    val soundPath: String,
+    @ColumnInfo(name = "user_id")
+    val userId: Int = 0,
+    @ColumnInfo(name = "remote_id")
+    val remoteId: Int = 0)
+{
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
 }
 
+@Entity
+data class GeoPointSync (
+    val id: Int,
+    @ColumnInfo(name = "remote_id")
+    val remoteId: Int
+)
+
 fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
     return GeoPoint(
-        id = id,
+        id = remoteId,
         title = title,
         date = dateAsCalendar(date),
         amplitudes = amplitudes,
         coordinates = Coordinates(latitude,longitude), //coordinatesToString(Point.fromLngLat(latitude, longitude)),
         landscapePath = landscapePath,
         soundPath = soundPath
+    )
+}
+
+fun DatabaseGeoPoint.asNetworkModel(): NetworkGeoPoint {
+    return NetworkGeoPoint(
+        id = remoteId,
+        userId = userId,
+        title = title,
+        longitude = longitude,
+        latitude = latitude,
+        date = date,
+        amplitudes = amplitudes,
+        picture = landscapePath,
+        sound = soundPath,
     )
 }
 

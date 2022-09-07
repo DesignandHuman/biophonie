@@ -26,10 +26,8 @@ interface WebService {
     suspend fun postNewGeoPoint(@Part geoPoint: NetworkGeoPoint,
                                 @Part sound: MultipartBody.Part,
                                 @Part image: MultipartBody.Part
-    ): Response<Message>
+    ): Response<NetworkGeoPoint>
 }
-
-data class Message(val message: String)
 
 object ClientWeb {
 

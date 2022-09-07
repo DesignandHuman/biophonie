@@ -6,23 +6,26 @@ import androidx.room.*
 
 @Dao
 interface GeoPointDao {
-    @Query("select * from databasegeopoint")
-    fun getNewGeoPointsAsLiveData(): LiveData<List<DatabaseGeoPoint>>
+    @Query("select * from databasegeopoint where remote_id == 0")
+    fun getNewGeoPointsAsLiveData(): LiveData<List<DatabaseGeoPoint>> //TODO(delete)
 
-    @Query("select * from databasegeopoint")
+    @Query("select * from databasegeopoint where remote_id == 0")
     fun getNewGeoPoints(): List<DatabaseGeoPoint>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(geoPoint: DatabaseGeoPoint)
 
-    @Delete
-    fun delete(geoPoint: DatabaseGeoPoint)
-
-    @Query("select * from databasegeopoint where id like :id")
+    @Query("select * from databasegeopoint where id == :id")
     fun getNewGeoPoint(id: Int): DatabaseGeoPoint?
+
+    @Query("select * from databasegeopoint where remote_id == :remoteId")
+    fun getGeoPoint(remoteId: Int): DatabaseGeoPoint?
+
+    @Update(entity = DatabaseGeoPoint::class)
+    fun syncGeoPoint(sync: GeoPointSync)
 }
 
-@Database(entities = [DatabaseGeoPoint::class], version = 1, exportSchema = false)
+@Database(entities = [DatabaseGeoPoint::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class NewGeoPointDatabase : RoomDatabase() {
 

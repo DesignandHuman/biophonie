@@ -1,20 +1,14 @@
 package com.example.biophonie.viewmodels
 
 import android.content.Context
-import android.net.Uri
 import androidx.lifecycle.*
 import com.example.biophonie.database.NewGeoPointDatabase
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.BASE_URL
 import com.example.biophonie.repositories.GeoPointRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import java.io.IOException
 
 class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewModel() {

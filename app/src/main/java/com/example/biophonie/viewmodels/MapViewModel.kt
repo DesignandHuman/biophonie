@@ -7,18 +7,16 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.database.NewGeoPointDatabase.Companion.getInstance
-import com.example.biophonie.repositories.GeoJsonRepository
-import com.example.biophonie.util.getRandomString
+import com.example.biophonie.repositories.GeoPointRepository
 import kotlinx.coroutines.launch
 
 const val PROPERTY_CACHE: String = "fromCache?"
 const val PROPERTY_NAME: String = "name"
 const val PROPERTY_ID: String = "id"
 private const val TAG = "MapViewModel"
-class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
+class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
-    val features = repository.geoFeatures
-    val newSounds = repository.newSounds
+    val newSounds = repository.newGeoPoints
 
     fun requestAddSound(extras: Bundle?) {
         extras?.let {
@@ -40,7 +38,7 @@ class MapViewModel(private val repository: GeoJsonRepository): ViewModel() {
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MapViewModel(GeoJsonRepository(getInstance(context))) as T
+                return MapViewModel(GeoPointRepository(getInstance(context))) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }
