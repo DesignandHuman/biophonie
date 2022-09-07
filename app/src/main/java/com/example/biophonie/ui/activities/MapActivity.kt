@@ -58,10 +58,7 @@ import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
-import com.mapbox.maps.plugin.gestures.OnMapClickListener
-import com.mapbox.maps.plugin.gestures.OnMoveListener
-import com.mapbox.maps.plugin.gestures.addOnMapClickListener
-import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.gestures.*
 import com.mapbox.maps.plugin.locationcomponent.*
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
@@ -448,7 +445,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         super.onDestroy()
         unregisterReceiver(gpsReceiver)
         onCameraTrackingDismissed()
-        mapboxMap.removeOnCameraChangeListener(this)
     }
 
     override fun onCameraChanged(eventData: CameraChangedEventData) {
