@@ -1,5 +1,6 @@
 package com.example.biophonie.network
 
+import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MultipartBody
@@ -18,6 +19,12 @@ interface WebService {
 
     @GET("/api/v1/geopoint/{id}")
     suspend fun getGeoPoint(@Path("id") id: Int): Response<NetworkGeoPoint>
+
+    @GET("/api/v1/restricted/ping")
+    suspend fun pingRestricted(): Response<Message>
+
+    @POST("/api/v1/user/authorize")
+    suspend fun refreshToken(@Body user: NetworkAuthUser): Response<AccessToken>
 
     @GET("/api/v1/geopoint/closest/to/{latitude}/{longitude}")
     suspend fun getGeoId(@Path("latitude") latitude: Double,
@@ -38,16 +45,17 @@ object ClientWeb {
         .addInterceptor(HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
         })
+        .addInterceptor(AuthenticationInterceptor())
+        .authenticator(AccessTokenAuthenticator())
         .build()
 
     private val moshi = Moshi.Builder()
         .add(KotlinJsonAdapterFactory())
         .build()
 
-    // Configure retrofit to parse JSON and use coroutines
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
-        .addConverterFactory(MoshiConverterFactory.create(moshi))
+        .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
         .client(client)
         .build()
 

@@ -1,18 +1,14 @@
 package com.example.biophonie.ui.activities
 
-import android.content.Context
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.example.biophonie.R
 import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.util.AppPrefs
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 

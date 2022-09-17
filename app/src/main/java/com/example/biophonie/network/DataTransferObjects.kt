@@ -29,12 +29,25 @@ data class NetworkGeoId(@Json(name="id") val id: Int)
 data class NetworkAddUser(val name: String)
 
 @JsonClass(generateAdapter = true)
-data class NetworkUser(val userId: Int,
-                       val admin: Boolean,
-                       val createdOn: String,
-                       val name: String,
-                       val password: String,
+data class NetworkUser(
+    val userId: Int,
+    val admin: Boolean,
+    val createdOn: String,
+    val name: String,
+    val password: String,
 )
+
+@JsonClass(generateAdapter = true)
+data class Message(val message: String)
+
+@JsonClass(generateAdapter = true)
+data class NetworkAuthUser(
+    val name: String,
+    val password: String,
+)
+
+@JsonClass(generateAdapter = true)
+data class AccessToken(val token: String)
 
 fun NetworkUser.asDomainModel(): TutorialViewModel.User {
     return TutorialViewModel.User(name, userId, password)
