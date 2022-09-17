@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.biophonie.BuildConfig
 import com.example.biophonie.database.*
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.network.NetworkGeoPoint
@@ -33,10 +34,20 @@ class GeoPointRepository(private val database: NewGeoPointDatabase) {
                     launch { insertNewGeoPoint(response.body()!!.asDatabaseModel()) }
                     return@withContext response.body()!!.asDomainModel()
                 }
-                else throw Exception("NetworkError")
+                else throw Exception("NetworkError") //TODO
             } else {
                 return@withContext cachedNewGeoPoint.asDomainModel()
             }
+        }
+    }
+
+    suspend fun fetchClosestGeoPoint(coord: Coordinates, not: Array<Int>): Int {
+        return withContext(Dispatchers.IO){
+            val response = ClientWeb.webService.getGeoId(coord.latitude,coord.longitude,not)
+            if (response.isSuccessful && response.body() != null) {
+                return@withContext response.body()!!.id
+            }
+            else throw Exception("NetworkError") //TODO
         }
     }
 
@@ -52,6 +63,7 @@ class GeoPointRepository(private val database: NewGeoPointDatabase) {
         }
     }
 
+    //TODO untested
     suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Boolean{
         return withContext(Dispatchers.IO) {
             val soundFile = File(geoPoint.soundPath)

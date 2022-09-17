@@ -19,6 +19,7 @@ import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.util.ScreenMetricsCompat
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -174,6 +175,10 @@ class BottomPlayerFragment : Fragment() {
 
     fun clickOnGeoPoint(id: Int){
         viewModel.setGeoPointQuery(id)
+    }
+
+    fun displayClosestGeoPoint(coord: Coordinates){
+        viewModel.displayClosestGeoPoint(coord)
     }
 
     private fun setUpObservers() {

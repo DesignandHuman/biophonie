@@ -26,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
 import com.example.biophonie.util.CustomLocationProvider
@@ -86,6 +87,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private lateinit var customLocationProvider: CustomLocationProvider
 
     private var trackingExpected = false
+    private var tracking = false
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -95,6 +97,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
         @SuppressLint("MissingPermission")
         override fun turnedOff() {
+            tracking = false
             binding.mapView.location.enabled = false
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_disabled)
         }
@@ -242,37 +245,42 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun trackLocation(){
+        trackingExpected
+        tracking = true
         enableLocationProvider()
         binding.mapView.run {
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
             gestures.addOnMoveListener(this@MapActivity)
         }
-        binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
+        binding.locationFab.setImageResource(R.drawable.ic_baseline_music_note)
     }
 
-    private val locationCallback = Consumer<Location> { location ->
+    private val launchRecCallback = Consumer<Location> { location ->
         location?.let {
             launchRecActivity(location)
         }
     }
+    private val playClosestCallback = Consumer<Location> { location ->
+        location?.let {
+            bottomPlayer.displayClosestGeoPoint(Coordinates(location.altitude,location.longitude))
+        }
+    }
 
-    @SuppressLint("MissingPermission")
-    private fun retrieveLocation(){
-        binding.rec.isEnabled = false
-        Toast.makeText(this, "Acquisition de la position en cours", Toast.LENGTH_SHORT)
-            .show()
+    @SuppressLint("MissingPermission") //TODO there may be a better way to distinguish between build versions
+    private fun retrieveLocation(callback: Consumer<Location>, listener: LocationListener){
         val locationManager =
             this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,null,this.mainExecutor,locationCallback)
+            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,null,this.mainExecutor,callback)
         } else {
-            locationManager.requestSingleUpdate(Criteria(), {
-                launchRecActivity(it)
-            }, null)
+            locationManager.requestSingleUpdate(Criteria(), listener, null)
         }
     }
 
     private fun launchRecActivity(location: Location) {
+        binding.rec.isEnabled = false
+        Toast.makeText(this, "Acquisition de la position en cours", Toast.LENGTH_SHORT)
+            .show()
         locationSettings.launch(
             Intent(this@MapActivity, RecSoundActivity::class.java).apply {
                 putExtras(Bundle().apply {
@@ -293,7 +301,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         binding.locationFab.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this))
                 if (isGPSEnabled(this)) {
-                    trackLocation()
+                    if (tracking) retrieveLocation(playClosestCallback) { bottomPlayer.displayClosestGeoPoint(
+                        Coordinates(it.latitude,it.longitude)
+                    ) }
+                    else trackLocation()
                 } else {
                     askLocationSettings()
                 }
@@ -303,9 +314,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             }
         }
         binding.rec.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this,
-                    RECORD_AUDIO
-                )
+            if (ContextCompat.checkSelfPermission(this, RECORD_AUDIO)
                 != PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), REQUEST_RECORD)
                 trackingExpected = false
@@ -313,7 +322,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             }
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
                 if (isGPSEnabled(this)) {
-                    retrieveLocation()
+                    retrieveLocation(launchRecCallback) { launchRecActivity(it) }
                 } else {
                     askLocationSettings()
                 }
@@ -359,13 +368,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             when (requestCode) {
                 REQUEST_RECORD -> {
                     if (PermissionsManager.areLocationPermissionsGranted(this))
-                        retrieveLocation()
+                        retrieveLocation(launchRecCallback) {launchRecActivity(it)}
                     else
                         ActivityCompat.requestPermissions(this,arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
                 }
                 REQUEST_LOCATION -> {
                     if (trackingExpected) trackLocation()
-                    else retrieveLocation()
+                    else retrieveLocation(launchRecCallback) {launchRecActivity(it)}
                 }
             }
         } else {
@@ -507,5 +516,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             gestures.removeOnMoveListener(this@MapActivity)
         }
         setUpFabResource()
+        tracking = false
     }
+
 }

@@ -3,12 +3,14 @@ package com.example.biophonie.viewmodels
 import android.content.Context
 import androidx.lifecycle.*
 import com.example.biophonie.database.NewGeoPointDatabase
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.BASE_URL
 import com.example.biophonie.repositories.GeoPointRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
+import kotlinx.coroutines.*
 import java.io.IOException
 
 class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewModel() {
@@ -42,10 +44,16 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     val rightClickable: LiveData<Boolean>
         get() = _rightClickable
 
+    private val viewModelJob = SupervisorJob()
+    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = geoPointId.switchMap { id -> liveData {
         emit(repository.fetchGeoPoint(id))
         displayGeoPoint()
+        if (!passedIds.contains(id))
+            passedIds += id
     } }
+
+    var passedIds: Array<Int> = arrayOf()
 
     fun setPlayerController(view: PlayerView){
         playerController = DefaultPlayerController(view).apply { setPlayerListener() }
@@ -57,36 +65,38 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
 
     fun onLeftClick(){
         currentIndex--
-        /*geoPoint.value?.sounds?.get(currentIndex--)?.let {
-            sound = it
-            displaySound(it)
-        }*/ //TODO
+        geoPointId.value = passedIds[currentIndex]
     }
 
     fun onRightClick(){
         currentIndex++
-        /*geoPoint.value?.sounds?.get(currentIndex++)?.let {
-            sound = it
-            displaySound(it)
-        }*/ //TODO
+        if (currentIndex == passedIds.size)
+            viewModelScope.launch {
+                geoPointId.value = repository.fetchClosestGeoPoint(geoPoint.value!!.coordinates, passedIds)
+            }
+        else
+            geoPointId.value = passedIds[currentIndex]
+    }
+
+    fun displayClosestGeoPoint(coordinates: Coordinates) {
+        _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
+        viewModelScope.launch {
+            geoPointId.value = repository.fetchClosestGeoPoint(coordinates, passedIds)
+        }
     }
 
     private fun checkClickability(){
         _leftClickable.value = currentIndex - 1 >= 0
-        // TODO /*_rightClickable.value = currentIndex < geoPoint.value?.sounds?.size!! - 1*/
     }
 
     private fun displayGeoPoint() {
-        val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value?.soundPath}"
+        val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value!!.soundPath}"
         try {
-            geoPoint.value?.let {
-                playerController.addAudioUrl(url, it.amplitudes)
-            }
+            playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
         } catch (e: IOException) {
             e.printStackTrace()
         }
         checkClickability()
-        currentIndex = 0
         _visibility.value = true
     }
 

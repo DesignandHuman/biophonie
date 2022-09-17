@@ -23,6 +23,9 @@ data class NetworkGeoPoint(
 )
 
 @JsonClass(generateAdapter = true)
+data class NetworkGeoId(@Json(name="id") val id: Int)
+
+@JsonClass(generateAdapter = true)
 data class NetworkAddUser(val name: String)
 
 @JsonClass(generateAdapter = true)

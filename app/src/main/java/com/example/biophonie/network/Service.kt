@@ -1,7 +1,5 @@
 package com.example.biophonie.network
 
-import com.example.biophonie.BuildConfig
-import com.squareup.moshi.Json
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import okhttp3.MultipartBody
@@ -20,6 +18,11 @@ interface WebService {
 
     @GET("/api/v1/geopoint/{id}")
     suspend fun getGeoPoint(@Path("id") id: Int): Response<NetworkGeoPoint>
+
+    @GET("/api/v1/geopoint/closest/to/{latitude}/{longitude}")
+    suspend fun getGeoId(@Path("latitude") latitude: Double,
+                         @Path("longitude") longitude: Double,
+                         @Query("not[]") not: Array<Int>): Response<NetworkGeoId>
 
     @Multipart
     @POST("/api/v1/restricted/geopoint")
