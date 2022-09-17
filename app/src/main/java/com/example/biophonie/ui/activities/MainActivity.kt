@@ -2,6 +2,7 @@ package com.example.biophonie.ui.activities
 
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.Toast
@@ -10,8 +11,8 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import com.example.biophonie.R
-import com.example.biophonie.ENCRYPTED_PREFS_NAME
-import com.example.biophonie.PREFS_NAME
+import com.example.biophonie.network.ClientWeb
+import com.example.biophonie.util.AppPrefs
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,18 +29,19 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.toTutorial).setOnClickListener {
             startActivity(Intent(this, TutorialActivity::class.java))
         }
+        initPrefs()
         checkTutorial()
     }
 
+    private fun initPrefs() {
+        AppPrefs.setup(application)
+    }
+
     private fun checkTutorial() {
-        with (getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)) {
-            val name = getString("username","")
-            if (name.isNullOrBlank()) {
-                Toast.makeText(this@MainActivity, "name: $name", Toast.LENGTH_SHORT).show()
-                val intent =
-                    Intent(this@MainActivity, TutorialActivity::class.java) //call your ViewPager class
-                startActivity(intent)
-            }
+        if (AppPrefs.userId == null) {
+            val intent =
+                Intent(this@MainActivity, TutorialActivity::class.java)
+            startActivity(intent)
         }
     }
 }

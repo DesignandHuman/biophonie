@@ -1,16 +1,11 @@
 package com.example.biophonie.viewmodels
 
 import android.app.Application
-import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.*
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
-import com.example.biophonie.ENCRYPTED_PREFS_NAME
-import com.example.biophonie.PREFS_NAME
 import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.network.NetworkAddUser
 import com.example.biophonie.network.asDomainModel
+import com.example.biophonie.util.AppPrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -42,28 +37,9 @@ class TutorialViewModel(application: Application) : AndroidViewModel(application
     }
 
     private fun storeUser(user: User){
-        val prefs = getApplication<Application>().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-        with (prefs.edit()) {
-            putString("username", user.name)
-            user.id?.let { putInt("id",it) }
-            apply()
-        }
-
-        val masterKey = MasterKey.Builder(getApplication())
-            .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build()
-
-        val sharedPreferences: SharedPreferences = EncryptedSharedPreferences.create(
-            getApplication(),
-            ENCRYPTED_PREFS_NAME,
-            masterKey,
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
-
-        with(sharedPreferences.edit()) {
-            putString("password", user.password)
-            apply()
-        }
+        AppPrefs.userId = user.id
+        AppPrefs.userName = user.name
+        AppPrefs.password = user.password
     }
 
     //TODO deal with connection failure -> crash
