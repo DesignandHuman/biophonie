@@ -1,6 +1,7 @@
 package com.example.biophonie.util
 
 import android.app.Application
+import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import androidx.core.content.edit
@@ -15,11 +16,11 @@ object AppPrefs {
     private lateinit var sharedPrefs: SharedPreferences
     private lateinit var encryptedSharedPrefs: SharedPreferences
 
-    fun setup(app: Application) {
-        sharedPrefs = app.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        encryptedSharedPrefs = EncryptedSharedPreferences(app, 
+    fun setup(context: Context) {
+        sharedPrefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+        encryptedSharedPrefs = EncryptedSharedPreferences(context,
             ENCRYPTED_PREFS_NAME,
-            MasterKey.Builder(app)
+            MasterKey.Builder(context)
                 .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
             EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
             EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM

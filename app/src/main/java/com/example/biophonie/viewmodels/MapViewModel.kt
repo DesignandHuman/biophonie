@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.biophonie.database.DatabaseGeoPoint
-import com.example.biophonie.database.NewGeoPointDatabase.Companion.getInstance
+import com.example.biophonie.database.GeoPointDatabase.Companion.getInstance
 import com.example.biophonie.repositories.GeoPointRepository
 import kotlinx.coroutines.launch
 

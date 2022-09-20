@@ -27,23 +27,23 @@ interface GeoPointDao {
 
 @Database(entities = [DatabaseGeoPoint::class], version = 2, exportSchema = false)
 @TypeConverters(Converters::class)
-abstract class NewGeoPointDatabase : RoomDatabase() {
+abstract class GeoPointDatabase : RoomDatabase() {
 
     abstract val geoPointDao: GeoPointDao
 
     companion object {
 
         @Volatile
-        private var INSTANCE: NewGeoPointDatabase? = null
+        private var INSTANCE: GeoPointDatabase? = null
 
-        fun getInstance(context: Context): NewGeoPointDatabase {
+        fun getInstance(context: Context): GeoPointDatabase {
             synchronized(this) {
                 var instance = INSTANCE
 
                 if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
-                        NewGeoPointDatabase::class.java,
+                        GeoPointDatabase::class.java,
                         "new_geopoint_database"
                     )
                         .fallbackToDestructiveMigration()

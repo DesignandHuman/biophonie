@@ -2,28 +2,22 @@ package com.example.biophonie.repositories
 
 import android.util.Log
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import com.example.biophonie.BuildConfig
 import com.example.biophonie.database.*
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.ClientWeb
-import com.example.biophonie.network.NetworkGeoPoint
 import com.example.biophonie.network.asDatabaseModel
 import com.example.biophonie.network.asDomainModel
-import com.mapbox.geojson.Feature
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Response
 import java.io.File
 
 private const val TAG = "GeoPointRepository"
-class GeoPointRepository(private val database: NewGeoPointDatabase) {
+class GeoPointRepository(private val database: GeoPointDatabase) {
     
     suspend fun fetchGeoPoint(id: Int): GeoPoint {
         return withContext(Dispatchers.IO){

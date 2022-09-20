@@ -2,7 +2,7 @@ package com.example.biophonie.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.*
-import com.example.biophonie.database.NewGeoPointDatabase
+import com.example.biophonie.database.GeoPointDatabase
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.BASE_URL
@@ -112,7 +112,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(GeoPointRepository(NewGeoPointDatabase.getInstance(context))) as T
+                return BottomPlayerViewModel(GeoPointRepository(GeoPointDatabase.getInstance(context))) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

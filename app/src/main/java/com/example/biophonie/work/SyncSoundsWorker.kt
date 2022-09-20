@@ -4,8 +4,9 @@ import android.content.Context
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.biophonie.database.NewGeoPointDatabase
+import com.example.biophonie.database.GeoPointDatabase
 import com.example.biophonie.repositories.GeoPointRepository
+import com.example.biophonie.util.AppPrefs
 import retrofit2.HttpException
 
 private const val TAG = "SyncSoundsWorker"
@@ -14,7 +15,8 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
         Log.d(TAG, "doWork: ")
-        val database = NewGeoPointDatabase.getInstance(applicationContext)
+        initPrefs(applicationContext)
+        val database = GeoPointDatabase.getInstance(applicationContext)
         val repository = GeoPointRepository(database)
         var finalResult = true
         try {
@@ -33,5 +35,9 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
 
     companion object {
         const val WORK_NAME = "com.example.biophonie.mapviewmodel.SyncSoundsWorker"
+    }
+
+    private fun initPrefs(context: Context) {
+        AppPrefs.setup(context)
     }
 }
