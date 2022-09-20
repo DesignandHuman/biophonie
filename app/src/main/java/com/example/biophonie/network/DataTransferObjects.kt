@@ -23,6 +23,17 @@ data class NetworkGeoPoint(
 )
 
 @JsonClass(generateAdapter = true)
+data class NetworkAddGeoPoint(
+    val title: String,
+    val latitude: Double,
+    val longitude: Double,
+    val date: String,
+    val amplitudes: List<Float>,
+    @Json(name="picture_template")
+    val pictureTemplate: String?
+)
+
+@JsonClass(generateAdapter = true)
 data class NetworkGeoId(@Json(name="id") val id: Int)
 
 @JsonClass(generateAdapter = true)

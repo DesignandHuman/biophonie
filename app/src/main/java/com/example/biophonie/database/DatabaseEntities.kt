@@ -3,6 +3,7 @@ package com.example.biophonie.database
 import androidx.room.*
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
+import com.example.biophonie.network.NetworkAddGeoPoint
 import com.example.biophonie.network.NetworkGeoPoint
 import com.example.biophonie.util.LocationConverter
 import com.example.biophonie.util.dateAsCalendar
@@ -47,17 +48,14 @@ fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
     )
 }
 
-fun DatabaseGeoPoint.asNetworkModel(): NetworkGeoPoint {
-    return NetworkGeoPoint(
-        id = remoteId,
-        userId = userId,
+fun DatabaseGeoPoint.asNetworkModel(): NetworkAddGeoPoint {
+    return NetworkAddGeoPoint(
         title = title,
         longitude = longitude,
         latitude = latitude,
         date = date,
         amplitudes = amplitudes,
-        picture = landscapePath,
-        sound = soundPath,
+        pictureTemplate = if (landscapePath == "") landscapePath else null
     )
 }
 
