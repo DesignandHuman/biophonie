@@ -2,11 +2,14 @@ package com.example.biophonie.viewmodels
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.database.GeoPointDatabase.Companion.getInstance
+import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.repositories.GeoPointRepository
 import kotlinx.coroutines.launch
 
@@ -16,19 +19,23 @@ const val PROPERTY_ID: String = "id"
 private const val TAG = "MapViewModel"
 class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
-    val newSounds = repository.newGeoPoints
+    val newGeoPoints = liveData {
+        emit(repository.getNewGeoPoints())
+    }
 
-    fun requestAddSound(extras: Bundle?) {
+    fun requestAddGeoPoint(extras: Bundle?) {
         extras?.let {
             val date = extras.getString("date")
             val soundPath = extras.getString("soundPath")
-            val landscapePath = extras.getString("landscapePath")
+            // if from template
+            val landscapePath = extras.getString("landscapePath")!!.removePrefix("/drawable/")
             val amplitudes = extras.getFloatArray("amplitudes")
             val latitude = extras.getDouble("latitude")
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
-                repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes!!.toList(), latitude, longitude, landscapePath!!, soundPath!!))
+                repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes!!.toList(), latitude, longitude,
+                    landscapePath, soundPath!!))
             }
         }
     }

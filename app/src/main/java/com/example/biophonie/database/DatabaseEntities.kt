@@ -17,7 +17,7 @@ data class DatabaseGeoPoint (
     val latitude: Double,
     val longitude: Double,
     @ColumnInfo(name = "landscape_path")
-    val landscapePath: String,
+    var landscapePath: String,
     @ColumnInfo(name = "sound_path")
     val soundPath: String,
     @ColumnInfo(name = "user_id")
@@ -55,7 +55,7 @@ fun DatabaseGeoPoint.asNetworkModel(): NetworkAddGeoPoint {
         latitude = latitude,
         date = date,
         amplitudes = amplitudes,
-        pictureTemplate = if (landscapePath == "") landscapePath else null
+        pictureTemplate = if (landscapePath != "") landscapePath else null
     )
 }
 

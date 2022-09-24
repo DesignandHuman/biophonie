@@ -14,6 +14,7 @@ import com.example.biophonie.R
 import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
+import okhttp3.internal.UTC
 import java.io.File
 import java.io.IOException
 import java.util.*
@@ -176,14 +177,20 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     }
 
     fun validationAndSubmit(){
-        val date = Calendar.getInstance().time
+        val date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time //TODO use java.time instead
         val dateAsString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(date)
         val title = mTitle.get()
         title?.let {
             if (it.length < 7)
                 _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
-            else
-                _result.value = Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath,_landscapeUri.value!!.path!!)
+            else {
+                var landscapePath = ""
+                var templatePath = ""
+                if (_fromDefault.value == true) landscapePath = _landscapeUri.value!!.path!!
+                else templatePath = getApplication<Application>().applicationContext.resources.getResourceEntryName(currentId)
+                _result.value =
+                    Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
+            }
         }
     }
 
@@ -211,5 +218,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                       val amplitudes: List<Int>,
                       val coordinates: Point,
                       val soundPath: String,
-                      val landscapePath: String)
+                      val landscapePath: String,
+                      val templatePath: String)
 }

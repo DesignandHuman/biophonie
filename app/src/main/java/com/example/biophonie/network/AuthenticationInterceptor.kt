@@ -1,7 +1,9 @@
 package com.example.biophonie.network
 
+import android.util.Log
 import com.example.biophonie.util.AppPrefs
 import okhttp3.Interceptor
+import okhttp3.MultipartBody
 import okhttp3.Response
 
 class AuthenticationInterceptor: Interceptor {

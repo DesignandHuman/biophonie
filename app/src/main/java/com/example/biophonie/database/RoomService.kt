@@ -7,9 +7,6 @@ import androidx.room.*
 @Dao
 interface GeoPointDao {
     @Query("select * from databasegeopoint where remote_id == 0")
-    fun getNewGeoPointsAsLiveData(): LiveData<List<DatabaseGeoPoint>> //TODO(delete)
-
-    @Query("select * from databasegeopoint where remote_id == 0")
     fun getNewGeoPoints(): List<DatabaseGeoPoint>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

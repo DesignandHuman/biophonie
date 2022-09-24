@@ -26,7 +26,7 @@ fun dateAsCalendar(date: String?): Calendar{
         try {
             Calendar.getInstance().apply {
                 @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SS'Z'", Locale.FRANCE).parse(date)
+                time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.FRANCE).parse(date)
             }
         } catch (e: ParseException) {
             e.printStackTrace()

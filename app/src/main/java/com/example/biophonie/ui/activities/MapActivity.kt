@@ -68,11 +68,9 @@ import java.util.function.Consumer
 private const val TAG = "MapActivity"
 private const val ID_ICON: String = "biophonie.icon"
 private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
-private const val ID_SOURCE_LOCAL: String = "biophonie.local"
-private const val ID_SOURCE_REMOTE: String = "biophonie.remote"
-private const val ID_LAYER_LOCAL: String = "biophonie.sound.local"
-private const val ID_LAYER_REMOTE: String = "biophonie.sound.remote"
-private const val ID_LAYER_REMOTE_SELECTED: String = "biophonie.sound.remote.selected"
+private const val ID_SOURCE: String = "biophonie.source"
+private const val ID_LAYER: String = "biophonie.geopoint"
+private const val ID_LAYER_SELECTED: String = "biophonie.geopoint.selected"
 private const val REQUEST_RECORD: Int = 0x01
 private const val REQUEST_LOCATION: Int = 0x02
 private const val FRAGMENT_TAG: String = "fragment"
@@ -107,7 +105,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             if (data?.extras != null) {
-                viewModel.requestAddSound(data.extras)
+                viewModel.requestAddGeoPoint(data.extras)
             }
         }
     }
@@ -127,7 +125,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         this.mapboxMap = binding.mapView.getMapboxMap().apply {
             loadStyle(
                 style(styleUri = getString(R.string.style_url)) {
-                    +geoJsonSource(id = ID_SOURCE_REMOTE) {
+                    +geoJsonSource(id = ID_SOURCE) {
                         url(getString(R.string.geojson_url))
                         cluster(false)
                     }
@@ -137,10 +135,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     +image(imageId = ID_ICON_CACHE) {
                         bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_syncing))
                     }
-                    +symbolLayer(layerId = ID_LAYER_REMOTE, sourceId = ID_SOURCE_REMOTE) {
+                    +symbolLayer(layerId = ID_LAYER, sourceId = ID_SOURCE) {
                         buildProperties(0.5, "Regular")
                     }
-                    +symbolLayer(layerId = ID_LAYER_REMOTE_SELECTED, sourceId = ID_SOURCE_REMOTE) {
+                    +symbolLayer(layerId = ID_LAYER_SELECTED, sourceId = ID_SOURCE) {
                         buildProperties(0.7, "Bold")
                         filter(boolean{
                             get(PROPERTY_ID)
@@ -214,22 +212,22 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
 
     private fun setDataObservers() {
-        viewModel.newSounds.observe(this) {
+        viewModel.newGeoPoints.observe(this) {
             val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-            if (!viewModel.newSounds.value.isNullOrEmpty()) {
-                for (i in viewModel.newSounds.value!!) {
+            if (!it.isNullOrEmpty()) {
+                for (geoPoint in it) {
                     symbolLayerIconFeatureList.add(
                         Feature.fromGeometry(
-                            Point.fromLngLat(i.longitude, i.latitude)
+                            Point.fromLngLat(geoPoint.coordinates.longitude, geoPoint.coordinates.latitude)
                         ).apply {
-                            addStringProperty(PROPERTY_NAME, i.title)
-                            addNumberProperty(PROPERTY_ID, i.id)
+                            addStringProperty(PROPERTY_NAME, geoPoint.title)
+                            addNumberProperty(PROPERTY_ID, geoPoint.id)
                             addBooleanProperty(PROPERTY_CACHE, true)
                         }
                     )
                 }
-                mapboxMap.getStyle {
-                    it.getSourceAs<GeoJsonSource>(ID_SOURCE_LOCAL)?.featureCollection(
+                mapboxMap.getStyle { style ->
+                    style.getSourceAs<GeoJsonSource>(ID_SOURCE)?.featureCollection(
                         FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
                     )
                 }
@@ -470,13 +468,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     ScreenCoordinate(screenCoor.x+10,screenCoor.y+10)
                 )
             ),
-            RenderedQueryOptions(listOf(ID_LAYER_REMOTE, ID_LAYER_REMOTE_SELECTED, ID_LAYER_LOCAL), literal(true)))
+            RenderedQueryOptions(listOf(ID_LAYER, ID_LAYER_SELECTED), literal(true)))
         { expected ->
             val features = expected.value
             val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
                 val selectedLayer = mapboxMap.getStyle()?.getLayerAs<SymbolLayer>(
-                    ID_LAYER_REMOTE_SELECTED)
+                    ID_LAYER_SELECTED)
                 val id = feature.getNumberProperty(PROPERTY_ID).toLong()
                 selectedLayer?.filter(eq{
                     get(PROPERTY_ID)
