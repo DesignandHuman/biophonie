@@ -203,7 +203,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     fun setCoordinates(extras: Bundle?) {
         extras?.let {
-            coordinates = Point.fromLngLat(it.getDouble("latitude"), it.getDouble("longitude"))
+            coordinates = Point.fromLngLat(it.getDouble("longitude"), it.getDouble("latitude"))
         }
     }
 
