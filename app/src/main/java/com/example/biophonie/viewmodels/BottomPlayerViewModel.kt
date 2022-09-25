@@ -1,6 +1,8 @@
 package com.example.biophonie.viewmodels
 
+import android.app.Application
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.*
 import com.example.biophonie.database.GeoPointDatabase
 import com.example.biophonie.domain.Coordinates
@@ -13,7 +15,9 @@ import fr.haran.soundwave.ui.PlayerView
 import kotlinx.coroutines.*
 import java.io.IOException
 
-class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewModel() {
+class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) : AndroidViewModel(
+    application
+) {
 
     private var currentIndex = 0
     lateinit var playerController: DefaultPlayerController
@@ -90,14 +94,24 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
     }
 
     private fun displayGeoPoint() {
-        val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value!!.soundPath}"
-        try {
-            playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
-        } catch (e: IOException) {
-            e.printStackTrace()
-        }
+        addSoundToPlayer()
         checkClickability()
         _visibility.value = true
+    }
+
+    private fun addSoundToPlayer() {
+        if (geoPoint.value!!.sound.local != null) {
+            try {
+                playerController.addAudioFileUri(getApplication(), Uri.parse(geoPoint.value!!.sound.local), geoPoint.value!!.amplitudes)
+                return
+            } catch (e: IOException) {
+                e.printStackTrace()
+            }
+        }
+        geoPoint.value!!.sound.remote?.let {
+            val url = "$BASE_URL/api/v1/assets/sound/$it"
+            playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
+        }
     }
 
     fun setGeoPointQuery(id: Int){
@@ -112,7 +126,9 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository) : ViewMo
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(GeoPointRepository(GeoPointDatabase.getInstance(context))) as T
+                return BottomPlayerViewModel(GeoPointRepository(GeoPointDatabase.getInstance(context)),
+                    context as Application
+                ) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

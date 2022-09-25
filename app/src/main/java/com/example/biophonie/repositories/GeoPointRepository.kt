@@ -1,7 +1,5 @@
 package com.example.biophonie.repositories
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import com.example.biophonie.database.*
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
@@ -15,7 +13,6 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import retrofit2.Response
 import java.io.File
 
 private const val TAG = "GeoPointRepository"
@@ -59,23 +56,28 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
         }
     }
 
-    private suspend fun syncGeoPoint(localId: Int, remoteId: Int) {
+    private suspend fun syncGeoPoint(localId: Int, remoteGeo: NetworkGeoPoint) {
         withContext(Dispatchers.IO) {
-            database.geoPointDao.syncGeoPoint(GeoPointSync(localId, remoteId))
+            database.geoPointDao.syncGeoPoint(GeoPointSync(
+                id = localId,
+                remoteId = remoteGeo.id,
+                remoteSound = remoteGeo.sound,
+                remotePicture = remoteGeo.picture
+            ))
         }
     }
 
     suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Boolean{
         return withContext(Dispatchers.IO) {
-            val soundFile = File(geoPoint.soundPath)
-            val response = if (!geoPoint.landscapePath.endsWith(".jpg")) {
+            val soundFile = File(geoPoint.sound!!)
+            val response = if (!geoPoint.picture!!.endsWith(".jpg")) {
                 ClientWeb.webService.postNewGeoPoint(
                     geoPoint.asNetworkModel(),
                     MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
                     null
                 )
             } else {
-                val pictureFile = File(geoPoint.landscapePath)
+                val pictureFile = File(geoPoint.picture)
                 ClientWeb.webService.postNewGeoPoint(
                     geoPoint.asNetworkModel(),
                     MultipartBody.Part.createFormData("sound",null,soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
@@ -83,7 +85,7 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
                 )
             }
             if (response.isSuccessful && response.body() != null) {
-                launch { syncGeoPoint(geoPoint.id, response.body()!!.id) }
+                launch { syncGeoPoint(geoPoint.id, response.body()!!) }
                 return@withContext true
             } else {
                 //TODO(manage error here on in OkHttpInterceptor to prevent looping)

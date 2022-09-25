@@ -13,8 +13,13 @@ data class GeoPoint(
     var title: String?,
     var date: Instant?,
     var amplitudes: List<Float>,
-    var landscapePath: String,
-    var soundPath: String)
+    var picture: Resource,
+    var sound: Resource)
+
+data class Resource(
+    val remote: String? = null,
+    val local: String? = null
+)
 
 data class Coordinates(val latitude: Double, val longitude: Double) {
     override fun toString() = LocationConverter.latitudeAsDMS(latitude, 4) +

@@ -22,7 +22,7 @@ interface GeoPointDao {
     fun syncGeoPoint(sync: GeoPointSync)
 }
 
-@Database(entities = [DatabaseGeoPoint::class], version = 2, exportSchema = false)
+@Database(entities = [DatabaseGeoPoint::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class GeoPointDatabase : RoomDatabase() {
 

@@ -40,7 +40,7 @@ class BottomPlayerFragment : Fragment() {
     private var animationDuration: Int = 0
 
     private val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext().applicationContext)).get(
             BottomPlayerViewModel::class.java
         )
     }
