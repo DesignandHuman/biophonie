@@ -40,8 +40,8 @@ object AppPrefs {
         set(value) = EncryptedKey.PASSWORD.setString(value)
 
     var token: String?
-        get() = EncryptedKey.PASSWORD.getString()
-        set(value) = EncryptedKey.PASSWORD.setString(value)
+        get() = EncryptedKey.TOKEN.getString()
+        set(value) = EncryptedKey.TOKEN.setString(value)
 
     private enum class EncryptedKey {
         TOKEN, PASSWORD;

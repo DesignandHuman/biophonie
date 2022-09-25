@@ -14,29 +14,6 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
 
-fun getRandomString(length: Int) : String {
-    val allowedChars = ('A'..'Z') + ('a'..'z') + ('1'..'9')
-    return (1..length)
-        .map { allowedChars.random() }
-        .joinToString("")
-}
-
-fun dateAsCalendar(date: String?): Calendar{
-    return if (date != null){
-        try {
-            Calendar.getInstance().apply {
-                @Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-                time = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.FRANCE).parse(date)
-            }
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            Calendar.getInstance().apply { time = Date(0) }
-        }
-    } else{
-        Calendar.getInstance().apply { time = Date(0) }
-    }
-}
-
 class GPSCheck(private val locationCallBack: LocationCallBack) :
     BroadcastReceiver() {
     interface LocationCallBack {

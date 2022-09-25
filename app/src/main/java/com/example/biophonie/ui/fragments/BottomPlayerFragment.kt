@@ -29,6 +29,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 
@@ -196,17 +197,6 @@ class BottomPlayerFragment : Fragment() {
         }
         viewModel.eventNetworkError.observe(viewLifecycleOwner) {
             if (it) onNetworkError()
-        }
-        viewModel.geoPoint.observe(viewLifecycleOwner) { geoPoint ->
-            geoPoint.date?.let {
-                val date = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(it.time)
-                viewModel.playerController.setTitle(SpannableStringBuilder()
-                    .bold { append("Le : ") }
-                    .append(date.split("\\s".toRegex())[0])
-                    .bold { append(" à ") }
-                    .append(date.split("\\s".toRegex())[1]))
-            }
-
         }
     }
 

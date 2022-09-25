@@ -65,7 +65,6 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
         }
     }
 
-    //TODO untested
     suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Boolean{
         return withContext(Dispatchers.IO) {
             val soundFile = File(geoPoint.soundPath)

@@ -4,13 +4,14 @@ import android.graphics.drawable.Drawable
 import com.example.biophonie.util.LocationConverter
 import java.text.ParseException
 import java.text.SimpleDateFormat
+import java.time.Instant
 import java.util.*
 
 data class GeoPoint(
     var id: Int,
     var coordinates: Coordinates,
     var title: String?,
-    var date: Calendar?,
+    var date: Instant?,
     var amplitudes: List<Float>,
     var landscapePath: String,
     var soundPath: String)

@@ -3,10 +3,10 @@ package com.example.biophonie.network
 import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.util.dateAsCalendar
 import com.example.biophonie.viewmodels.TutorialViewModel
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
+import java.time.Instant
 
 @JsonClass(generateAdapter = true)
 data class NetworkGeoPoint(
@@ -69,7 +69,7 @@ fun NetworkGeoPoint.asDomainModel(): GeoPoint{
         id = id,
         title = title,
         coordinates = Coordinates(latitude,longitude),
-        date = dateAsCalendar(date),
+        date = Instant.parse(date),
         amplitudes = amplitudes,
         landscapePath = picture,
         soundPath = sound

@@ -111,5 +111,8 @@ fabric.properties
 
 # End of https://www.gitignore.io/api/androidstudio
 
+### Deployment targets ###
+.idea/deploymentTargetDropDown.xml
+
 ### Secret values ###
 **/*/res/values/secrets.xml

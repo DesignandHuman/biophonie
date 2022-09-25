@@ -4,9 +4,7 @@ import androidx.room.*
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.network.NetworkAddGeoPoint
-import com.example.biophonie.network.NetworkGeoPoint
-import com.example.biophonie.util.LocationConverter
-import com.example.biophonie.util.dateAsCalendar
+import java.time.Instant
 
 @Entity
 data class DatabaseGeoPoint (
@@ -40,7 +38,7 @@ fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
     return GeoPoint(
         id = remoteId,
         title = title,
-        date = dateAsCalendar(date),
+        date = Instant.parse(date),
         amplitudes = amplitudes,
         coordinates = Coordinates(latitude,longitude), //coordinatesToString(Point.fromLngLat(latitude, longitude)),
         landscapePath = landscapePath,

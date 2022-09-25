@@ -2,6 +2,7 @@ package com.example.biophonie.ui
 
 import android.net.Uri
 import android.text.SpannableStringBuilder
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
@@ -13,6 +14,9 @@ import com.example.biophonie.R
 import com.example.biophonie.network.BASE_URL
 import fr.haran.soundwave.ui.PlayerView
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 //TODO(use?)
@@ -61,15 +65,23 @@ fun setImageUriThumbnail(view: AppCompatImageView, imageUri: Uri?){
 }
 
 @BindingAdapter("date")
-fun setDate(view: TextView, date: Calendar?) {
+fun setDate(view: TextView, date: Instant?) {
     if (date != null)
-        view.text = SimpleDateFormat("MMM yyyy", Locale.FRANCE).format(date.time)
+        view.text = DateTimeFormatter
+            .ofPattern("MMM yyyy")
+            .withLocale(Locale.getDefault())
+            .withZone( ZoneId.of("UTC"))
+            .format(date)
 }
 
 @BindingAdapter("title")
-fun setTitle(view: PlayerView, date: Calendar?) {
+fun setTitle(view: PlayerView, date: Instant?) {
     if (date != null)
-        with(SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.FRANCE).format(date.time)) {
+        with(DateTimeFormatter
+            .ofPattern("d/MM/uuuu H:mm")
+            .withLocale(Locale.getDefault())
+            .withZone( ZoneId.of("UTC"))
+            .format(date)) {
             view.setText(SpannableStringBuilder()
                 .bold { append("Le : ") }
                 .append(split("\\s".toRegex())[0])

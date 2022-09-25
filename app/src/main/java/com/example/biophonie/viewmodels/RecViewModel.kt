@@ -17,6 +17,10 @@ import fr.haran.soundwave.ui.RecPlayerView
 import okhttp3.internal.UTC
 import java.io.File
 import java.io.IOException
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 private const val TAG = "RecViewModel"
@@ -72,7 +76,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     @Throws(IOException::class)
     private fun createImageFile(): File? {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+        val timeStamp = ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_DATE_TIME )
         val storageDir = File(getApplication<Application>().applicationContext.externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
         return run {
             if (!storageDir.exists())
@@ -177,8 +181,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     }
 
     fun validationAndSubmit(){
-        val date = Calendar.getInstance(TimeZone.getTimeZone("UTC")).time //TODO use java.time instead
-        val dateAsString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(date)
+        val instant = ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_INSTANT )
         val title = mTitle.get()
         title?.let {
             if (it.length < 7)
@@ -189,7 +192,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
                 if (_fromDefault.value == true) landscapePath = _landscapeUri.value!!.path!!
                 else templatePath = getApplication<Application>().applicationContext.resources.getResourceEntryName(currentId)
                 _result.value =
-                    Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
+                    Result(it, instant, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
             }
         }
     }

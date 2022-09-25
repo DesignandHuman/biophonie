@@ -43,7 +43,7 @@ object ClientWeb {
 
     private val client: OkHttpClient = OkHttpClient.Builder()
         .addInterceptor(HttpLoggingInterceptor().apply {
-            level = HttpLoggingInterceptor.Level.BODY
+            level = HttpLoggingInterceptor.Level.BASIC
         })
         .addInterceptor(AuthenticationInterceptor())
         .authenticator(AccessTokenAuthenticator())
