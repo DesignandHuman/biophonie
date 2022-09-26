@@ -33,7 +33,6 @@ import com.example.biophonie.util.CustomLocationProvider
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
-import com.example.biophonie.viewmodels.PROPERTY_CACHE
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
@@ -65,15 +64,8 @@ import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
 import java.util.function.Consumer
 
-private const val TAG = "MapActivity"
-private const val ID_ICON: String = "biophonie.icon"
-private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
-private const val ID_SOURCE: String = "biophonie.source"
-private const val ID_LAYER: String = "biophonie.geopoint"
-private const val ID_LAYER_SELECTED: String = "biophonie.geopoint.selected"
 private const val REQUEST_RECORD: Int = 0x01
 private const val REQUEST_LOCATION: Int = 0x02
-private const val FRAGMENT_TAG: String = "fragment"
 
 class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
 
@@ -125,21 +117,31 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         this.mapboxMap = binding.mapView.getMapboxMap().apply {
             loadStyle(
                 style(styleUri = getString(R.string.style_url)) {
-                    +geoJsonSource(id = ID_SOURCE) {
+                    +geoJsonSource(id = "$REMOTE.$SOURCE") {
                         url(getString(R.string.geojson_url))
                         cluster(false)
                     }
-                    +image(imageId = ID_ICON) {
+                    +geoJsonSource("$CACHE.$SOURCE")
+                    +image(imageId = "$REMOTE.$ICON") {
                         bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_marker))
                     }
-                    +image(imageId = ID_ICON_CACHE) {
+                    +image(imageId = "$CACHE.$ICON") {
                         bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_syncing))
                     }
-                    +symbolLayer(layerId = ID_LAYER, sourceId = ID_SOURCE) {
-                        buildProperties(0.5, "Regular")
+                    +symbolLayer(layerId = "$REMOTE.$LAYER", sourceId = "$REMOTE.$SOURCE") {
+                        buildProperties(0.5, "Regular", REMOTE)
                     }
-                    +symbolLayer(layerId = ID_LAYER_SELECTED, sourceId = ID_SOURCE) {
-                        buildProperties(0.7, "Bold")
+                    +symbolLayer(layerId = "$REMOTE.$LAYER.$SELECTED", sourceId = "$REMOTE.$SOURCE") {
+                        buildProperties(0.7, "Bold", REMOTE)
+                        filter(boolean{
+                            get(PROPERTY_ID)
+                            literal(false)})
+                    }
+                    +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
+                        buildProperties(0.6, "Regular", CACHE)
+                    }
+                    +symbolLayer(layerId = "$CACHE.$LAYER.$SELECTED", sourceId = "$CACHE.$SOURCE") {
+                        buildProperties(0.8, "Bold", CACHE)
                         filter(boolean{
                             get(PROPERTY_ID)
                             literal(false)})
@@ -167,42 +169,17 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
-    private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String) {
-        iconImage(
-            switchCase {
-                boolean {
-                    get(PROPERTY_CACHE)
-                    literal(false)
-                }
-                literal(ID_ICON_CACHE)
-                literal(ID_ICON)
-            }
-        )
+    private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String) {
+        iconImage(literal("$origin.$ICON"))
         iconSize(iconSize)
         textFont(listOf("IBM Plex Mono $fontFamily"))
         iconOpacity(1.0)
         iconAllowOverlap(true)
         iconPadding(.0)
-        textColor(
-            switchCase {
-                boolean {
-                    get(PROPERTY_CACHE)
-                    literal(false)
-                }
-                literal(
-                    String.format(
-                        "#%06X",
-                        0xFFFFFF and resources.getColor(R.color.colorPrimaryDark, theme)
-                    )
-                )
-                literal(
-                    String.format(
-                        "#%06X",
-                        0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
-                    )
-                )
-            }
-        )
+        textColor(literal(String.format("#%06X", 0xFFFFFF and resources.getColor(
+            if (origin == REMOTE) R.color.colorAccent
+            else R.color.colorPrimaryDark
+            , theme))))
         textField("{name}")
         textSize(12.0)
         textOffset(listOf(0.8, -0.05))
@@ -210,27 +187,22 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         textOptional(true)
     }
 
-
     private fun setDataObservers() {
         viewModel.newGeoPoints.observe(this) {
             val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
             if (!it.isNullOrEmpty()) {
                 for (geoPoint in it) {
                     symbolLayerIconFeatureList.add(
-                        Feature.fromGeometry(
+                        Feature.fromGeometry( //todo changethis
                             Point.fromLngLat(geoPoint.coordinates.longitude, geoPoint.coordinates.latitude)
                         ).apply {
                             addStringProperty(PROPERTY_NAME, geoPoint.title)
                             addNumberProperty(PROPERTY_ID, geoPoint.id)
-                            addBooleanProperty(PROPERTY_CACHE, true)
                         }
                     )
                 }
-                mapboxMap.getStyle { style ->
-                    style.getSourceAs<GeoJsonSource>(ID_SOURCE)?.featureCollection(
-                        FeatureCollection.fromFeatures(symbolLayerIconFeatureList)
-                    )
-                }
+                mapboxMap.getStyle()?.getSourceAs<GeoJsonSource>("$CACHE.$SOURCE")
+                    ?.featureCollection(FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
             }
         }
     }
@@ -429,7 +401,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
     private fun setUpOnTimeWork(){
-        Log.d(TAG, "setUpOnTimeWork: syncing to server")
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(true)
@@ -468,18 +439,16 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     ScreenCoordinate(screenCoor.x+10,screenCoor.y+10)
                 )
             ),
-            RenderedQueryOptions(listOf(ID_LAYER, ID_LAYER_SELECTED), literal(true)))
+            RenderedQueryOptions(listOf("$REMOTE.$LAYER", "$REMOTE.$LAYER.$SELECTED", "$CACHE.$LAYER", "$CACHE.$LAYER.$SELECTED"), literal(true)))
         { expected ->
             val features = expected.value
             val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
-                val selectedLayer = mapboxMap.getStyle()?.getLayerAs<SymbolLayer>(
-                    ID_LAYER_SELECTED)
                 val id = feature.getNumberProperty(PROPERTY_ID).toLong()
-                selectedLayer?.filter(eq{
-                    get(PROPERTY_ID)
-                    literal(id)}
-                )
+                mapboxMap.getStyle()?.apply {
+                    updateLayerSelected("$REMOTE.$LAYER.$SELECTED",id)
+                    updateLayerSelected("$CACHE.$LAYER.$SELECTED",id)
+                }
 
                 with(mapboxMap.cameraState.toCameraOptions().toBuilder()) {
                     binding.mapView.camera.flyTo(
@@ -491,6 +460,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             }
         }
         return false
+    }
+
+    private fun Style.updateLayerSelected(layerId: String, id: Long) {
+        getLayerAs<SymbolLayer>(layerId)?.filter(eq{
+            get(PROPERTY_ID)
+            literal(id)}
+        )
     }
 
     override fun onMoveBegin(detector: MoveGestureDetector) {
@@ -517,4 +493,14 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         tracking = false
     }
 
+    companion object {
+        private const val TAG = "MapActivity"
+        private const val REMOTE: String = "remote"
+        private const val CACHE: String = "cache"
+        private const val SOURCE: String = "source"
+        private const val LAYER: String = "layer"
+        private const val ICON: String = "icon"
+        private const val SELECTED: String = "selected"
+        private const val FRAGMENT_TAG: String = "fragment"
+    }
 }
