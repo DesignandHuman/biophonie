@@ -167,13 +167,6 @@ class BottomPlayerFragment : Fragment() {
         view.layoutParams = params
     }
 
-    private fun onNetworkError() {
-        if(!viewModel.isNetworkErrorShown.value!!) {
-            Toast.makeText(activity, "Vérifiez votre connection réseau", Toast.LENGTH_LONG).show()
-            viewModel.onNetworkErrorShown()
-        }
-    }
-
     fun clickOnGeoPoint(id: Int){
         viewModel.setGeoPointQuery(id)
     }
@@ -196,7 +189,10 @@ class BottomPlayerFragment : Fragment() {
             bottomSheetBehavior.state = it
         }
         viewModel.eventNetworkError.observe(viewLifecycleOwner) {
-            if (it) onNetworkError()
+            if(!viewModel.isNetworkErrorShown.value!!) {
+                Toast.makeText(activity, it, Toast.LENGTH_LONG).show()
+                viewModel.onNetworkErrorShown()
+            }
         }
     }
 

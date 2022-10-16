@@ -5,8 +5,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.*
 import com.example.biophonie.database.GeoPointDatabase
-import com.example.biophonie.domain.Coordinates
-import com.example.biophonie.domain.GeoPoint
+import com.example.biophonie.domain.*
 import com.example.biophonie.network.BASE_URL
 import com.example.biophonie.repositories.GeoPointRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -36,8 +35,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     val isNetworkErrorShown: LiveData<Boolean>
         get() = _isNetworkErrorShown
 
-    private val _eventNetworkError = MutableLiveData<Boolean>()
-    val eventNetworkError: LiveData<Boolean>
+    private val _eventNetworkError = MutableLiveData<String>()
+    val eventNetworkError: LiveData<String>
         get() = _eventNetworkError
 
     private val _leftClickable = MutableLiveData<Boolean>()
@@ -51,10 +50,21 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = geoPointId.switchMap { id -> liveData {
-        emit(repository.fetchGeoPoint(id))
-        displayGeoPoint()
-        if (!passedIds.contains(id))
-            passedIds += id
+        repository.fetchGeoPoint(id)
+            .onSuccess {
+                emit(it)
+                displayGeoPoint()
+                if (!passedIds.contains(id))
+                    passedIds += id
+            }
+            .onFailure {
+                when (it) {
+                    is NotFoundThrowable -> _eventNetworkError.value = "Ce son n’est plus disponible"
+                    is InternalErrorThrowable -> _eventNetworkError.value = "Oups, notre serveur a des soucis"
+                    is NoConnectionThrowable -> _eventNetworkError.value = "Connexion au serveur impossible"
+                    else -> _eventNetworkError.value = "Oups, une erreur s’est produite"
+                }
+            }
     } }
 
     var passedIds: Array<Int> = arrayOf()
@@ -70,14 +80,13 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     fun onLeftClick(){
         currentIndex--
         geoPointId.value = passedIds[currentIndex]
+        _rightClickable.value = true
     }
 
     fun onRightClick(){
         currentIndex++
         if (currentIndex == passedIds.size)
-            viewModelScope.launch {
-                geoPointId.value = repository.fetchClosestGeoPoint(geoPoint.value!!.coordinates, passedIds)
-            }
+            displayClosestGeoPoint(geoPoint.value!!.coordinates)
         else
             geoPointId.value = passedIds[currentIndex]
     }
@@ -85,7 +94,19 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     fun displayClosestGeoPoint(coordinates: Coordinates) {
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         viewModelScope.launch {
-            geoPointId.value = repository.fetchClosestGeoPoint(coordinates, passedIds)
+            repository.fetchClosestGeoPoint(coordinates, passedIds)
+                .onSuccess { geoPointId.value = it }
+                .onFailure {
+                    when (it) {
+                        is NotFoundThrowable -> {
+                            _eventNetworkError.value = "Vous avez écouté tous les points disponibles"
+                            _rightClickable.value = false
+                        }
+                        is InternalErrorThrowable -> _eventNetworkError.value = "Oups, notre serveur a des soucis"
+                        is NoConnectionThrowable -> _eventNetworkError.value = "Connexion au serveur impossible"
+                        else -> _eventNetworkError.value = "Oups, une erreur s’est produite"
+                    }
+                }
         }
     }
 

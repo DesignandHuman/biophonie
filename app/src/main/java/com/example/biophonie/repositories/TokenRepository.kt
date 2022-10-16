@@ -9,19 +9,15 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 
 class TokenRepository {
-    suspend fun fetchAccessToken(): AccessToken? {
+    suspend fun fetchAccessToken(): Result<AccessToken> {
         val user = buildAuthUser()
-        if (user != null) {
-            return withContext(Dispatchers.IO) {
-                val response = ClientWeb.webService.refreshToken(user)
-                if (response.isSuccessful && response.body() != null) {
-                    AppPrefs.token = response.body()!!.token
-                    return@withContext response.body()
-                }
-                else throw Exception("NetworkError") //TODO
+        return if (user != null) {
+            withContext(Dispatchers.IO) {
+                ClientWeb.webService.refreshToken(user)
+                    .onSuccess { AppPrefs.token = it.token }
             }
         } else {
-            return null
+            Result.failure(RuntimeException("user not in shared pref"))
         }
     }
 

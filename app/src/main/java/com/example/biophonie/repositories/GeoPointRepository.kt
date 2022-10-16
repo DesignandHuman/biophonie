@@ -18,29 +18,22 @@ import java.io.File
 private const val TAG = "GeoPointRepository"
 class GeoPointRepository(private val database: GeoPointDatabase) {
     
-    suspend fun fetchGeoPoint(id: Int): GeoPoint {
+    suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
         return withContext(Dispatchers.IO){
             val cachedNewGeoPoint = database.geoPointDao.getGeoPoint(id)
             if (cachedNewGeoPoint == null){
-                val response = ClientWeb.webService.getGeoPoint(id)
-                if (response.isSuccessful && response.body() != null) {
-                    launch { insertNewGeoPoint(response.body()!!.asDatabaseModel()) }
-                    return@withContext response.body()!!.asDomainModel()
-                }
-                else throw Exception("NetworkError") //TODO
+                return@withContext ClientWeb.webService.getGeoPoint(id)
+                    .onSuccess { launch { insertNewGeoPoint(it.asDatabaseModel()) } }
+                    .map { it.asDomainModel() }
             } else {
-                return@withContext cachedNewGeoPoint.asDomainModel()
+                return@withContext Result.success(cachedNewGeoPoint.asDomainModel())
             }
         }
     }
 
-    suspend fun fetchClosestGeoPoint(coord: Coordinates, not: Array<Int>): Int {
+    suspend fun fetchClosestGeoPoint(coord: Coordinates, not: Array<Int>): Result<Int> {
         return withContext(Dispatchers.IO){
-            val response = ClientWeb.webService.getGeoId(coord.latitude,coord.longitude,not)
-            if (response.isSuccessful && response.body() != null) {
-                return@withContext response.body()!!.id
-            }
-            else throw Exception("NetworkError") //TODO
+            return@withContext ClientWeb.webService.getGeoId(coord.latitude,coord.longitude,not).map { it.id }
         }
     }
 
@@ -67,10 +60,10 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
         }
     }
 
-    suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Boolean{
+    suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Result<NetworkGeoPoint> {
         return withContext(Dispatchers.IO) {
             val soundFile = File(geoPoint.sound!!)
-            val response = if (!geoPoint.picture!!.endsWith(".jpg")) {
+            val result = if (!geoPoint.picture!!.endsWith(".jpg")) {
                 ClientWeb.webService.postNewGeoPoint(
                     geoPoint.asNetworkModel(),
                     MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
@@ -84,13 +77,8 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
                     MultipartBody.Part.createFormData("picture",null,pictureFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
                 )
             }
-            if (response.isSuccessful && response.body() != null) {
-                launch { syncGeoPoint(geoPoint.id, response.body()!!) }
-                return@withContext true
-            } else {
-                //TODO(manage error here on in OkHttpInterceptor to prevent looping)
-                return@withContext false
-            }
+            launch { result.getOrNull()?.let { syncGeoPoint(geoPoint.id, it) } }
+            return@withContext result
         }
     }
 }

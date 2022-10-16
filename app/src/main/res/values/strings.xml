@@ -18,4 +18,6 @@
     <string name="title">Titre</string>
     <string name="import_picture">J\'importe une photo</string>
     <string name="shhh">Chut, écoutez…</string>
+    <string name="network_error">Connexion au serveur échouée</string>
+    <string name="default_error">Oups, une erreur s’est produite</string>
 </resources>

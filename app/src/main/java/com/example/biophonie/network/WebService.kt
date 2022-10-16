@@ -15,28 +15,28 @@ const val BASE_URL = "http://10.0.2.2:8080"
 
 interface WebService {
     @POST("/api/v1/user")
-    suspend fun postUser(@Body user: NetworkAddUser): Response<NetworkUser>
+    suspend fun postUser(@Body user: NetworkAddUser): Result<NetworkUser>
 
     @GET("/api/v1/geopoint/{id}")
-    suspend fun getGeoPoint(@Path("id") id: Int): Response<NetworkGeoPoint>
+    suspend fun getGeoPoint(@Path("id") id: Int): Result<NetworkGeoPoint>
 
     @GET("/api/v1/restricted/ping")
-    suspend fun pingRestricted(): Response<Message>
+    suspend fun pingRestricted(): Result<Message>
 
     @POST("/api/v1/user/authorize")
-    suspend fun refreshToken(@Body user: NetworkAuthUser): Response<AccessToken>
+    suspend fun refreshToken(@Body user: NetworkAuthUser): Result<AccessToken>
 
     @GET("/api/v1/geopoint/closest/to/{latitude}/{longitude}")
     suspend fun getGeoId(@Path("latitude") latitude: Double,
                          @Path("longitude") longitude: Double,
-                         @Query("not[]") not: Array<Int>): Response<NetworkGeoId>
+                         @Query("not[]") not: Array<Int>): Result<NetworkGeoId>
 
     @Multipart
     @POST("/api/v1/restricted/geopoint")
     suspend fun postNewGeoPoint(@Part("geopoint") geoPoint: NetworkAddGeoPoint,
                                 @Part sound: MultipartBody.Part,
                                 @Part image: MultipartBody.Part?
-    ): Response<NetworkGeoPoint>
+    ): Result<NetworkGeoPoint>
 }
 
 object ClientWeb {
@@ -56,6 +56,7 @@ object ClientWeb {
     private val retrofit = Retrofit.Builder()
         .baseUrl(BASE_URL)
         .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
+        .addCallAdapterFactory(ResultCallAdapterFactory())
         .client(client)
         .build()
 

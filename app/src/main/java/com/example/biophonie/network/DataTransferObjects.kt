@@ -62,10 +62,6 @@ data class NetworkAuthUser(
 @JsonClass(generateAdapter = true)
 data class AccessToken(val token: String)
 
-fun NetworkUser.asDomainModel(): TutorialViewModel.User {
-    return TutorialViewModel.User(name, userId, password)
-}
-
 fun NetworkGeoPoint.asDomainModel(): GeoPoint{
     return GeoPoint(
         id = id,

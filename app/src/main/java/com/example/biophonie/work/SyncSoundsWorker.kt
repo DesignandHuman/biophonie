@@ -14,23 +14,22 @@ private const val TAG = "SyncSoundsWorker"
 class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
-        Log.d(TAG, "doWork: ")
         initPrefs(applicationContext)
         val database = GeoPointDatabase.getInstance(applicationContext)
         val repository = GeoPointRepository(database)
+        val newGeoPoints = database.geoPointDao.getNewGeoPoints()
+
         var finalResult = true
-        try {
-            val newGeoPoints = database.geoPointDao.getNewGeoPoints()
-            for (geoPoint in newGeoPoints){
-                val success = repository.postNewGeoPoint(geoPoint)
-                Log.d(TAG, "doWork: geopoint ${geoPoint.title} success? $success")
-                if (!success) finalResult = false && continue
-            }
-        } catch (e: HttpException) {
-            Log.d(TAG, "doWork: failure")
-            return Result.failure()
+
+        for (geoPoint in newGeoPoints){
+            repository.postNewGeoPoint(geoPoint)
+                .onSuccess { Log.d(TAG, "doWork: geopoint ${geoPoint.title} posted") }
+                .onFailure {
+                    finalResult = false
+                    Log.d(TAG, "doWork: post geopoint ${geoPoint.title} failed with ${it.message}")
+                }
         }
-        return if(finalResult) Result.success() else Result.failure()
+        return if (finalResult) Result.success() else Result.failure()
     }
 
     companion object {

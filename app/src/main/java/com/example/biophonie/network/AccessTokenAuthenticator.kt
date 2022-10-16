@@ -16,13 +16,13 @@ class AccessTokenAuthenticator: Authenticator {
     }
 
     private fun Response.createSignedRequest(): Request? {
-        var newToken: AccessToken?
+        var signedRequest: Request? = null
         runBlocking {
-            newToken = repository.fetchAccessToken()
+            repository.fetchAccessToken()
+                .onSuccess { signedRequest = request.signWithToken(it.token) }
+                .onFailure { signedRequest = null }
         }
-        return if (newToken != null) {
-            request.signWithToken(newToken!!.token)
-        } else null
+        return signedRequest
     }
 }
 
