@@ -2,14 +2,12 @@ package com.example.biophonie.viewmodels
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
 import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.database.GeoPointDatabase.Companion.getInstance
-import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.repositories.GeoPointRepository
 import kotlinx.coroutines.launch
 
@@ -27,15 +25,15 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
         extras?.let {
             val date = extras.getString("date")
             val soundPath = extras.getString("soundPath")
-            // if from template
-            val landscapePath = extras.getString("landscapePath")!!.removePrefix("/drawable/")
+            val templatePath = extras.getString("templatePath")?.apply { removePrefix("/drawable/") }
+            val landscapePath = extras.getString("landscapePath")
             val amplitudes = extras.getFloatArray("amplitudes")
             val latitude = extras.getDouble("latitude")
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
                 repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes!!.toList(), latitude, longitude,
-                    landscapePath, soundPath!!))
+                    if (!templatePath.isNullOrEmpty()) templatePath else landscapePath, soundPath!!))
             }
         }
     }

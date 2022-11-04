@@ -43,12 +43,14 @@ val templates: Map<String, Int> = mapOf(
 )
 
 @BindingAdapter("uri")
-fun setImageUri(view: AppCompatImageView, imageUri: Uri){
-    Glide.with(view.context)
-        .load(imageUri)
-        /*.placeholder(R.drawable.ic_pine)*/
-        .transition(DrawableTransitionOptions.withCrossFade())
-        .into(view)
+fun setImageUri(view: AppCompatImageView, imageUri: Uri?){
+    imageUri?.let {
+        Glide.with(view.context)
+            .load(it)
+            /*.placeholder(R.drawable.ic_pine)*/
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(view)
+    }
 }
 
 @BindingAdapter("resource")

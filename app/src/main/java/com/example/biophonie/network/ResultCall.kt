@@ -25,7 +25,7 @@ class ResultCall<T>(private val delegate: Call<T>) :
                             )
                         )
                     } else {
-                        val throwable: Throwable = when (response.code()) {
+                        val throwable: Throwable = when (response.code()) { //TODO get error message
                             HTTP_BAD_REQUEST -> BadRequestThrowable(response.message())
                             HTTP_CONFLICT -> ConflictThrowable(response.message())
                             HTTP_NOT_FOUND -> NotFoundThrowable(response.message())

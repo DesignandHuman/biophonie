@@ -189,7 +189,7 @@ class BottomPlayerFragment : Fragment() {
             bottomSheetBehavior.state = it
         }
         viewModel.eventNetworkError.observe(viewLifecycleOwner) {
-            if(!viewModel.isNetworkErrorShown.value!!) {
+            if(viewModel.isNetworkErrorShown.value != true) {
                 Toast.makeText(activity, it, Toast.LENGTH_LONG).show()
                 viewModel.onNetworkErrorShown()
             }

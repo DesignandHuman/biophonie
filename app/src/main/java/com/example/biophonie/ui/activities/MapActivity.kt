@@ -193,7 +193,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             if (!it.isNullOrEmpty()) {
                 for (geoPoint in it) {
                     symbolLayerIconFeatureList.add(
-                        Feature.fromGeometry( //todo changethis
+                        Feature.fromGeometry(
                             Point.fromLngLat(geoPoint.coordinates.longitude, geoPoint.coordinates.latitude)
                         ).apply {
                             addStringProperty(PROPERTY_NAME, geoPoint.title)
@@ -480,7 +480,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onMoveEnd(detector: MoveGestureDetector) {}
 
     override fun onIndicatorPositionChanged(point: Point) {
-        mapboxMap.setCamera(CameraOptions.Builder().center(point).build())
+        mapboxMap.setCamera(CameraOptions.Builder().center(point).zoom(10.0).build())
         binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
     }
 

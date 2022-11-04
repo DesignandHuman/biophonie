@@ -2,7 +2,6 @@ package com.example.biophonie.viewmodels
 
 import android.app.Application
 import android.content.ContentResolver
-import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -11,21 +10,17 @@ import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.example.biophonie.R
+import com.example.biophonie.templateIds
 import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
-import okhttp3.internal.UTC
 import java.io.File
 import java.io.IOException
-import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.*
 
 private const val TAG = "RecViewModel"
-const val REQUEST_CAMERA = 0
-const val REQUEST_GALLERY = 1
 class RecViewModel(application: Application) : AndroidViewModel(application), DefaultRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null
@@ -37,10 +32,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private lateinit var currentSoundPath: String
     private lateinit var coordinates: Point
     var currentId: Int = 0
-    val defaultDrawableIds = listOf(R.drawable.forest, R.drawable.swamp, R.drawable.mountain, R.drawable.sea)
-    val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
 
-    private val _landscapeUri = MutableLiveData(getResourceUri(defaultDrawableIds[0]))
+    private val _landscapeUri = MutableLiveData(getResourceUri(templateIds[0]))
     val landscapeUri: LiveData<Uri>
         get() = _landscapeUri
 
@@ -124,7 +117,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     fun onClickDefault(i: Int) {
         updateFromDefault(true)
         currentId = i
-        _landscapeUri.value = getResourceUri(defaultDrawableIds[i])
+        _landscapeUri.value = getResourceUri(templateIds[i])
     }
 
     private fun getResourceUri(@DrawableRes id: Int) =
@@ -189,8 +182,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             else {
                 var landscapePath = ""
                 var templatePath = ""
-                if (_fromDefault.value == true) landscapePath = _landscapeUri.value!!.path!!
-                else templatePath = getApplication<Application>().applicationContext.resources.getResourceEntryName(currentId)
+                if (_fromDefault.value == false) landscapePath = currentPhotoPath
+                else templatePath = getApplication<Application>().applicationContext.resources.getResourceEntryName(templateIds[currentId])
                 _result.value =
                     Result(it, instant, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
             }

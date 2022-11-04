@@ -28,7 +28,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, TutorialActivity::class.java))
         }
         initPrefs()
-        runBlocking { launch { ClientWeb.webService.pingRestricted() } }
         checkTutorial()
     }
 

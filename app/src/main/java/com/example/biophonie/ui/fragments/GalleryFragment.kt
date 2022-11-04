@@ -25,14 +25,12 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.biophonie.R
+import com.example.biophonie.*
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
 import com.example.biophonie.ui.GridItemDecoration
 import com.example.biophonie.ui.LandscapesAdapter
-import com.example.biophonie.viewmodels.REQUEST_CAMERA
-import com.example.biophonie.viewmodels.REQUEST_GALLERY
 import com.example.biophonie.viewmodels.RecViewModel
 
 private const val TAG = "GalleryFragment"
@@ -104,9 +102,9 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setUpRecyclerView(){
-        defaultLandscapes = viewModel.defaultDrawableIds.mapIndexed { index, id ->
+        defaultLandscapes = templateIds.mapIndexed { index, id ->
             Landscape(ResourcesCompat.getDrawable(resources, id, requireActivity().theme)!!,
-                viewModel.defaultLandscapeTitle[index]
+                templateTitles[index]
             )
         }
         viewManager = GridLayoutManager(context,2)
