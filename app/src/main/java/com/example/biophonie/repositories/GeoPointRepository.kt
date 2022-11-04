@@ -73,8 +73,8 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
                 val pictureFile = File(geoPoint.picture)
                 ClientWeb.webService.postNewGeoPoint(
                     geoPoint.asNetworkModel(),
-                    MultipartBody.Part.createFormData("sound",null,soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
-                    MultipartBody.Part.createFormData("picture",null,pictureFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
+                    MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
+                    MultipartBody.Part.createFormData("picture","picture.jpg",pictureFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
                 )
             }
             launch { result.getOrNull()?.let { syncGeoPoint(geoPoint.id, it) } }

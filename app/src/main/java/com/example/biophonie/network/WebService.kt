@@ -35,7 +35,7 @@ interface WebService {
     @POST("/api/v1/restricted/geopoint")
     suspend fun postNewGeoPoint(@Part("geopoint") geoPoint: NetworkAddGeoPoint,
                                 @Part sound: MultipartBody.Part,
-                                @Part image: MultipartBody.Part?
+                                @Part picture: MultipartBody.Part?
     ): Result<NetworkGeoPoint>
 }
 
