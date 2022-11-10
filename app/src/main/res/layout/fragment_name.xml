@@ -17,18 +17,29 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"/>
 
-    <androidx.appcompat.widget.AppCompatEditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/name"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:padding="16dp"
-        android:inputType="text"
-        android:textColor="@color/colorAccent"
-        android:hint="@string/georges"
-        android:textSize="@dimen/default_font_size"
+        android:layout_marginHorizontal="30dp"
+        app:hintEnabled="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/description_name"/>
+        app:layout_constraintTop_toBottomOf="@id/description_name">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/name_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:maxLength="30"
+            android:padding="16dp"
+            android:textAppearance="@style/MyTextAppearance"
+            android:textColor="@color/colorAccent"
+            android:hint="@string/georges"
+            android:textSize="@dimen/default_font_size"
+            android:inputType="textShortMessage"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

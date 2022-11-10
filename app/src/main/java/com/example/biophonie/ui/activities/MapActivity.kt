@@ -1,95 +1,83 @@
 package com.example.biophonie.ui.activities
 
+import android.Manifest.permission.*
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.app.ApplicationErrorReport
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.IntentSender
-import android.graphics.PointF
-import android.graphics.RectF
-import android.location.Criteria
-import android.location.Location
-import android.location.LocationListener
-import android.location.LocationManager
+import android.content.pm.PackageManager.PERMISSION_GRANTED
+import android.graphics.*
+import android.location.*
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
+import com.example.biophonie.util.CustomLocationProvider
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
-import com.example.biophonie.viewmodels.PROPERTY_CACHE
 import com.example.biophonie.viewmodels.PROPERTY_ID
 import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
-import com.google.android.gms.common.api.GoogleApiClient
-import com.google.android.gms.common.api.ResolvableApiException
-import com.google.android.gms.location.LocationRequest
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.location.LocationSettingsRequest
-import com.google.android.gms.location.SettingsClient
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.android.core.permissions.PermissionsListener
 import com.mapbox.android.core.permissions.PermissionsManager
+import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.Point
-import com.mapbox.mapboxsdk.Mapbox
-import com.mapbox.mapboxsdk.geometry.LatLng
-import com.mapbox.mapboxsdk.location.LocationComponent
-import com.mapbox.mapboxsdk.location.LocationComponentActivationOptions
-import com.mapbox.mapboxsdk.location.LocationComponentOptions
-import com.mapbox.mapboxsdk.location.OnCameraTrackingChangedListener
-import com.mapbox.mapboxsdk.location.modes.CameraMode
-import com.mapbox.mapboxsdk.location.modes.RenderMode
-import com.mapbox.mapboxsdk.maps.MapboxMap
-import com.mapbox.mapboxsdk.maps.OnMapReadyCallback
-import com.mapbox.mapboxsdk.maps.Style
-import com.mapbox.mapboxsdk.style.expressions.Expression.*
-import com.mapbox.mapboxsdk.style.layers.Property.TEXT_ANCHOR_LEFT
-import com.mapbox.mapboxsdk.style.layers.PropertyFactory.*
-import com.mapbox.mapboxsdk.style.layers.PropertyValue
-import com.mapbox.mapboxsdk.style.layers.SymbolLayer
-import com.mapbox.mapboxsdk.style.sources.GeoJsonSource
-import com.mapbox.mapboxsdk.utils.BitmapUtils
-import kotlinx.android.synthetic.main.activity_map.*
+import com.mapbox.maps.*
+import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
+import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
+import com.mapbox.maps.extension.style.expressions.dsl.generated.*
+import com.mapbox.maps.extension.style.image.image
+import com.mapbox.maps.extension.style.layers.generated.*
+import com.mapbox.maps.extension.style.layers.getLayerAs
+import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
+import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
+import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
+import com.mapbox.maps.extension.style.sources.getSourceAs
+import com.mapbox.maps.extension.style.style
+import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.animation.camera
+import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
+import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
+import com.mapbox.maps.plugin.gestures.*
+import com.mapbox.maps.plugin.locationcomponent.*
+import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
+import java.util.function.Consumer
 
-private const val TAG = "MapActivity"
-private const val ID_ICON: String = "biophonie.icon"
-private const val ID_ICON_CACHE: String = "biophonie.icon.grey"
-private const val ID_SOURCE: String = "biophonie.remote"
-private const val ID_LAYER: String = "biophonie.sound"
-private const val PROPERTY_SELECTED: String = "selected"
-private const val FRAGMENT_TAG: String = "fragment"
-private const val REQUEST_SETTINGS_TRACKING = 0x1
-private const val REQUEST_SETTINGS_SINGLE_UPDATE = 0x2
-private const val REQUEST_ADD_SOUND = 0x3
+private const val REQUEST_RECORD: Int = 0x01
+private const val REQUEST_LOCATION: Int = 0x02
 
-class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReadyCallback,
-    PermissionsListener {
+class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
 
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory(this)).get(MapViewModel::class.java)
     }
-    private lateinit var permissionsManager: PermissionsManager
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
-    private lateinit var geoPointsFeatures: MutableList<Feature>
+    private lateinit var customLocationProvider: CustomLocationProvider
+
+    private var trackingExpected = false
+    private var tracking = false
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
     private var about: AboutFragment = AboutFragment()
     private val gpsReceiver = GPSCheck(object : GPSCheck.LocationCallBack {
@@ -99,57 +87,124 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
         @SuppressLint("MissingPermission")
         override fun turnedOff() {
-            if (mapboxMap.locationComponent.isLocationComponentActivated)
-                mapboxMap.locationComponent.isLocationComponentEnabled = false
+            tracking = false
+            binding.mapView.location.enabled = false
             binding.locationFab.setImageResource(R.drawable.ic_baseline_location_disabled)
         }
     })
 
+    private val locationSettings = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val data: Intent? = result.data
+            if (data?.extras != null) {
+                viewModel.requestAddGeoPoint(data.extras)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        Mapbox.getInstance(this, getString(R.string.mapbox_access_token))
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
+        setUpMapbox()
         setUpFabResource()
         addBottomPlayerFragment()
-        bindMap(savedInstanceState)
+        bindScaleView()
         setOnClickListeners()
     }
 
+    private fun setUpMapbox() {
+        this.mapboxMap = binding.mapView.getMapboxMap().apply {
+            loadStyle(
+                style(styleUri = getString(R.string.style_url)) {
+                    +geoJsonSource(id = "$REMOTE.$SOURCE") {
+                        url(getString(R.string.geojson_url))
+                        cluster(false)
+                    }
+                    +geoJsonSource("$CACHE.$SOURCE")
+                    +image(imageId = "$REMOTE.$ICON") {
+                        bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_marker))
+                    }
+                    +image(imageId = "$CACHE.$ICON") {
+                        bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_syncing))
+                    }
+                    +symbolLayer(layerId = "$REMOTE.$LAYER", sourceId = "$REMOTE.$SOURCE") {
+                        buildProperties(0.5, "Regular", REMOTE)
+                    }
+                    +symbolLayer(layerId = "$REMOTE.$LAYER.$SELECTED", sourceId = "$REMOTE.$SOURCE") {
+                        buildProperties(0.7, "Bold", REMOTE)
+                        filter(boolean{
+                            get(PROPERTY_ID)
+                            literal(false)})
+                    }
+                    +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
+                        buildProperties(0.6, "Regular", CACHE)
+                    }
+                    +symbolLayer(layerId = "$CACHE.$LAYER.$SELECTED", sourceId = "$CACHE.$SOURCE") {
+                        buildProperties(0.8, "Bold", CACHE)
+                        filter(boolean{
+                            get(PROPERTY_ID)
+                            literal(false)})
+                    }
+                },
+                {
+                    // on style loaded
+                },
+                object : OnMapLoadErrorListener {
+                    override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                        Log.i(TAG, "onMapLoadError: could not refresh sounds, retry later")
+                    }
+                }
+            )
+            addOnMapClickListener(this@MapActivity)
+            addOnCameraChangeListener(this@MapActivity)
+            setDataObservers()
+        }
+        binding.mapView.scalebar.enabled = false
+        binding.mapView.location.updateSettings {
+            locationPuck = LocationPuck2D(
+                bearingImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.bearing),
+                topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
+            )
+        }
+    }
+
+    private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String) {
+        iconImage(literal("$origin.$ICON"))
+        iconSize(iconSize)
+        textFont(listOf("IBM Plex Mono $fontFamily"))
+        iconOpacity(1.0)
+        iconAllowOverlap(true)
+        iconPadding(.0)
+        textColor(literal(String.format("#%06X", 0xFFFFFF and resources.getColor(
+            if (origin == REMOTE) R.color.colorAccent
+            else R.color.colorPrimaryDark
+            , theme))))
+        textField("{name}")
+        textSize(12.0)
+        textOffset(listOf(0.8, -0.05))
+        textAnchor(TextAnchor.LEFT)
+        textOptional(true)
+    }
+
     private fun setDataObservers() {
-        viewModel.newSounds.observe(this, Observer {
+        viewModel.newGeoPoints.observe(this) {
             val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-            if (!viewModel.newSounds.value.isNullOrEmpty()) {
-                for (i in viewModel.newSounds.value!!) {
+            if (!it.isNullOrEmpty()) {
+                for (geoPoint in it) {
                     symbolLayerIconFeatureList.add(
                         Feature.fromGeometry(
-                            Point.fromLngLat(i.longitude, i.latitude)
+                            Point.fromLngLat(geoPoint.coordinates.longitude, geoPoint.coordinates.latitude)
                         ).apply {
-                            addStringProperty(PROPERTY_NAME, i.title)
-                            addStringProperty(PROPERTY_ID, i.id)
-                            addBooleanProperty(PROPERTY_CACHE, true)
+                            addStringProperty(PROPERTY_NAME, geoPoint.title)
+                            addNumberProperty(PROPERTY_ID, geoPoint.id)
                         }
                     )
                 }
-                //This is only to avoid duplicates inside geoPointsFeatures
-                var firstCache = 0
-                for (feature in geoPointsFeatures) {
-                    if (feature.getBooleanProperty(PROPERTY_CACHE))
-                        break
-                    firstCache++
-                }
-                if (firstCache != geoPointsFeatures.size) {
-                    geoPointsFeatures =
-                        geoPointsFeatures.subList(0, firstCache)
-                }
-                geoPointsFeatures.plusAssign(symbolLayerIconFeatureList)
-                mapboxMap.getStyle {
-                    (it.getSource(ID_SOURCE) as GeoJsonSource).setGeoJson(
-                        FeatureCollection.fromFeatures(geoPointsFeatures)
-                    )
-                }
+                mapboxMap.getStyle()?.getSourceAs<GeoJsonSource>("$CACHE.$SOURCE")
+                    ?.featureCollection(FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
             }
-        })
+        }
     }
 
     private fun setUpFabResource(){
@@ -160,71 +215,50 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
     }
 
     private fun trackLocation(){
-        mapboxMap.getStyle {
-            enableLocationComponent(it)
-            val locationComponent = mapboxMap.locationComponent
-            locationComponent.addOnCameraTrackingChangedListener(object :
-                OnCameraTrackingChangedListener {
-                override fun onCameraTrackingChanged(currentMode: Int) {
-                    when (currentMode) {
-                        CameraMode.TRACKING -> binding.locationFab.setImageResource(R.drawable.ic_baseline_my_location)
-                        else -> binding.locationFab.setImageResource(R.drawable.ic_baseline_location_searching)
-                    }
-                }
+        trackingExpected
+        tracking = true
+        enableLocationProvider()
+        binding.mapView.run {
+            location.addOnIndicatorPositionChangedListener(this@MapActivity)
+            gestures.addOnMoveListener(this@MapActivity)
+        }
+        binding.locationFab.setImageResource(R.drawable.ic_baseline_music_note)
+    }
 
-                override fun onCameraTrackingDismissed() {
-                }
-            })
-
-            // Enable to make component visible
-            locationComponent.cameraMode = CameraMode.TRACKING
+    private val launchRecCallback = Consumer<Location> { location ->
+        location?.let {
+            launchRecActivity(location)
+        }
+    }
+    private val playClosestCallback = Consumer<Location> { location ->
+        location?.let {
+            bottomPlayer.displayClosestGeoPoint(Coordinates(location.altitude,location.longitude))
         }
     }
 
-    object SingleShotLocationProvider {
-        @SuppressLint("MissingPermission")
-        fun requestSingleUpdate(
-            context: Context,
-            callback: LocationCallback
-        ) {
-            val locationManager =
-                context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            val criteria = Criteria()
-            criteria.accuracy = Criteria.ACCURACY_FINE
-            locationManager.requestSingleUpdate(criteria, object : LocationListener {
-                override fun onLocationChanged(location: Location) =
-                    callback.onNewLocationAvailable(
-                        location
-                    )
-
-                override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {}
-                override fun onProviderEnabled(provider: String?) {}
-                override fun onProviderDisabled(provider: String?) {}
-            }, null)
+    @SuppressLint("MissingPermission") //TODO there may be a better way to distinguish between build versions
+    private fun retrieveLocation(callback: Consumer<Location>, listener: LocationListener){
+        val locationManager =
+            this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,null,this.mainExecutor,callback)
+        } else {
+            locationManager.requestSingleUpdate(Criteria(), listener, null)
         }
     }
 
-    interface LocationCallback {
-        fun onNewLocationAvailable(location: Location)
-    }
-
-    private fun launchRecActivity(){
+    private fun launchRecActivity(location: Location) {
+        binding.rec.isEnabled = false
         Toast.makeText(this, "Acquisition de la position en cours", Toast.LENGTH_SHORT)
             .show()
-        SingleShotLocationProvider.requestSingleUpdate(this,
-            object : LocationCallback {
-                override fun onNewLocationAvailable(location: Location) {
-                    startActivityForResult(
-                        Intent(this@MapActivity, RecSoundActivity::class.java).apply {
-                            putExtras(Bundle().apply {
-                                putDouble("latitude", location.latitude)
-                                putDouble("longitude", location.longitude)
-                            })
-                        },
-                        REQUEST_ADD_SOUND
-                    )
-                }
-            })
+        locationSettings.launch(
+            Intent(this@MapActivity, RecSoundActivity::class.java).apply {
+                putExtras(Bundle().apply {
+                    putDouble("latitude", location.latitude)
+                    putDouble("longitude", location.longitude)
+                })
+            },
+        )
     }
 
     private fun setOnClickListeners() {
@@ -236,168 +270,60 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         }
         binding.locationFab.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this))
-                activateLocationSettings(REQUEST_SETTINGS_TRACKING, ::trackLocation)
+                if (isGPSEnabled(this)) {
+                    if (tracking) retrieveLocation(playClosestCallback) { bottomPlayer.displayClosestGeoPoint(
+                        Coordinates(it.latitude,it.longitude)
+                    ) }
+                    else trackLocation()
+                } else {
+                    askLocationSettings()
+                }
             else {
-                permissionsManager = PermissionsManager(this)
-                permissionsManager.requestLocationPermissions(this)
+                trackingExpected = true
+                ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
             }
         }
         binding.rec.setOnClickListener {
-            if (PermissionsManager.areLocationPermissionsGranted(this)){
-                it.isEnabled = false
-                activateLocationSettings(REQUEST_SETTINGS_SINGLE_UPDATE, ::launchRecActivity)
-            } else {
-                permissionsManager = PermissionsManager(this)
-                permissionsManager.requestLocationPermissions(this)
+            if (ContextCompat.checkSelfPermission(this, RECORD_AUDIO)
+                != PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), REQUEST_RECORD)
+                trackingExpected = false
+                return@setOnClickListener
             }
-        }
-    }
-
-    private fun createLocationRequest(): LocationRequest? =
-        LocationRequest.create()?.apply {
-            interval = 10000
-            fastestInterval = 3000
-            priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        }
-
-    private fun activateLocationSettings(requestCode: Int, onSuccess: () -> Unit){
-        val googleApiClient = GoogleApiClient.Builder(this).addApi(LocationServices.API).build()
-        googleApiClient.connect()
-        val builder = createLocationRequest()?.let {
-            LocationSettingsRequest.Builder()
-                .addLocationRequest(it).apply { setAlwaysShow(true) }
-        }
-        val client: SettingsClient = LocationServices.getSettingsClient(this)
-        client.checkLocationSettings(builder?.build()).apply {
-            addOnSuccessListener {
-                onSuccess()
-            }
-            addOnFailureListener {
-                if (exception is ResolvableApiException){
-                    try {
-                        (exception as ResolvableApiException).startResolutionForResult(
-                            this@MapActivity,
-                            requestCode
-                        )
-                    } catch (sendEx: IntentSender.SendIntentException) { }
+            if (PermissionsManager.areLocationPermissionsGranted(this)) {
+                if (isGPSEnabled(this)) {
+                    retrieveLocation(launchRecCallback) { launchRecActivity(it) }
+                } else {
+                    askLocationSettings()
                 }
+            } else {
+                trackingExpected = false
+                ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
             }
         }
     }
 
-    @SuppressLint("MissingPermission")
-    private fun enableLocationComponent(loadedMapStyle: Style) {
-        val locationComponent: LocationComponent = mapboxMap.locationComponent
-        // Activate with options
-        locationComponent.activateLocationComponent(
-            LocationComponentActivationOptions.builder(this, loadedMapStyle)
-                .locationComponentOptions(styleLocation())
-                .build()
-        )
-        locationComponent.renderMode = RenderMode.COMPASS
-        locationComponent.isLocationComponentEnabled = true
-    }
-
-    private fun styleLocation(): LocationComponentOptions =
-        LocationComponentOptions.builder(this)
-            .foregroundDrawable(R.drawable.ic_location)
-            .backgroundTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.colorPrimary,
-                    theme
-                )
-            )
-            .bearingDrawable(R.drawable.bearing)
-            .bearingTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.colorAccent,
-                    theme
-                )
-            )
-            .foregroundStaleTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.design_default_color_background,
-                    theme
-                )
-            )
-            .backgroundStaleTintColor(
-                ResourcesCompat.getColor(
-                    resources,
-                    R.color.colorPrimaryDark,
-                    theme
-                )
-            )
-            .accuracyColor(R.color.colorPrimaryDark)
-            .elevation(0F)
-            .trackingGesturesManagement(true)
-            .build()
-
-    /**
-     * Unused but might be useful with devices not linked to GooglePlay
-     *
-     */
-    private fun askLocationSettings(){
+    private fun askLocationSettings() {
         AlertDialog.Builder(this).apply {
             setTitle("Paramètres GPS")
             setMessage("Le GPS n'est pas actif. Voulez-vous l'activer dans les menus ?")
             setPositiveButton("Paramètres") { _, _ ->
-                startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                locationSettings.launch(intent)
             }
-
-            setNegativeButton("Annuler") { dialog, _ -> dialog.cancel()}
+            setNegativeButton("Annuler") { dialog, _ -> dialog.cancel() }
             show()
         }
     }
 
-    private fun handleClickIcon(screenPoint: PointF?): Boolean {
-        var rectF: RectF? = null
-        screenPoint?.let {rectF = RectF(
-            screenPoint.x - 10,
-            screenPoint.y - 10,
-            screenPoint.x + 10,
-            screenPoint.y + 10
-        ) }
-        val features: List<Feature> =
-            rectF?.let { mapboxMap.queryRenderedFeatures(
-                it,
-                ID_LAYER
-            ) } as List<Feature>
-        return if (features.isNotEmpty()) displayFeature(features)
-        else false
-    }
-
-    private fun displayFeature(features: List<Feature>): Boolean {
-        val clickedFeature = features.firstOrNull { it.geometry() is Point }
-        clickedFeature?.let { feature ->
-            geoPointsFeatures.map { it.addBooleanProperty(PROPERTY_SELECTED, false) }
-            geoPointsFeatures.first { it.getStringProperty(PROPERTY_ID) == clickedFeature.getStringProperty(
-                PROPERTY_ID
-            ) }.addBooleanProperty(PROPERTY_SELECTED, true)
-            mapboxMap.style?.getSourceAs<GeoJsonSource>(ID_SOURCE)?.setGeoJson(
-                FeatureCollection.fromFeatures(geoPointsFeatures)
-            )
-            val clickedPoint = feature.geometry() as Point
-                bottomPlayer.clickOnGeoPoint(
-                    clickedFeature.getStringProperty(PROPERTY_ID),
-                    clickedFeature.getStringProperty(PROPERTY_NAME),
-                    LatLng(clickedPoint.latitude(), clickedPoint.longitude())
-                )
-                return true
+    private fun enableLocationProvider() {
+        if (!this::customLocationProvider.isInitialized) {
+            customLocationProvider = CustomLocationProvider(this)
+            binding.mapView.location.setLocationProvider(customLocationProvider)
         }
-        return false
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK){
-            when (requestCode){
-                REQUEST_SETTINGS_TRACKING -> trackLocation()
-                REQUEST_SETTINGS_SINGLE_UPDATE -> launchRecActivity()
-                REQUEST_ADD_SOUND -> viewModel.requestAddSound(data?.extras)
-                else -> return
+        binding.mapView.location.run {
+            updateSettings {
+                enabled = true
             }
         }
     }
@@ -407,27 +333,28 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         permissions: Array<String?>,
         grantResults: IntArray
     ) {
-        permissionsManager.onRequestPermissionsResult(requestCode, permissions, grantResults)
-    }
-
-    override fun onExplanationNeeded(permissionsToExplain: List<String?>?) {
-        Toast.makeText(this, R.string.location_permission_explanation, Toast.LENGTH_LONG)
-            .show()
-    }
-
-    override fun onPermissionResult(granted: Boolean) {
-        if (granted) {
-            mapboxMap.getStyle { style -> enableLocationComponent(style) }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
+            when (requestCode) {
+                REQUEST_RECORD -> {
+                    if (PermissionsManager.areLocationPermissionsGranted(this))
+                        retrieveLocation(launchRecCallback) {launchRecActivity(it)}
+                    else
+                        ActivityCompat.requestPermissions(this,arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
+                }
+                REQUEST_LOCATION -> {
+                    if (trackingExpected) trackLocation()
+                    else retrieveLocation(launchRecCallback) {launchRecActivity(it)}
+                }
+            }
         } else {
-            Toast.makeText(this, R.string.location_permission_not_granted, Toast.LENGTH_LONG)
+            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG)
                 .show()
         }
     }
 
-    private fun bindMap(savedInstanceState: Bundle?) {
+    private fun bindScaleView() {
         binding.apply {
-            mapView.onCreate(savedInstanceState)
-            mapView.getMapAsync(this@MapActivity)
             scaleView.metersOnly()
             scaleView.setTextFont(getFont(this@MapActivity, R.font.ibm_plex_mono))
         }
@@ -447,133 +374,9 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
             bottomPlayer = previousFragment
     }
 
-    // For a future research function...
-    fun setFeaturesListener(){
-        viewModel.features.observe(this, Observer<List<Feature>> { features ->
-            mapboxMap.getStyle {
-                it.addSource(
-                    GeoJsonSource(
-                        ID_SOURCE, FeatureCollection.fromFeatures(
-                            features
-                        )
-                    )
-                )
-            }
-        })
-    }
-
-    override fun onMapReady(mapboxMap: MapboxMap) {
-        this.mapboxMap = mapboxMap
-        geoPointsFeatures = (viewModel.features.value as MutableList<Feature>?)!!
-        val properties = buildPropertyValues()
-        mapboxMap.getStyle { Log.d(TAG, "onMapReady: ${it.json}") }
-        mapboxMap.addOnCameraMoveListener{ updateScaleBar(mapboxMap) }
-        mapboxMap.addOnCameraIdleListener{ updateScaleBar(mapboxMap)}
-        //val url: URI = URI.create("https://biophonie.fr/geojson")
-        mapboxMap.setStyle(
-            Style.Builder().fromUri(getString(R.string.style_url))
-                .withImage(
-                    ID_ICON, BitmapUtils.getBitmapFromDrawable(
-                        ResourcesCompat.getDrawable(
-                            resources,
-                            R.drawable.ic_marker,
-                            theme
-                        )
-                    )!!
-                )
-                .withImage(
-                    ID_ICON_CACHE, BitmapUtils.getBitmapFromDrawable(
-                        ResourcesCompat.getDrawable(
-                            resources,
-                            R.drawable.ic_syncing,
-                            theme
-                        )
-                    )!!
-                )
-                .withSource(
-                    GeoJsonSource(
-                        ID_SOURCE,
-                        FeatureCollection.fromFeatures(geoPointsFeatures)
-                    )
-                )
-                .withLayers(
-                    SymbolLayer(ID_LAYER, ID_SOURCE)
-                        .withProperties(*properties)
-                )
-        ) {
-            Log.d(TAG, "onMapReady: ${it.json}")
-            //LoadGeoJsonDataTask(this).execute()
-            mapboxMap.addOnMapClickListener(this)
-            setDataObservers()
-        }
-    }
-
-    private fun buildPropertyValues(): Array<PropertyValue<out Any>> {
-        return arrayOf(
-            iconImage(
-                switchCase(
-                    eq(get(PROPERTY_CACHE), true), literal(ID_ICON_CACHE),
-                    eq(get(PROPERTY_CACHE), false), literal(ID_ICON),
-                    literal(ID_ICON_CACHE)
-                )
-            ),
-            iconOpacity(1f),
-            iconSize(
-                switchCase(
-                    eq(get(PROPERTY_SELECTED), true), literal(0.7f),
-                    eq(get(PROPERTY_SELECTED), false), literal(0.5f),
-                    literal(0.5f)
-                )
-            ),
-            iconAllowOverlap(false),
-            iconIgnorePlacement(false),
-            textFont(
-                switchCase(
-                    eq(get(PROPERTY_SELECTED), true), literal(arrayOf("IBM Plex Mono Bold")),
-                    eq(get(PROPERTY_SELECTED), false), literal(arrayOf("IBM Plex Mono Regular")),
-                    literal(arrayOf("IBM Plex Mono Regular"))
-                )
-            ),
-            textColor(
-                switchCase(
-                    eq(get(PROPERTY_CACHE), true), literal(
-                        String.format(
-                            "#%06X",
-                            0xFFFFFF and resources.getColor(R.color.colorPrimaryDark, theme)
-                        )
-                ),
-                eq(get(PROPERTY_CACHE), false), literal(
-                        String.format(
-                            "#%06X",
-                            0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
-                        )
-                ),
-                literal(String.format(
-                    "#%06X",
-                    0xFFFFFF and resources.getColor(R.color.colorAccent, theme)
-                ))
-            )
-        ),
-            textField("{name}"),
-            textSize(switchCase(
-                eq(get(PROPERTY_SELECTED), true), literal(14f),
-                eq(get(PROPERTY_SELECTED), false), literal(12f),
-                literal(12f)
-            )),
-            textOffset(arrayOf(0.8f, -0.05f)),
-            textAnchor(TEXT_ANCHOR_LEFT),
-            textIgnorePlacement(false),
-            textAllowOverlap(false)
-        )
-    }
-
     private fun updateScaleBar(mapboxMap: MapboxMap) {
-        val cameraPosition = mapboxMap.cameraPosition
-        scaleView.update(cameraPosition.zoom.toFloat(), cameraPosition.target.latitude)
-    }
-
-    override fun onMapClick(point: LatLng): Boolean {
-        return handleClickIcon(mapboxMap.projection.toScreenLocation(point))
+        val cameraState = mapboxMap.cameraState
+        binding.scaleView.update(cameraState.zoom.toFloat(), cameraState.center.latitude())
     }
 
     override fun onBackPressed() {
@@ -586,21 +389,18 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
 
     override fun onStart() {
         super.onStart()
-        binding.mapView.onStart()
+        registerReceiver(gpsReceiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
     }
 
     override fun onResume() {
         super.onResume()
         binding.rec.isEnabled = true
-        binding.mapView.onResume()
-        registerReceiver(gpsReceiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
         syncToServer()
     }
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
 
     private fun setUpOnTimeWork(){
-        Log.d(TAG, "setUpOnTimeWork: syncing to server")
         val constraints = Constraints.Builder()
             .setRequiredNetworkType(NetworkType.CONNECTED)
             .setRequiresBatteryNotLow(true)
@@ -619,30 +419,88 @@ class MapActivity : FragmentActivity(), MapboxMap.OnMapClickListener, OnMapReady
         applicationScope.launch { setUpOnTimeWork() }
     }
 
-    override fun onPause() {
-        super.onPause()
-        binding.mapView.onPause()
-        unregisterReceiver(gpsReceiver)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        binding.mapView.onStop()
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        super.onSaveInstanceState(outState)
-        binding.mapView.onSaveInstanceState(outState)
-    }
-
-    override fun onLowMemory() {
-        super.onLowMemory()
-        binding.mapView.onLowMemory()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
-        mapboxMap.removeOnMapClickListener(this)
-        binding.mapView.onDestroy()
+        unregisterReceiver(gpsReceiver)
+        onCameraTrackingDismissed()
+    }
+
+    override fun onCameraChanged(eventData: CameraChangedEventData) {
+        updateScaleBar(mapboxMap)
+    }
+
+    override fun onMapClick(point: Point): Boolean {
+        val screenCoor = mapboxMap.pixelForCoordinate(point)
+
+        mapboxMap.queryRenderedFeatures(
+            RenderedQueryGeometry(
+                ScreenBox(
+                    ScreenCoordinate(screenCoor.x-10,screenCoor.y-10),
+                    ScreenCoordinate(screenCoor.x+10,screenCoor.y+10)
+                )
+            ),
+            RenderedQueryOptions(listOf("$REMOTE.$LAYER", "$REMOTE.$LAYER.$SELECTED", "$CACHE.$LAYER", "$CACHE.$LAYER.$SELECTED"), literal(true)))
+        { expected ->
+            val features = expected.value
+            val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
+            clickedFeature?.feature?.let { feature ->
+                val id = feature.getNumberProperty(PROPERTY_ID).toLong()
+                mapboxMap.getStyle()?.apply {
+                    updateLayerSelected("$REMOTE.$LAYER.$SELECTED",id)
+                    updateLayerSelected("$CACHE.$LAYER.$SELECTED",id)
+                }
+
+                with(mapboxMap.cameraState.toCameraOptions().toBuilder()) {
+                    binding.mapView.camera.flyTo(
+                        center(feature.geometry() as Point).build(),
+                    )
+                }
+
+                bottomPlayer.clickOnGeoPoint(id.toInt())
+            }
+        }
+        return false
+    }
+
+    private fun Style.updateLayerSelected(layerId: String, id: Long) {
+        getLayerAs<SymbolLayer>(layerId)?.filter(eq{
+            get(PROPERTY_ID)
+            literal(id)}
+        )
+    }
+
+    override fun onMoveBegin(detector: MoveGestureDetector) {
+        onCameraTrackingDismissed()
+    }
+
+    override fun onMove(detector: MoveGestureDetector): Boolean {
+        return false
+    }
+
+    override fun onMoveEnd(detector: MoveGestureDetector) {}
+
+    override fun onIndicatorPositionChanged(point: Point) {
+        mapboxMap.setCamera(CameraOptions.Builder().center(point).zoom(10.0).build())
+        binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
+    }
+
+    private fun onCameraTrackingDismissed() {
+        binding.mapView.run {
+            location.removeOnIndicatorPositionChangedListener(this@MapActivity)
+            gestures.removeOnMoveListener(this@MapActivity)
+        }
+        setUpFabResource()
+        tracking = false
+    }
+
+    companion object {
+        private const val TAG = "MapActivity"
+        private const val REMOTE: String = "remote"
+        private const val CACHE: String = "cache"
+        private const val SOURCE: String = "source"
+        private const val LAYER: String = "layer"
+        private const val ICON: String = "icon"
+        private const val SELECTED: String = "selected"
+        private const val FRAGMENT_TAG: String = "fragment"
     }
 }

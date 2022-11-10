@@ -2,44 +2,38 @@ package com.example.biophonie.viewmodels
 
 import android.app.Application
 import android.content.ContentResolver
-import android.content.Intent
-import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import android.os.Bundle
-import android.provider.MediaStore
-import android.util.Log
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.example.biophonie.R
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.example.biophonie.templateIds
+import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 import java.io.File
 import java.io.IOException
-import java.util.*
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 
 private const val TAG = "RecViewModel"
-const val REQUEST_CAMERA = 0
-const val REQUEST_GALLERY = 1
 class RecViewModel(application: Application) : AndroidViewModel(application), DefaultRecorderController.InformationRetriever {
 
+    private var captureUri: Uri? = null
     val mTitle = ObservableField<String>()
 
     private var recorderController: DefaultRecorderController? = null
-    //Necessary to retrieve files
-    private val context = getApplication<Application>().applicationContext
     private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentPhotoPath: String
     private lateinit var currentSoundPath: String
-    private lateinit var coordinates: LatLng
+    private lateinit var coordinates: Point
     var currentId: Int = 0
-    val defaultDrawableIds = listOf(R.drawable.france, R.drawable.gabon, R.drawable.japon, R.drawable.russie)
-    val defaultLandscapeTitle = listOf("Forêt", "Plaine", "Montagne", "Marais")
 
-    private val _landscapeUri = MutableLiveData<Uri>(getResourceUri(defaultDrawableIds[0]))
+    private val _landscapeUri = MutableLiveData(getResourceUri(templateIds[0]))
     val landscapeUri: LiveData<Uri>
         get() = _landscapeUri
 
@@ -47,15 +41,11 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val landscapeThumbnail: LiveData<Uri>
         get() = _landscapeThumbnail
 
-    private val _activityIntent = MutableLiveData<ActivityIntent>()
-    val activityIntent: LiveData<ActivityIntent>
-        get() = _activityIntent
-
     private val _toast = MutableLiveData<ToastModel>()
     val toast: LiveData<ToastModel>
         get() = _toast
 
-    private val _fromDefault = MutableLiveData<Boolean>(true)
+    private val _fromDefault = MutableLiveData(true)
     val fromDefault: LiveData<Boolean>
         get() = _fromDefault
 
@@ -63,7 +53,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val adviceText: LiveData<String>
         get() = _adviceText
 
-    private val _goToNext = MutableLiveData<Boolean>(false)
+    private val _goToNext = MutableLiveData(false)
     val goToNext: LiveData<Boolean>
         get() = _goToNext
 
@@ -71,46 +61,20 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     val result: LiveData<Result>
         get() = _result
 
-    fun activityResult(requestCode: Int, imageIntent: Intent?){
+    fun pictureResult(picture: Uri?){
         updateFromDefault(false)
-        when(requestCode){
-            REQUEST_CAMERA -> {
-                _landscapeUri.value = Uri.fromFile(File(currentPhotoPath))
-                _landscapeThumbnail.value = _landscapeUri.value
-            }
-            REQUEST_GALLERY -> {
-                _landscapeUri.value = imageIntent?.data
-                _landscapeThumbnail.value = _landscapeUri.value
-            }
-        }
+        _landscapeUri.value = picture ?: captureUri
+        _landscapeThumbnail.value = _landscapeUri.value
     }
 
     @Throws(IOException::class)
     private fun createImageFile(): File? {
-        val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir: File? = File(context.externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
-        return if (storageDir == null){
-            _toast.value = ToastModel("Veuillez accorder la permission d'accès au stockage du téléphone", Toast.LENGTH_LONG)
-            null
-        } else {
+        val timeStamp = ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_DATE_TIME )
+        val storageDir = File(getApplication<Application>().applicationContext.externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
+        return run {
             if (!storageDir.exists())
                 storageDir.mkdir()
             File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
-        }
-    }
-
-    fun dispatchTakePictureIntent(choice: Int){
-        Log.d(TAG, "dispatchTakePictureIntent: $choice")
-        when(choice){
-            REQUEST_CAMERA -> {
-                captureImage()?.also { _activityIntent.value = ActivityIntent(it, REQUEST_CAMERA) }
-            }
-            REQUEST_GALLERY -> Intent(
-                Intent.ACTION_PICK,
-                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-            ).also {
-                _activityIntent.value = ActivityIntent(it, REQUEST_GALLERY)
-                }
         }
     }
 
@@ -122,31 +86,23 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
      * See https://stackoverflow.com/questions/6390163/deleting-a-gallery-image-after-camera-intent-photo-taken
      *
      */
-    private fun captureImage() : Intent? =
-        Intent(MediaStore.ACTION_IMAGE_CAPTURE).let { takePictureIntent ->
-            takePictureIntent.resolveActivity(context.packageManager)?.let {
-                val photoFile: File? = try {
-                    createImageFile()
-                } catch (ex: IOException) {
-                    _toast.value =
-                        ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
-                    null
-                }
-                photoFile?.let {
-                    currentPhotoPath = it.absolutePath
-                    val photoURI: Uri = FileProvider.getUriForFile(
-                        context,
-                        "com.example.biophonie.fileprovider",
-                        photoFile
-                    )
-                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
-                }
-            }
+    fun createCaptureUri() : Uri? {
+        val photoFile: File? = try {
+            createImageFile()
+        } catch (ex: IOException) {
+            _toast.value =
+                ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
+            null
         }
-
-
-    fun onRequestActivityStarted(){
-        _activityIntent.value = null
+        if (photoFile != null) {
+            currentPhotoPath = photoFile.absolutePath
+            captureUri = FileProvider.getUriForFile(
+                getApplication<Application>().applicationContext,
+                "com.example.biophonie.fileprovider",
+                photoFile
+            )
+        }
+        return captureUri
     }
 
     fun onToastDisplayed(){
@@ -161,11 +117,14 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     fun onClickDefault(i: Int) {
         updateFromDefault(true)
         currentId = i
-        _landscapeUri.value = getResourceUri(defaultDrawableIds[i])
+        _landscapeUri.value = getResourceUri(templateIds[i])
     }
 
     private fun getResourceUri(@DrawableRes id: Int) =
-        Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE + "://" + context.resources.getResourcePackageName(id) + '/' + context.resources.getResourceTypeName(id) + '/' + context.resources.getResourceEntryName(id))
+        Uri.parse(ContentResolver.SCHEME_ANDROID_RESOURCE
+                + "://" + getApplication<Application>().applicationContext.resources.getResourcePackageName(id)
+                + '/' + getApplication<Application>().applicationContext.resources.getResourceTypeName(id)
+                + '/' + getApplication<Application>().applicationContext.resources.getResourceEntryName(id))
 
     private fun updateFromDefault(fromDefault: Boolean){
         if (fromDefault != _fromDefault.value)
@@ -183,7 +142,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         }
     }
 
-    data class ActivityIntent(var intent: Intent, var requestCode: Int)
     data class ToastModel(var message: String, var length: Int)
 
     override fun setPath(path: String) {
@@ -196,7 +154,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
 
     fun setRecorderController(recPlayerView: RecPlayerView): Boolean {
         if (recorderController == null){
-            recorderController = context.externalCacheDir?.absolutePath?.let {
+            recorderController = getApplication<Application>().applicationContext.externalCacheDir?.absolutePath?.let {
                 DefaultRecorderController(recPlayerView,
                     it,
                     this
@@ -216,14 +174,19 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     }
 
     fun validationAndSubmit(){
-        val date = Calendar.getInstance().time
-        val dateAsString = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.getDefault()).format(date)
+        val instant = ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_INSTANT )
         val title = mTitle.get()
         title?.let {
             if (it.length < 7)
                 _toast.value = ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
-            else
-                _result.value = Result(it, dateAsString, currentAmplitudes, coordinates, currentSoundPath,_landscapeUri.value!!.path!!)
+            else {
+                var landscapePath = ""
+                var templatePath = ""
+                if (_fromDefault.value == false) landscapePath = currentPhotoPath
+                else templatePath = getApplication<Application>().applicationContext.resources.getResourceEntryName(templateIds[currentId])
+                _result.value =
+                    Result(it, instant, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
+            }
         }
     }
 
@@ -231,14 +194,9 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         _goToNext.value = false
     }
 
-    fun destroyController(){
-        recorderController?.destroyController()
-        recorderController = null
-    }
-
     fun setCoordinates(extras: Bundle?) {
         extras?.let {
-            coordinates = LatLng(it.getDouble("latitude"), it.getDouble("longitude"))
+            coordinates = Point.fromLngLat(it.getDouble("longitude"), it.getDouble("latitude"))
         }
     }
 
@@ -246,10 +204,16 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
         recorderController?.startRecording()
     }
 
+    fun destroyController(){
+        recorderController?.destroyController()
+        recorderController = null
+    }
+
     data class Result(val title: String,
                       val date: String,
                       val amplitudes: List<Int>,
-                      val coordinates: LatLng,
+                      val coordinates: Point,
                       val soundPath: String,
-                      val landscapePath: String)
+                      val landscapePath: String,
+                      val templatePath: String)
 }

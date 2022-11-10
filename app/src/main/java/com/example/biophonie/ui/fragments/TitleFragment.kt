@@ -14,15 +14,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
+import com.example.biophonie.util.setFiltersOnEditText
 import com.example.biophonie.viewmodels.RecViewModel
 import java.util.*
 
 
 class TitleFragment : Fragment() {
-    private lateinit var binding: FragmentTitleBinding
+    private var _binding: FragmentTitleBinding? = null
+    private val binding get() = _binding!!
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
@@ -30,18 +31,18 @@ class TitleFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(
+    ): View {
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_title,
             container,
             false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setClickListeners()
         setDataObservers()
-        setFiltersOnEditText()
+        binding.titleEditText.setFiltersOnEditText()
         return binding.root
     }
 
@@ -57,59 +58,35 @@ class TitleFragment : Fragment() {
         }
     }
 
-    private fun setFiltersOnEditText() {
-        val filter = InputFilter { source, start, end, _, _, _ ->
-            return@InputFilter if (source is SpannableStringBuilder) {
-                for (i in end - 1 downTo start) {
-                    val currentChar: Char = source[i]
-                    if (!Character.isLetterOrDigit(currentChar) && !Character.isSpaceChar(
-                            currentChar
-                        )
-                    ) {
-                        source.delete(i, i + 1)
-                    }
-                }
-                source
-            } else {
-                val filteredStringBuilder = StringBuilder()
-                for (i in start until end) {
-                    val currentChar: Char = source[i]
-                    if (Character.isLetterOrDigit(currentChar) || Character.isSpaceChar(
-                            currentChar
-                        )
-                    ) {
-                        filteredStringBuilder.append(currentChar)
-                    }
-                }
-                filteredStringBuilder.toString()
-            }
-        }
-        binding.titleEditText.filters += filter
-    }
-
     private fun setDataObservers() {
-        viewModel.toast.observe(viewLifecycleOwner, Observer{
+        viewModel.toast.observe(viewLifecycleOwner) {
             it?.let {
                 binding.titleInputLayout.error = it.message
                 viewModel.onToastDisplayed()
             }
-        })
-        viewModel.result.observe(viewLifecycleOwner, Observer {
+        }
+        viewModel.result.observe(viewLifecycleOwner) {
             val intent = Intent()
             val bundle = Bundle().apply {
                 putString("title", it.title)
                 putString("date", it.date)
-                putIntegerArrayList("amplitudes", it.amplitudes as ArrayList<Int>)
-                putDouble("latitude", it.coordinates.latitude)
-                putDouble("longitude", it.coordinates.longitude)
+                putFloatArray("amplitudes", FloatArray(it.amplitudes.size) { index -> it.amplitudes[index].toFloat() })
+                putDouble("latitude", it.coordinates.latitude())
+                putDouble("longitude", it.coordinates.longitude())
                 putString("soundPath", it.soundPath)
                 putString("landscapePath", it.landscapePath)
+                putString("templatePath", it.templatePath)
             }
             intent.putExtras(bundle)
             requireActivity().apply {
                 setResult(AppCompatActivity.RESULT_OK, intent)
                 requireActivity().finish()
             }
-        })
+        }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }

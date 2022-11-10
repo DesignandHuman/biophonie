@@ -1,13 +1,12 @@
 package com.example.biophonie.ui.fragments
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.Context
 import android.content.DialogInterface
-import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -16,25 +15,25 @@ import android.widget.ArrayAdapter
 import android.widget.ListAdapter
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.biophonie.R
+import com.example.biophonie.*
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
 import com.example.biophonie.ui.GridItemDecoration
 import com.example.biophonie.ui.LandscapesAdapter
-import com.example.biophonie.viewmodels.REQUEST_GALLERY
 import com.example.biophonie.viewmodels.RecViewModel
 
+private const val TAG = "GalleryFragment"
 class GalleryFragment : Fragment(),
     LandscapesAdapter.OnLandscapeListener,
     ChooseMeanDialog.ChooseMeanListener {
@@ -42,7 +41,19 @@ class GalleryFragment : Fragment(),
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
-    private lateinit var binding: FragmentGalleryBinding
+
+    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+        if (it)
+            viewModel.pictureResult(null)
+        else
+            Log.i(TAG, "onChoiceClick: could not take picture")
+    }
+    private val fetchGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
+        viewModel.pictureResult(it)
+    }
+
+    private var _binding: FragmentGalleryBinding? = null
+    private val binding get() = _binding!!
     private lateinit var viewManager: GridLayoutManager
     private lateinit var viewAdapter: LandscapesAdapter
     private lateinit var defaultLandscapes: List<Landscape>
@@ -50,14 +61,14 @@ class GalleryFragment : Fragment(),
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(
+    ): View {
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_gallery,
             container,
             false)
         binding.viewModel = viewModel
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
         setLiveDataObservers()
         setClickListeners()
@@ -66,20 +77,14 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setLiveDataObservers() {
-        viewModel.activityIntent.observe(viewLifecycleOwner, Observer {
-            it?.let {
-                startActivityForResult(it.intent, it.requestCode)
-                viewModel.onRequestActivityStarted()
-            }
-        })
-        viewModel.toast.observe(viewLifecycleOwner, Observer {
+        viewModel.toast.observe(viewLifecycleOwner) {
             it?.let {
                 Toast.makeText(requireContext(), it.message, it.length).show()
                 viewModel.onToastDisplayed()
             }
-        })
-        viewModel.fromDefault.observe(viewLifecycleOwner, Observer {
-            if (it){
+        }
+        viewModel.fromDefault.observe(viewLifecycleOwner) {
+            if (it) {
                 viewAdapter.apply {
                     selectedPosition = viewModel.currentId
                     notifyItemChanged(selectedPosition)
@@ -93,13 +98,13 @@ class GalleryFragment : Fragment(),
                 }
                 binding.thumbnail.isSelected = true
             }
-        })
+        }
     }
 
     private fun setUpRecyclerView(){
-        defaultLandscapes = viewModel.defaultDrawableIds.mapIndexed { index, id ->
+        defaultLandscapes = templateIds.mapIndexed { index, id ->
             Landscape(ResourcesCompat.getDrawable(resources, id, requireActivity().theme)!!,
-                viewModel.defaultLandscapeTitle[index]
+                templateTitles[index]
             )
         }
         viewManager = GridLayoutManager(context,2)
@@ -131,14 +136,9 @@ class GalleryFragment : Fragment(),
         }
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, imageIntent: Intent?) {
-        if (resultCode == Activity.RESULT_OK)
-            viewModel.activityResult(requestCode, imageIntent)
-    }
-
     private fun getOriginOfLandscape() {
         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
-            viewModel.dispatchTakePictureIntent(REQUEST_GALLERY)
+            getPicture(REQUEST_GALLERY)
         } else {
             val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
                 DialogAdapterItem("Galerie", R.drawable.ic_library))
@@ -150,12 +150,30 @@ class GalleryFragment : Fragment(),
         }
     }
 
+    private fun getPicture(choice: Int) {
+        when(choice) {
+            REQUEST_CAMERA -> {
+                val uri = viewModel.createCaptureUri()
+                if (uri != null)
+                    takePicture.launch(uri)
+            }
+            REQUEST_GALLERY -> {
+                fetchGallery.launch("image/*")
+            }
+        }
+    }
+
     override fun onLandscapeClick(position: Int) {
         viewModel.onClickDefault(position)
     }
 
     override fun onChoiceClick(choice: Int) {
-        viewModel.dispatchTakePictureIntent(choice)
+        getPicture(choice)
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 }
 
@@ -183,6 +201,7 @@ class ChooseMeanDialog(context: Context, items: Array<DialogAdapterItem>, privat
             builder.create()
         } ?: throw IllegalStateException("Activity cannot be null")
     }
+
 }
 
 class DialogListAdapter(private val adapterContext: Context,

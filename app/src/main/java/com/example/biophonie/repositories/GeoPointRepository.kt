@@ -1,37 +1,84 @@
 package com.example.biophonie.repositories
 
-import androidx.lifecycle.MutableLiveData
-import com.example.biophonie.database.NewSoundDatabase
-import com.example.biophonie.database.asDomainModel
+import com.example.biophonie.database.*
+import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.network.GeoPointWeb
+import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.network.NetworkGeoPoint
+import com.example.biophonie.network.asDatabaseModel
 import com.example.biophonie.network.asDomainModel
-import com.example.biophonie.util.coordinatesToString
-import com.mapbox.mapboxsdk.geometry.LatLng
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import retrofit2.Response
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 
-class GeoPointRepository(private val database: NewSoundDatabase) {
-    suspend fun fetchGeoPoint(id: String, name: String, coordinates: LatLng){
-        withContext(Dispatchers.IO){
-            val cachedNewSound = database.soundDao.getNewSound(id)
-            if (cachedNewSound == null){
-                val response: Response<NetworkGeoPoint> = GeoPointWeb.geopoints.getGeoPoint(id)
-                if (response.isSuccessful && response.body() != null)
-                    withContext(Dispatchers.Main){
-                        geoPoint.value = response.body()?.asDomainModel(name, coordinates)
-                    }
+private const val TAG = "GeoPointRepository"
+class GeoPointRepository(private val database: GeoPointDatabase) {
+    
+    suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
+        return withContext(Dispatchers.IO){
+            val cachedNewGeoPoint = database.geoPointDao.getGeoPoint(id)
+            if (cachedNewGeoPoint == null){
+                return@withContext ClientWeb.webService.getGeoPoint(id)
+                    .onSuccess { launch { insertNewGeoPoint(it.asDatabaseModel()) } }
+                    .map { it.asDomainModel() }
             } else {
-                withContext(Dispatchers.Main){
-                    geoPoint.value = GeoPoint(id,
-                        name,
-                        coordinatesToString(coordinates),
-                        listOf(cachedNewSound.asDomainModel()))
-                }
+                return@withContext Result.success(cachedNewGeoPoint.asDomainModel())
             }
         }
     }
-    var geoPoint: MutableLiveData<GeoPoint> = MutableLiveData()
+
+    suspend fun fetchClosestGeoPoint(coord: Coordinates, not: Array<Int>): Result<Int> {
+        return withContext(Dispatchers.IO){
+            return@withContext ClientWeb.webService.getGeoId(coord.latitude,coord.longitude,not).map { it.id }
+        }
+    }
+
+    suspend fun insertNewGeoPoint(geoPoint: DatabaseGeoPoint){
+        withContext(Dispatchers.IO) {
+            database.geoPointDao.insert(geoPoint)
+        }
+    }
+
+    suspend fun getNewGeoPoints(): List<GeoPoint>{
+        return withContext(Dispatchers.IO) {
+            database.geoPointDao.getNewGeoPoints().map { it.asDomainModel() }
+        }
+    }
+
+    private suspend fun syncGeoPoint(localId: Int, remoteGeo: NetworkGeoPoint) {
+        withContext(Dispatchers.IO) {
+            database.geoPointDao.syncGeoPoint(GeoPointSync(
+                id = localId,
+                remoteId = remoteGeo.id,
+                remoteSound = remoteGeo.sound,
+                remotePicture = remoteGeo.picture
+            ))
+        }
+    }
+
+    suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Result<NetworkGeoPoint> {
+        return withContext(Dispatchers.IO) {
+            val soundFile = File(geoPoint.sound!!)
+            val result = if (!geoPoint.picture!!.endsWith(".jpg")) {
+                ClientWeb.webService.postNewGeoPoint(
+                    geoPoint.asNetworkModel(),
+                    MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
+                    null
+                )
+            } else {
+                val pictureFile = File(geoPoint.picture)
+                ClientWeb.webService.postNewGeoPoint(
+                    geoPoint.asNetworkModel(),
+                    MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
+                    MultipartBody.Part.createFormData("picture","picture.jpg",pictureFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
+                )
+            }
+            launch { result.getOrNull()?.let { syncGeoPoint(geoPoint.id, it) } }
+            return@withContext result
+        }
+    }
 }

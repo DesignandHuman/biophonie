@@ -1,4 +1,5 @@
 <resources>
+    <string name="geojson_url">http://10.0.2.2:8080/api/v1/assets/geojson.json</string>
     <string name="app_name">Biophonie</string>
     <string name="map">Map</string>
     <string name="lorem_ipsum">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent semper orci et suscipit cursus. Aliquam ultrices semper metus non suscipit. Pellentesque nisi lectus, imperdiet et dolor sit amet, ullamcorper aliquam odio. Aliquam erat volutpat. Cras in massa viverra, consequat risus ut, laoreet nunc. Pellentesque finibus mi velit, nec aliquam turpis vestibulum at. Quisque et dictum lacus. Suspendisse id velit id nisl tempor consectetur a id nisi. Sed at rutrum lacus, et luctus diam. Mauris luctus facilisis dui, in condimentum nibh ullamcorper nec. Etiam sollicitudin non diam vitae suscipit. Aliquam nec massa consectetur, condimentum turpis sit amet, eleifend mi. Cras molestie et nibh feugiat semper. Etiam mollis tincidunt porttitor. Nam est libero, pulvinar sed imperdiet placerat, finibus quis metus. Vivamus tortor augue, tristique in imperdiet nec, aliquam id nibh. Nam tincidunt feugiat enim sed rutrum. Donec vel libero sit amet enim convallis auctor. Nunc condimentum eget massa sed pulvinar. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Suspendisse tristique velit in libero dapibus, ut rhoncus orci ultrices. Aliquam diam enim, vestibulum at libero in, malesuada consequat lorem. Aliquam sit amet felis a orci tempor ornare. Donec tristique nisi arcu, sit amet vestibulum tellus feugiat facilisis. Suspendisse id erat nulla. Sed et cursus mauris. Nulla id lorem sit amet enim pellentesque scelerisque eget eu quam. Nam arcu neque, vehicula eu mauris vel, luctus convallis ex. In id condimentum tellus. Pellentesque urna mi, venenatis nec ligula id, interdum hendrerit lacus. Aenean fermentum, sem luctus feugiat sollicitudin, nibh nibh pharetra massa, ac finibus enim metus ut magna. In hac habitasse platea dictumst.</string>
@@ -11,10 +12,12 @@
     <string name="georges">Georges</string>
     <string name="sound_title">Forêt à l\'aube</string>
     <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
-    <string name="location_permission_not_granted">Permission refusée, retour</string>
+    <string name="permission_not_granted">Permission refusée, retour</string>
     <string name="validation">Je valide</string>
     <string name="description_title"><b>Pour finir</b>, donnez un titre à votre enregistrement</string>
     <string name="title">Titre</string>
     <string name="import_picture">J\'importe une photo</string>
     <string name="shhh">Chut, écoutez…</string>
+    <string name="network_error">Connexion au serveur échouée</string>
+    <string name="default_error">Oups, une erreur s’est produite</string>
 </resources>

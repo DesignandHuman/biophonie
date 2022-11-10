@@ -6,14 +6,17 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.biophonie.R
-
+import com.example.biophonie.network.ClientWeb
+import com.example.biophonie.util.AppPrefs
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 
     init {
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
     }
-    private val myPrefs = "Preferences"
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -24,19 +27,19 @@ class MainActivity : AppCompatActivity() {
         findViewById<Button>(R.id.toTutorial).setOnClickListener {
             startActivity(Intent(this, TutorialActivity::class.java))
         }
-        //checkTutorial()
+        initPrefs()
+        checkTutorial()
     }
 
-    /*private fun checkTutorial() {
-        val sp = getSharedPreferences(myPrefs, Context.MODE_PRIVATE)
-        if (!sp.getBoolean("first", false)) {
-            val editor = sp.edit()
-            editor.putBoolean("first", true)
-            editor.apply()
-            Toast.makeText(this, "First", Toast.LENGTH_SHORT).show()
+    private fun initPrefs() {
+        AppPrefs.setup(application)
+    }
+
+    private fun checkTutorial() {
+        if (AppPrefs.userId == null) {
             val intent =
-                Intent(this, ViePager::class.java) //call your ViewPager class
+                Intent(this@MainActivity, TutorialActivity::class.java)
             startActivity(intent)
         }
-    }*/
+    }
 }

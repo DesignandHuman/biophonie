@@ -26,7 +26,7 @@
             android:scaleType="center"
             android:padding="1dp"
             app:uri="@{viewModel.landscapeUri}"
-            app:layout_constraintTop_toBottomOf="@+id/close"
+            app:layout_constraintTop_toBottomOf="@+id/top_panel"
             app:layout_constraintBottom_toTopOf="@id/import_picture"
             app:layout_constraintStart_toEndOf="@id/recycler_view"
             app:layout_constraintEnd_toEndOf="parent"
@@ -46,7 +46,7 @@
             app:uri_thumbnail="@{viewModel.landscapeThumbnail ?? null}"
             app:layout_constraintDimensionRatio="H,1:1"
             app:layout_constraintTop_toBottomOf="@id/landscape"
-            app:layout_constraintBottom_toTopOf="@+id/ok"
+            app:layout_constraintBottom_toTopOf="@+id/top_panel"
             app:layout_constraintStart_toEndOf="@id/recycler_view"
             app:layout_constraintEnd_toStartOf="@id/import_picture"/>
 
@@ -64,7 +64,7 @@
             android:theme="@style/ClickableButton"
             style="@style/ButtonStyle"
             app:layout_constraintTop_toBottomOf="@id/landscape"
-            app:layout_constraintBottom_toTopOf="@+id/ok"
+            app:layout_constraintBottom_toTopOf="@+id/ok_button"
             app:layout_constraintStart_toStartOf="@id/thumbnail"
             app:layout_constraintEnd_toEndOf="parent"/>
 
@@ -76,8 +76,8 @@
             android:layout_marginBottom="15dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/landscape"
-            app:layout_constraintTop_toBottomOf="@+id/close"
-            app:layout_constraintBottom_toTopOf="@+id/ok"
+            app:layout_constraintTop_toBottomOf="@+id/top_panel"
+            app:layout_constraintBottom_toTopOf="@+id/ok_button"
             tools:ignore="UnknownIdInLayout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

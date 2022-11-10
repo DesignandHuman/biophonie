@@ -5,43 +5,43 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
-interface SoundDao {
-    @Query("select * from databasenewsound")
-    fun getNewSoundsAsLiveData(): LiveData<List<DatabaseNewSound>>
+interface GeoPointDao {
+    @Query("select * from databasegeopoint where remote_id == 0")
+    fun getNewGeoPoints(): List<DatabaseGeoPoint>
 
-    @Query("select * from databasenewsound")
-    fun getNewSounds(): List<DatabaseNewSound>
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    fun insert(geoPoint: DatabaseGeoPoint)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(newSound: DatabaseNewSound)
+    @Query("select * from databasegeopoint where id == :id")
+    fun getNewGeoPoint(id: Int): DatabaseGeoPoint?
 
-    @Delete
-    fun delete(newSound: DatabaseNewSound)
+    @Query("select * from databasegeopoint where remote_id == :remoteId")
+    fun getGeoPoint(remoteId: Int): DatabaseGeoPoint?
 
-    @Query("select * from databasenewsound where id like :id")
-    fun getNewSound(id: String): DatabaseNewSound?
+    @Update(entity = DatabaseGeoPoint::class)
+    fun syncGeoPoint(sync: GeoPointSync)
 }
 
-@Database(entities = [DatabaseNewSound::class], version = 1, exportSchema = false)
+@Database(entities = [DatabaseGeoPoint::class], version = 3, exportSchema = false)
 @TypeConverters(Converters::class)
-abstract class NewSoundDatabase : RoomDatabase() {
+abstract class GeoPointDatabase : RoomDatabase() {
 
-    abstract val soundDao: SoundDao
+    abstract val geoPointDao: GeoPointDao
 
     companion object {
 
         @Volatile
-        private var INSTANCE: NewSoundDatabase? = null
+        private var INSTANCE: GeoPointDatabase? = null
 
-        fun getInstance(context: Context): NewSoundDatabase {
+        fun getInstance(context: Context): GeoPointDatabase {
             synchronized(this) {
                 var instance = INSTANCE
 
                 if (instance == null) {
                     instance = Room.databaseBuilder(
                         context.applicationContext,
-                        NewSoundDatabase::class.java,
-                        "new_sound_database"
+                        GeoPointDatabase::class.java,
+                        "new_geopoint_database"
                     )
                         .fallbackToDestructiveMigration()
                         .build()

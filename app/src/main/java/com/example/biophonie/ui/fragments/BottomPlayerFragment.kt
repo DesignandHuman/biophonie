@@ -6,7 +6,6 @@ import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.SpannableStringBuilder
-import android.util.DisplayMetrics
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,19 +14,23 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
+import com.example.biophonie.domain.Coordinates
+import com.example.biophonie.util.ScreenMetricsCompat
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.mapboxsdk.geometry.LatLng
+import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 private const val TAG = "BottomPlayerFragment"
@@ -37,19 +40,20 @@ class BottomPlayerFragment : Fragment() {
     private var animationDuration: Int = 0
 
     private val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext())).get(
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext().applicationContext)).get(
             BottomPlayerViewModel::class.java
         )
     }
-    private lateinit var binding: FragmentBottomPlayerBinding
+    private var _binding: FragmentBottomPlayerBinding? = null
+    private val binding get() = _binding!!
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        binding = DataBindingUtil.inflate(
+    ): View {
+        _binding = DataBindingUtil.inflate(
             inflater,
             R.layout.fragment_bottom_player,
             container,
@@ -57,8 +61,8 @@ class BottomPlayerFragment : Fragment() {
         )
         binding.viewModel = viewModel.apply {
             //TODO(run that somehow on another thread or not ?)
-            setPlayerController(requireContext(), binding.playerView) }
-        binding.lifecycleOwner = this
+            setPlayerController(binding.playerView) }
+        binding.lifecycleOwner = viewLifecycleOwner
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
 
@@ -94,11 +98,12 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun setPeekHeight() {
-        val screenHeight =
-            DisplayMetrics().also { requireActivity().windowManager.defaultDisplay.getMetrics(it) }.heightPixels
-        bottomSheetBehavior.peekHeight =
-            if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) screenHeight / 2
-            else screenHeight / 3
+        val screenHeight = context?.let { ScreenMetricsCompat.getScreenSize(it) }?.height
+        if (screenHeight != null) {
+            bottomSheetBehavior.peekHeight =
+                if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) screenHeight / 2
+                else screenHeight / 3
+        }
         binding.apply {
             CoroutineScope(Dispatchers.Main).launch {
                 withContext(Dispatchers.Main){
@@ -162,40 +167,33 @@ class BottomPlayerFragment : Fragment() {
         view.layoutParams = params
     }
 
-    private fun onNetworkError() {
-        if(!viewModel.isNetworkErrorShown.value!!) {
-            Toast.makeText(activity, "Vérifiez votre connection réseau", Toast.LENGTH_LONG).show()
-            viewModel.onNetworkErrorShown()
-        }
+    fun clickOnGeoPoint(id: Int){
+        viewModel.setGeoPointQuery(id)
     }
 
-    fun clickOnGeoPoint(id: String, name: String, coordinates: LatLng){
-        viewModel.getGeoPoint(id, name, coordinates)
+    fun displayClosestGeoPoint(coord: Coordinates){
+        viewModel.displayClosestGeoPoint(coord)
     }
 
     private fun setUpObservers() {
-        viewModel.leftClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+        viewModel.leftClickable.observe(viewLifecycleOwner) {
             binding.left.isEnabled = it
-        })
-        viewModel.rightClickable.observe(viewLifecycleOwner, Observer<Boolean> {
+        }
+        viewModel.rightClickable.observe(viewLifecycleOwner) {
             binding.right.isEnabled = it
-        })
-        viewModel.visibility.observe(viewLifecycleOwner, Observer<Boolean> {
+        }
+        viewModel.visibility.observe(viewLifecycleOwner) {
             changeWidgetsVisibility(it)
-        })
-        viewModel.bottomSheetState.observe(viewLifecycleOwner, Observer<Int> {
+        }
+        viewModel.bottomSheetState.observe(viewLifecycleOwner) {
             bottomSheetBehavior.state = it
-        })
-        viewModel.eventNetworkError.observe(viewLifecycleOwner, Observer<Boolean> {
-            if (it) onNetworkError()
-        })
-        viewModel.date.observe(viewLifecycleOwner, Observer<String> {
-            viewModel.playerController.setTitle(SpannableStringBuilder()
-                .bold { append("Le : ") }
-                .append(it.split("\\s".toRegex())[0])
-                .bold { append(" à ") }
-                .append(it.split("\\s".toRegex())[1]))
-        })
+        }
+        viewModel.eventNetworkError.observe(viewLifecycleOwner) {
+            if(viewModel.isNetworkErrorShown.value != true) {
+                Toast.makeText(activity, it, Toast.LENGTH_LONG).show()
+                viewModel.onNetworkErrorShown()
+            }
+        }
     }
 
     private fun onClose() {
@@ -282,8 +280,9 @@ class BottomPlayerFragment : Fragment() {
         viewModel.playerController.pause()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
         viewModel.playerController.destroyPlayer()
     }
 }
