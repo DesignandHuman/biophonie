@@ -5,7 +5,7 @@ import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Resource
 import com.example.biophonie.network.NetworkAddGeoPoint
-import com.example.biophonie.templateTitles
+import com.example.biophonie.templates
 import java.time.Instant
 
 @Entity
@@ -63,7 +63,7 @@ fun DatabaseGeoPoint.asNetworkModel(): NetworkAddGeoPoint {
         latitude = latitude,
         date = date,
         amplitudes = amplitudes,
-        pictureTemplate = if (templateTitles.contains(picture)) picture else null
+        pictureTemplate = if (templates.contains(picture)) picture else null
     )
 }
 

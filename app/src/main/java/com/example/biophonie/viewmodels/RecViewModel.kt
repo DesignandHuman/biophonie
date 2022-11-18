@@ -10,7 +10,7 @@ import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.example.biophonie.R
-import com.example.biophonie.templateIds
+import com.example.biophonie.templates
 import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.DefaultRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
@@ -33,7 +33,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     private lateinit var coordinates: Point
     var currentId: Int = 0
 
-    private val _landscapeUri = MutableLiveData(getResourceUri(templateIds[0]))
+    private val _landscapeUri = MutableLiveData(getResourceUri(templates.values.first()))
     val landscapeUri: LiveData<Uri>
         get() = _landscapeUri
 
@@ -117,7 +117,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     fun onClickDefault(i: Int) {
         updateFromDefault(true)
         currentId = i
-        _landscapeUri.value = getResourceUri(templateIds[i])
+        _landscapeUri.value = getResourceUri(templates.values.elementAt(i))
     }
 
     private fun getResourceUri(@DrawableRes id: Int) =
@@ -182,8 +182,9 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
             else {
                 var landscapePath = ""
                 var templatePath = ""
+
                 if (_fromDefault.value == false) landscapePath = currentPhotoPath
-                else templatePath = getApplication<Application>().applicationContext.resources.getResourceEntryName(templateIds[currentId])
+                else templatePath = templates.keys.elementAt(currentId)
                 _result.value =
                     Result(it, instant, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
             }

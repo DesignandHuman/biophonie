@@ -1,6 +1,7 @@
 package com.example.biophonie.domain
 
 import android.graphics.drawable.Drawable
+import androidx.annotation.DrawableRes
 import com.example.biophonie.util.LocationConverter
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -26,7 +27,7 @@ data class Coordinates(val latitude: Double, val longitude: Double) {
             LocationConverter.longitudeAsDMS(longitude, 4)
 }
 
-data class Landscape(var image: Drawable,
+data class Landscape(@DrawableRes var image: Int,
                      var titre: String)
 
 data class DialogAdapterItem(var text: String, var icon: Int){

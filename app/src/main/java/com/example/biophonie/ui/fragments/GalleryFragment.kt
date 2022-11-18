@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.content.res.TypedArray
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -102,10 +103,9 @@ class GalleryFragment : Fragment(),
     }
 
     private fun setUpRecyclerView(){
-        defaultLandscapes = templateIds.mapIndexed { index, id ->
-            Landscape(ResourcesCompat.getDrawable(resources, id, requireActivity().theme)!!,
-                templateTitles[index]
-            )
+        val templateNames = resources.getStringArray(R.array.template_names)
+        defaultLandscapes = templateNames.mapIndexed { index, id ->
+            Landscape(templates.values.elementAt(index), id)
         }
         viewManager = GridLayoutManager(context,2)
         viewAdapter = LandscapesAdapter(defaultLandscapes, this)

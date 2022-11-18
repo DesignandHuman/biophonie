@@ -15,6 +15,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.biophonie.R
 import com.example.biophonie.domain.Resource
 import com.example.biophonie.network.BASE_URL
+import com.example.biophonie.templates
 import fr.haran.soundwave.ui.PlayerView
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -34,13 +35,6 @@ fun hideIfNetworkError(view: View, isNetWorkError: Boolean, playlist: Any?) {
     }
 }
 }*/
-
-val templates: Map<String, Int> = mapOf(
-    "forest" to R.drawable.forest,
-    "swamp" to R.drawable.swamp,
-    "sea" to R.drawable.sea,
-    "mountain" to R.drawable.mountain
-)
 
 @BindingAdapter("uri")
 fun setImageUri(view: AppCompatImageView, imageUri: Uri?){

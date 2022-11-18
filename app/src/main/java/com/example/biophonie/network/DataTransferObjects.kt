@@ -4,7 +4,7 @@ import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.domain.GeoPoint
 import com.example.biophonie.domain.Resource
-import com.example.biophonie.ui.templates
+import com.example.biophonie.templates
 import com.example.biophonie.viewmodels.TutorialViewModel
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
@@ -69,7 +69,7 @@ fun NetworkGeoPoint.asDomainModel(): GeoPoint{
         coordinates = Coordinates(latitude,longitude),
         date = Instant.parse(date),
         amplitudes = amplitudes,
-        picture = if (templates.containsKey(picture)) Resource(local = picture) else Resource(remote = picture),
+        picture = if (templates.contains(picture)) Resource(local = picture) else Resource(remote = picture),
         sound = Resource(remote = sound)
     )
 }

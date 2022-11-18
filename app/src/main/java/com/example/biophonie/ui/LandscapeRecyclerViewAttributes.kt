@@ -50,7 +50,7 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
 
         fun bind(landscape: Landscape){
             binding.title.text = landscape.titre
-            binding.landscapeImage.setImageDrawable(landscape.image)
+            binding.landscapeImage.setImageResource(landscape.image)
         }
     }
 
