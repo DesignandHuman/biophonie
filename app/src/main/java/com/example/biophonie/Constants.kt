@@ -4,6 +4,9 @@ import androidx.annotation.DrawableRes
 
 const val REQUEST_CAMERA = 0
 const val REQUEST_GALLERY = 1
+const val PROPERTY_CACHE: String = "fromCache?"
+const val PROPERTY_NAME: String = "name"
+const val PROPERTY_ID: String = "id"
 
 // adjust with res/values/templates.xml
 val templates = mapOf<String, @DrawableRes Int>(

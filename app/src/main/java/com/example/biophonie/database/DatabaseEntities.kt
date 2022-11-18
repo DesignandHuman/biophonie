@@ -27,7 +27,9 @@ data class DatabaseGeoPoint (
     @ColumnInfo(name = "user_id")
     val userId: Int = 0,
     @ColumnInfo(name = "remote_id")
-    val remoteId: Int = 0)
+    val remoteId: Int = 0,
+    @ColumnInfo(name = "available")
+    val available: Boolean = true)
 {
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0
@@ -44,9 +46,17 @@ data class GeoPointSync (
     val remoteSound: String,
 )
 
+@Entity
+data class GeoPointAvailable (
+    val id: Int,
+    @ColumnInfo(name = "available")
+    val available: Boolean = true
+)
+
 fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
     return GeoPoint(
-        id = remoteId,
+        id = id,
+        remoteId = remoteId,
         title = title,
         date = Instant.parse(date),
         amplitudes = amplitudes,

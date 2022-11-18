@@ -10,12 +10,14 @@ import java.util.*
 
 data class GeoPoint(
     var id: Int,
+    var remoteId: Int = 0,
     var coordinates: Coordinates,
     var title: String?,
     var date: Instant?,
     var amplitudes: List<Float>,
     var picture: Resource,
-    var sound: Resource)
+    var sound: Resource
+)
 
 data class Resource(
     val remote: String? = null,

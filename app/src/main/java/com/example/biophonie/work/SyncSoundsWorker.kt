@@ -8,7 +8,6 @@ import com.example.biophonie.database.GeoPointDatabase
 import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.repositories.GeoPointRepository
 import com.example.biophonie.util.AppPrefs
-import retrofit2.HttpException
 
 private const val TAG = "SyncSoundsWorker"
 
@@ -18,11 +17,11 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
         initPrefs(applicationContext)
         val database = GeoPointDatabase.getInstance(applicationContext)
         val repository = GeoPointRepository(database)
-        val newGeoPoints = database.geoPointDao.getNewGeoPoints()
+        val toSendGeoPoints = database.geoPointDao.getGeoPointsToSend()
 
         var finalResult = ClientWeb.webService.pingRestricted().isSuccess
         if (finalResult)
-            for (geoPoint in newGeoPoints){
+            for (geoPoint in toSendGeoPoints){
                 repository.postNewGeoPoint(geoPoint)
                     .onSuccess { Log.d(TAG, "doWork: geopoint ${geoPoint.title} posted") }
                     .onFailure {
@@ -30,6 +29,12 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
                         Log.d(TAG, "doWork: post geopoint ${geoPoint.title} failed with ${it.message}")
                     }
             }
+        val unavailableGeoPoints = database.geoPointDao.getUnavailableNewGeoPoints()
+        for (geoPoint in unavailableGeoPoints){
+            ClientWeb.webService.getGeoPoint(geoPoint.remoteId)
+                .onSuccess { repository.setGeoPointAvailable(geoPoint.id) }
+        }
+
         return if (finalResult) Result.success() else Result.failure()
     }
 

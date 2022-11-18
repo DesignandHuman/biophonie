@@ -24,6 +24,8 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
+import com.example.biophonie.PROPERTY_ID
+import com.example.biophonie.PROPERTY_NAME
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.domain.Coordinates
@@ -33,14 +35,13 @@ import com.example.biophonie.util.CustomLocationProvider
 import com.example.biophonie.util.GPSCheck
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
-import com.example.biophonie.viewmodels.PROPERTY_ID
-import com.example.biophonie.viewmodels.PROPERTY_NAME
 import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
+import com.mapbox.geojson.GeoJson
 import com.mapbox.geojson.Point
 import com.mapbox.maps.*
 import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
@@ -52,6 +53,7 @@ import com.mapbox.maps.extension.style.layers.getLayerAs
 import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
+import com.mapbox.maps.extension.style.sources.getSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.extension.style.style
 import com.mapbox.maps.plugin.LocationPuck2D
@@ -128,20 +130,20 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     +image(imageId = "$CACHE.$ICON") {
                         bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_syncing))
                     }
+                    +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
+                        buildProperties(0.6, "Regular", CACHE, false)
+                    }
+                    +symbolLayer(layerId = "$CACHE.$LAYER.$SELECTED", sourceId = "$CACHE.$SOURCE") {
+                        buildProperties(0.8, "Bold", CACHE, false)
+                        filter(boolean{
+                            get(PROPERTY_ID)
+                            literal(false)})
+                    }
                     +symbolLayer(layerId = "$REMOTE.$LAYER", sourceId = "$REMOTE.$SOURCE") {
                         buildProperties(0.5, "Regular", REMOTE)
                     }
                     +symbolLayer(layerId = "$REMOTE.$LAYER.$SELECTED", sourceId = "$REMOTE.$SOURCE") {
                         buildProperties(0.7, "Bold", REMOTE)
-                        filter(boolean{
-                            get(PROPERTY_ID)
-                            literal(false)})
-                    }
-                    +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
-                        buildProperties(0.6, "Regular", CACHE)
-                    }
-                    +symbolLayer(layerId = "$CACHE.$LAYER.$SELECTED", sourceId = "$CACHE.$SOURCE") {
-                        buildProperties(0.8, "Bold", CACHE)
                         filter(boolean{
                             get(PROPERTY_ID)
                             literal(false)})
@@ -169,13 +171,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
-    private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String) {
+    private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String, overlap: Boolean = true) {
         iconImage(literal("$origin.$ICON"))
         iconSize(iconSize)
-        textFont(listOf("IBM Plex Mono $fontFamily"))
         iconOpacity(1.0)
-        iconAllowOverlap(true)
+        iconAllowOverlap(overlap)
         iconPadding(.0)
+        textFont(listOf("IBM Plex Mono $fontFamily"))
         textColor(literal(String.format("#%06X", 0xFFFFFF and resources.getColor(
             if (origin == REMOTE) R.color.colorAccent
             else R.color.colorPrimaryDark

@@ -7,7 +7,10 @@ import androidx.room.*
 @Dao
 interface GeoPointDao {
     @Query("select * from databasegeopoint where remote_id == 0")
-    fun getNewGeoPoints(): List<DatabaseGeoPoint>
+    fun getGeoPointsToSend(): List<DatabaseGeoPoint>
+
+    @Query("select * from databasegeopoint where not available")
+    fun getUnavailableNewGeoPoints(): List<DatabaseGeoPoint>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(geoPoint: DatabaseGeoPoint)
@@ -20,9 +23,12 @@ interface GeoPointDao {
 
     @Update(entity = DatabaseGeoPoint::class)
     fun syncGeoPoint(sync: GeoPointSync)
+
+    @Update(entity = DatabaseGeoPoint::class)
+    fun setGeoPointAvailable(geoPoint: GeoPointAvailable)
 }
 
-@Database(entities = [DatabaseGeoPoint::class], version = 3, exportSchema = false)
+@Database(entities = [DatabaseGeoPoint::class], version = 6, exportSchema = false)
 @TypeConverters(Converters::class)
 abstract class GeoPointDatabase : RoomDatabase() {
 

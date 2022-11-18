@@ -6,19 +6,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.example.biophonie.PROPERTY_ID
 import com.example.biophonie.database.DatabaseGeoPoint
 import com.example.biophonie.database.GeoPointDatabase.Companion.getInstance
 import com.example.biophonie.repositories.GeoPointRepository
+import com.mapbox.maps.QueriedFeature
 import kotlinx.coroutines.launch
 
-const val PROPERTY_CACHE: String = "fromCache?"
-const val PROPERTY_NAME: String = "name"
-const val PROPERTY_ID: String = "id"
 private const val TAG = "MapViewModel"
 class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
     val newGeoPoints = liveData {
-        emit(repository.getNewGeoPoints())
+        emit(repository.getUnavailableNewGeoPoints())
     }
 
     fun requestAddGeoPoint(extras: Bundle?) {
@@ -32,8 +31,29 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
-                repository.insertNewGeoPoint(DatabaseGeoPoint(title!!, date.toString(), amplitudes!!.toList(), latitude, longitude,
-                    if (!templatePath.isNullOrEmpty()) templatePath else landscapePath, soundPath!!))
+                repository.insertNewGeoPoint(DatabaseGeoPoint(
+                    title = title!!,
+                    date = date.toString(),
+                    amplitudes = amplitudes!!.toList(),
+                    latitude = latitude,
+                    longitude = longitude,
+                    picture = if (!templatePath.isNullOrEmpty()) templatePath else landscapePath,
+                    sound = soundPath!!,
+                    available = false
+                ))
+            }
+        }
+    }
+
+    fun checkNewGeoPoints(features: MutableList<QueriedFeature>?) {
+        if (features != null && newGeoPoints.value != null) {
+            viewModelScope.launch {
+                val remoteFeatureIds = features.map { feature -> feature.feature.getNumberProperty(
+                    PROPERTY_ID).toInt() }
+                for (geoPoint in newGeoPoints.value!!) {
+                    if (remoteFeatureIds.contains(geoPoint.remoteId))
+                        repository.setGeoPointAvailable(geoPoint.id)
+                }
             }
         }
     }

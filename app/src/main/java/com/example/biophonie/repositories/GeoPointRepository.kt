@@ -43,9 +43,9 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
         }
     }
 
-    suspend fun getNewGeoPoints(): List<GeoPoint>{
+    suspend fun getUnavailableNewGeoPoints(): List<GeoPoint>{
         return withContext(Dispatchers.IO) {
-            database.geoPointDao.getNewGeoPoints().map { it.asDomainModel() }
+            database.geoPointDao.getUnavailableNewGeoPoints().map { it.asDomainModel() }
         }
     }
 
@@ -57,6 +57,12 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
                 remoteSound = remoteGeo.sound,
                 remotePicture = remoteGeo.picture
             ))
+        }
+    }
+
+    suspend fun setGeoPointAvailable(remoteId: Int) {
+        withContext(Dispatchers.IO) {
+            database.geoPointDao.setGeoPointAvailable(GeoPointAvailable(remoteId))
         }
     }
 
