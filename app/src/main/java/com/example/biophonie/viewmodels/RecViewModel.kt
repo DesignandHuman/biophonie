@@ -1,24 +1,33 @@
 package com.example.biophonie.viewmodels
 
+import android.R.attr
+import android.R.attr.bitmap
 import android.app.Application
 import android.content.ContentResolver
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
-import com.example.biophonie.R
 import com.example.biophonie.templates
 import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.AacRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import java.io.IOException
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+
 
 private const val TAG = "RecViewModel"
 class RecViewModel(application: Application) : AndroidViewModel(application), AacRecorderController.InformationRetriever {
@@ -131,6 +140,25 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             _fromDefault.value = fromDefault
     }
 
+    private fun convertToWebp(path: String): String {
+        val compressedPath = path.replaceAfter(".", "webp")
+        viewModelScope.launch { compressPicture(path, compressedPath) }
+        return compressedPath
+    }
+
+    private suspend fun compressPicture(path: String, newPath: String) {
+        withContext(Dispatchers.IO) {
+            val picture = BitmapFactory.decodeFile(path)
+            val out = FileOutputStream(newPath)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                picture.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75,out)
+            else
+                picture.compress(Bitmap.CompressFormat.WEBP,75,out)
+            out.close()
+            File(path).deleteOnExit()
+        }
+    }
+
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
@@ -183,7 +211,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
                 var landscapePath = ""
                 var templatePath = ""
 
-                if (_fromDefault.value == false) landscapePath = currentPhotoPath
+                if (_fromDefault.value == false) landscapePath = convertToWebp(currentPhotoPath)
                 else templatePath = templates.keys.elementAt(currentId)
                 _result.value =
                     Result(it, instant, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
