@@ -33,6 +33,7 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
         for (geoPoint in unavailableGeoPoints){
             ClientWeb.webService.getGeoPoint(geoPoint.remoteId)
                 .onSuccess { repository.setGeoPointAvailable(geoPoint.id) }
+                .onFailure { Log.d(TAG, "doWork: geopoint ${geoPoint.title} was not enabled yet") }
         }
 
         return if (finalResult) Result.success() else Result.failure()
