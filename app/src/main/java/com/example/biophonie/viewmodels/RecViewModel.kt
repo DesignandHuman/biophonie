@@ -12,7 +12,7 @@ import androidx.lifecycle.*
 import com.example.biophonie.R
 import com.example.biophonie.templates
 import com.mapbox.geojson.Point
-import fr.haran.soundwave.controller.DefaultRecorderController
+import fr.haran.soundwave.controller.AacRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 import java.io.File
 import java.io.IOException
@@ -21,12 +21,12 @@ import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
 private const val TAG = "RecViewModel"
-class RecViewModel(application: Application) : AndroidViewModel(application), DefaultRecorderController.InformationRetriever {
+class RecViewModel(application: Application) : AndroidViewModel(application), AacRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null
     val mTitle = ObservableField<String>()
 
-    private var recorderController: DefaultRecorderController? = null
+    private var recorderController: AacRecorderController? = null
     private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentPhotoPath: String
     private lateinit var currentSoundPath: String
@@ -155,7 +155,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), De
     fun setRecorderController(recPlayerView: RecPlayerView): Boolean {
         if (recorderController == null){
             recorderController = getApplication<Application>().applicationContext.externalCacheDir?.absolutePath?.let {
-                DefaultRecorderController(recPlayerView,
+                AacRecorderController(recPlayerView,
                     it,
                     this
                 ).apply { setRecorderListener(
