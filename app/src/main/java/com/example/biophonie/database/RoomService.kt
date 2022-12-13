@@ -9,7 +9,7 @@ interface GeoPointDao {
     @Query("select * from databasegeopoint where remote_id == 0")
     fun getGeoPointsToSend(): List<DatabaseGeoPoint>
 
-    @Query("select * from databasegeopoint where not available")
+    @Query("select * from databasegeopoint where remote_id != 0 and not available")
     fun getUnavailableNewGeoPoints(): List<DatabaseGeoPoint>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

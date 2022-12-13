@@ -43,9 +43,9 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
         }
     }
 
-    suspend fun getUnavailableNewGeoPoints(): List<GeoPoint>{
+    suspend fun getNewGeoPoints(): List<GeoPoint>{
         return withContext(Dispatchers.IO) {
-            database.geoPointDao.getUnavailableNewGeoPoints().map { it.asDomainModel() }
+            database.geoPointDao.getGeoPointsToSend().map { it.asDomainModel() }
         }
     }
 

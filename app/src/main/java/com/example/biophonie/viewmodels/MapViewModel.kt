@@ -17,7 +17,7 @@ private const val TAG = "MapViewModel"
 class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
     val newGeoPoints = liveData {
-        emit(repository.getUnavailableNewGeoPoints())
+        emit(repository.getNewGeoPoints())
     }
 
     fun requestAddGeoPoint(extras: Bundle?) {
