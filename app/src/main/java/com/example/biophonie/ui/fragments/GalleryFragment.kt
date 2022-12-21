@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.content.res.TypedArray
 import android.os.Bundle
 import android.util.Log
 import android.util.TypedValue
@@ -18,19 +17,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.biophonie.*
 import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.domain.DialogAdapterItem
 import com.example.biophonie.domain.Landscape
-import com.example.biophonie.ui.GridItemDecoration
 import com.example.biophonie.ui.LandscapesAdapter
 import com.example.biophonie.viewmodels.RecViewModel
 
@@ -55,7 +52,7 @@ class GalleryFragment : Fragment(),
 
     private var _binding: FragmentGalleryBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewManager: GridLayoutManager
+    private lateinit var viewManager: LinearLayoutManager
     private lateinit var viewAdapter: LandscapesAdapter
     private lateinit var defaultLandscapes: List<Landscape>
 
@@ -107,20 +104,13 @@ class GalleryFragment : Fragment(),
         defaultLandscapes = templateNames.mapIndexed { index, id ->
             Landscape(templates.values.elementAt(index), id)
         }
-        viewManager = GridLayoutManager(context,2)
+        viewManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         viewAdapter = LandscapesAdapter(defaultLandscapes, this)
 
         binding.recyclerView.apply {
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
-            addItemDecoration(
-                GridItemDecoration(
-                    requireActivity(),
-                    20,
-                    2
-                )
-            )
         }
     }
 

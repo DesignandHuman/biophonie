@@ -2,7 +2,6 @@ package com.example.biophonie.ui
 
 import android.content.Context
 import android.graphics.Rect
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,28 +57,4 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
         fun onLandscapeClick(position: Int)
     }
 
-}
-
-class GridItemDecoration(context: Context, space: Int = 10, private val spanCount: Int) : RecyclerView.ItemDecoration() {
-
-    private val spaceInDp = dpToPx(context, space)
-
-    override fun getItemOffsets(outRect: Rect, view: View, parent: RecyclerView, state: RecyclerView.State) {
-
-        outRect.left = spaceInDp
-        outRect.right = spaceInDp
-        outRect.bottom = 0
-        // Add top margin only for the first item to avoid double space between items
-        if (parent.getChildAdapterPosition(view) < spanCount)
-            outRect.top = 0
-        else
-            outRect.top = spaceInDp
-        if(parent.getChildAdapterPosition(view) % spanCount == 0) {
-            outRect.right = spaceInDp/2
-            outRect.left = spaceInDp
-        } else {
-            outRect.right = spaceInDp
-            outRect.left = spaceInDp/2
-        }
-    }
 }
