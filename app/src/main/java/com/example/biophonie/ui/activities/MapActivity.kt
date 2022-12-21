@@ -224,7 +224,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
             gestures.addOnMoveListener(this@MapActivity)
         }
-        binding.locationFab.setImageResource(R.drawable.ic_baseline_music_note)
+        binding.locationFab.setImageResource(R.drawable.ic_trip)
     }
 
     private val launchRecCallback = Consumer<Location> { location ->
