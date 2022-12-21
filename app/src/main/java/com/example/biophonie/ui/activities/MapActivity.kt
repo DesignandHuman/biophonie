@@ -226,7 +226,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
             gestures.addOnMoveListener(this@MapActivity)
         }
-        binding.locationFab.setImageResource(R.drawable.ic_trip)
     }
 
     private val launchRecCallback = Consumer<Location> { location ->
@@ -488,6 +487,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             zoom(10.0)
         })
         binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
+        binding.locationFab.setImageResource(R.drawable.ic_trip)
     }
 
     private fun onCameraTrackingDismissed() {

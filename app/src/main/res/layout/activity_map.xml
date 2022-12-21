@@ -61,7 +61,7 @@
             android:id="@+id/location_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@android:color/white"
+            android:backgroundTint="@color/design_default_color_background"
             android:src="@drawable/ic_baseline_location_searching"
             android:layout_gravity="bottom|end"
             android:layout_marginVertical="50dp"
