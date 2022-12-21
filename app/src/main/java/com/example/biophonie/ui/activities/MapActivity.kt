@@ -44,6 +44,7 @@ import com.mapbox.geojson.FeatureCollection
 import com.mapbox.geojson.GeoJson
 import com.mapbox.geojson.Point
 import com.mapbox.maps.*
+import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.extension.style.expressions.dsl.generated.*
@@ -57,6 +58,7 @@ import com.mapbox.maps.extension.style.sources.getSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.extension.style.style
 import com.mapbox.maps.plugin.LocationPuck2D
+import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
@@ -452,11 +454,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     updateLayerSelected("$CACHE.$LAYER.$SELECTED",id)
                 }
 
-                with(mapboxMap.cameraState.toCameraOptions().toBuilder()) {
-                    binding.mapView.camera.flyTo(
-                        center(feature.geometry() as Point).build(),
-                    )
-                }
+                binding.mapView.camera.flyTo(
+                    cameraOptions { center(feature.geometry() as Point) },
+                    mapAnimationOptions { duration(1000) }
+                )
 
                 bottomPlayer.clickOnGeoPoint(id.toInt())
             }
@@ -482,7 +483,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onMoveEnd(detector: MoveGestureDetector) {}
 
     override fun onIndicatorPositionChanged(point: Point) {
-        mapboxMap.setCamera(CameraOptions.Builder().center(point).zoom(10.0).build())
+        mapboxMap.setCamera(cameraOptions {
+            center(point)
+            zoom(10.0)
+        })
         binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
     }
 
