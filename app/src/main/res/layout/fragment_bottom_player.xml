@@ -8,6 +8,7 @@
         <variable
             name="viewModel"
             type="com.example.biophonie.viewmodels.BottomPlayerViewModel" />
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -67,6 +68,37 @@
             app:layout_constraintTop_toTopOf="@id/location"
             app:layout_constraintBottom_toBottomOf="@id/location"/>
 
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.eventNetworkError != null ? View.VISIBLE : View.GONE}"
+            android:gravity="center|top"
+            android:text="@{viewModel.eventNetworkError}"
+            android:layout_margin="15dp"
+            android:background="@color/design_default_color_background"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/close"
+            app:layout_constraintVertical_bias="0.20" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/retry_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.eventNetworkError != null ? View.VISIBLE : View.GONE}"
+            android:backgroundTint="@color/design_default_color_background"
+            android:src="@drawable/ic_reload"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="@{() -> viewModel.onRetry()}"
+            android:layout_marginBottom="10dp"
+            app:layout_constraintBottom_toTopOf="@id/error_message"
+            app:layout_constraintStart_toStartOf="@id/error_message"
+            app:layout_constraintEnd_toEndOf="@id/error_message"
+            app:borderWidth="1dp"/>
+
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/close"
             android:padding="20dp"
@@ -91,6 +123,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:paddingBottom="10dp"
+            android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@id/pin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/location"
@@ -115,6 +148,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/pin"
+            android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/player_view"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">

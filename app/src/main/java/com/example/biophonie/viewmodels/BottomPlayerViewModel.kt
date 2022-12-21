@@ -35,10 +35,6 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     val visibility: LiveData<Boolean>
         get() = _visibility
 
-    private val _isNetworkErrorShown = MutableLiveData<Boolean>()
-    val isNetworkErrorShown: LiveData<Boolean>
-        get() = _isNetworkErrorShown
-
     private val _eventNetworkError = MutableLiveData<String>()
     val eventNetworkError: LiveData<String>
         get() = _eventNetworkError
@@ -54,6 +50,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = geoPointId.switchMap { id -> liveData {
+        _eventNetworkError.value = ""
         repository.fetchGeoPoint(id)
             .onSuccess {
                 emit(it)
@@ -86,8 +83,10 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         ) }
     }
 
-    fun onNetworkErrorShown() {
-        _isNetworkErrorShown.value = true
+    fun onRetry() {
+        geoPointId.value?.let {
+            geoPointId.value = it
+        }
     }
 
     fun onLeftClick(){
