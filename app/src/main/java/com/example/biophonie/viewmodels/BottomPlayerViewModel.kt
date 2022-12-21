@@ -3,6 +3,8 @@ package com.example.biophonie.viewmodels
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.*
 import com.example.biophonie.database.GeoPointDatabase
 import com.example.biophonie.domain.*
@@ -12,7 +14,9 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
 import kotlinx.coroutines.*
+import java.io.FileNotFoundException
 import java.io.IOException
+import java.lang.RuntimeException
 
 class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) : AndroidViewModel(
     application
@@ -58,11 +62,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                     passedIds += id
             }
             .onFailure {
-                when (it) {
-                    is NotFoundThrowable -> _eventNetworkError.value = "Ce son n’est plus disponible"
-                    is InternalErrorThrowable -> _eventNetworkError.value = "Oups, notre serveur a des soucis"
-                    is NoConnectionThrowable -> _eventNetworkError.value = "Connexion au serveur impossible"
-                    else -> _eventNetworkError.value = "Oups, une erreur s’est produite"
+                _eventNetworkError.value = when(it){
+                    is NotFoundThrowable -> "Ce son n’est plus disponible"
+                    is InternalErrorThrowable -> "Oups, notre serveur a des soucis"
+                    is NoConnectionThrowable -> "Connexion au serveur impossible"
+                    else -> "Oups, une erreur s’est produite"
                 }
             }
     } }
@@ -70,7 +74,16 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     var passedIds: Array<Int> = arrayOf()
 
     fun setPlayerController(view: PlayerView){
-        playerController = DefaultPlayerController(view).apply { setPlayerListener() }
+        playerController = DefaultPlayerController(view, getApplication<Application>().cacheDir.absolutePath).apply { setPlayerListener(
+            error = {
+                _eventNetworkError.value = when(it) {
+                    is RuntimeException -> "Le son est corrompu, désolé"
+                    is IOException -> "Impossible de trouver le son"
+                    else -> "Le cache est corrompu"
+                }
+                it.printStackTrace()
+            }
+        ) }
     }
 
     fun onNetworkErrorShown() {
@@ -131,7 +144,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         }
         geoPoint.value!!.sound.remote?.let {
             val url = "$BASE_URL/api/v1/assets/sound/$it"
-            playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
+            try {
+                playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
+            } catch (e: FileNotFoundException) {
+                _eventNetworkError.value = "Nous n’avons pas pu trouver le son. Réessayez plus tard."
+            }
         }
     }
 
