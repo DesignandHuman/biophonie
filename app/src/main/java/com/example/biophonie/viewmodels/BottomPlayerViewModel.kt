@@ -50,7 +50,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint> = geoPointId.switchMap { id -> liveData {
-        _eventNetworkError.value = ""
+        _eventNetworkError.value = null
         repository.fetchGeoPoint(id)
             .onSuccess {
                 emit(it)
