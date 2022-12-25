@@ -31,8 +31,8 @@ class CustomLocationProvider(
 
         override fun onSuccess(result: LocationEngineResult?) {
             result?.lastLocation?.let {
-                provider.get()!!.updateLocation(Point.fromLngLat(it.longitude, it.latitude, it.altitude))
-                provider.get()!!.updateBearing(it.bearing.toDouble())
+                provider.get()?.updateLocation(Point.fromLngLat(it.longitude, it.latitude, it.altitude))
+                provider.get()?.updateBearing(it.bearing.toDouble())
             }
         }
 
