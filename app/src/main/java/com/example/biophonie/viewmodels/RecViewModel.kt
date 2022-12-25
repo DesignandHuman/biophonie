@@ -141,7 +141,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
     }
 
     private fun convertToWebp(path: String): String {
-        val compressedPath = path.replaceAfter(".", "webp")
+        val compressedPath = path.replaceAfterLast(".", "webp")
         viewModelScope.launch { compressPicture(path, compressedPath) }
         return compressedPath
     }

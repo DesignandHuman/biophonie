@@ -69,7 +69,7 @@ class GeoPointRepository(private val database: GeoPointDatabase) {
     suspend fun postNewGeoPoint(geoPoint: DatabaseGeoPoint): Result<NetworkGeoPoint> {
         return withContext(Dispatchers.IO) {
             val soundFile = File(geoPoint.sound!!)
-            val result = if (!geoPoint.picture!!.endsWith(".jpg")) {
+            val result = if (!geoPoint.picture!!.endsWith(".webp")) {
                 ClientWeb.webService.postNewGeoPoint(
                     geoPoint.asNetworkModel(),
                     MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
