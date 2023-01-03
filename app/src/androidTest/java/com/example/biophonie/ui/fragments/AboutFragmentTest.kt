@@ -1,4 +1,4 @@
-package com.example.biophonie.ui
+package com.example.biophonie.ui.fragments
 
 import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.test.espresso.Espresso.onView

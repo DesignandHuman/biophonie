@@ -75,13 +75,15 @@ fun NetworkGeoPoint.asDomainModel(): GeoPoint{
 }
 
 fun NetworkGeoPoint.asDatabaseModel(): DatabaseGeoPoint{
+    val isTemplate = templates.contains(picture.removeSuffix(".webp"))
     return DatabaseGeoPoint(
         title = title,
         latitude = latitude,
         longitude = longitude,
         date = date,
         amplitudes = amplitudes,
-        remotePicture = picture,
+        picture = if(isTemplate) picture.removeSuffix(".webp") else null,
+        remotePicture = if(!isTemplate) picture else null,
         remoteSound = sound,
         remoteId = id,
     )

@@ -50,18 +50,19 @@ fun setImageUri(view: AppCompatImageView, imageUri: Uri?){
 @BindingAdapter("resource")
 fun setImageResource(view: AppCompatImageView, picture: Resource?){
     picture?.let {
-        if (templates.containsKey(picture.local)) {
-            view.setImageResource(templates[picture.local]!!)
+        if (picture.local == null) {
+            Glide.with(view.context)
+                .load("$BASE_URL/api/v1/assets/picture/${picture.remote}")
+                .placeholder(R.drawable.loader) //unnecessary ?
+                //.transition(DrawableTransitionOptions.withCrossFade())
+                .error(android.R.drawable.stat_notify_error)
+                .into(view)
         } else {
-            Drawable.createFromPath(picture.local)?.let { view.setImageDrawable(it) }
-                ?.run {
-                    Glide.with(view.context)
-                        .load("$BASE_URL/api/v1/assets/picture/${picture.remote}")
-                        .placeholder(R.drawable.loader) //unnecessary ?
-                        //.transition(DrawableTransitionOptions.withCrossFade())
-                        .error(android.R.drawable.stat_notify_error)
-                        .into(view)
-                }
+            if (templates.containsKey(picture.local)) {
+                view.setImageResource(templates[picture.local]!!)
+            } else {
+                Drawable.createFromPath(picture.local)?.let { view.setImageDrawable(it) }
+            }
         }
     }
 }
