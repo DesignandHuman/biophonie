@@ -1,14 +1,11 @@
 package com.example.biophonie.ui
 
-import android.content.Context
-import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.biophonie.data.Landscape
 import com.example.biophonie.databinding.LandscapeViewBinding
-import com.example.biophonie.domain.Landscape
-import com.example.biophonie.util.dpToPx
 
 private const val TAG = "LandscapeRecyclerViewAt"
 class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLandscapeListener: OnLandscapeListener) :

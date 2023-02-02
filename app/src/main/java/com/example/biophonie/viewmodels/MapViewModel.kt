@@ -6,18 +6,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.example.biophonie.PROPERTY_ID
-import com.example.biophonie.database.DatabaseGeoPoint
-import com.example.biophonie.database.GeoPointDatabase.Companion.getInstance
-import com.example.biophonie.repositories.GeoPointRepository
-import com.mapbox.maps.QueriedFeature
+import com.example.biophonie.data.Coordinates
+import com.example.biophonie.data.GeoPoint
+import com.example.biophonie.data.Resource
+import com.example.biophonie.data.source.DefaultGeoPointRepository
+import com.example.biophonie.data.source.local.GeoPointDatabase
+import com.example.biophonie.data.source.local.GeoPointLocalDataSource
+import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
 import kotlinx.coroutines.launch
+import java.time.Instant
 
 private const val TAG = "MapViewModel"
-class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
+class MapViewModel(private val repository: DefaultGeoPointRepository): ViewModel() {
 
     val newGeoPoints = liveData {
-        emit(repository.getNewGeoPoints())
+        emit(repository.getUnavailableGeoPoints())
     }
 
     fun requestAddGeoPoint(extras: Bundle?) {
@@ -31,21 +34,24 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
             val longitude = extras.getDouble("longitude")
             val title = extras.getString("title")
             viewModelScope.launch {
-                repository.insertNewGeoPoint(DatabaseGeoPoint(
-                    title = title!!,
-                    date = date.toString(),
-                    amplitudes = amplitudes!!.toList(),
-                    latitude = latitude,
-                    longitude = longitude,
-                    picture = if (!templatePath.isNullOrEmpty()) templatePath else landscapePath,
-                    sound = soundPath!!,
-                    available = false
-                ))
+                repository.saveNewGeoPoint(
+                    GeoPoint(
+                        title = title!!,
+                        date = Instant.parse(date),
+                        amplitudes = amplitudes!!.toList(),
+                        coordinates = Coordinates(latitude, longitude),
+                        picture = Resource(local = if (!templatePath.isNullOrEmpty()) templatePath else landscapePath),
+                        sound = Resource(local = soundPath!!),
+                        remoteId = 0,
+                        id = 0
+                    )
+                )
             }
         }
     }
 
-    fun checkNewGeoPoints(features: MutableList<QueriedFeature>?) {
+    // checks from geojson, might be needed
+    /*fun checkNewGeoPoints(features: MutableList<QueriedFeature>?) {
         if (features != null && newGeoPoints.value != null) {
             viewModelScope.launch {
                 val remoteFeatureIds = features.map { feature -> feature.feature.getNumberProperty(
@@ -56,14 +62,17 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
                 }
             }
         }
-    }
+    }*/
 
     class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MapViewModel(GeoPointRepository(getInstance(context))) as T
+                return MapViewModel(DefaultGeoPointRepository(
+                    GeoPointRemoteDataSource(),
+                    GeoPointLocalDataSource(GeoPointDatabase.getInstance(context).geoPointDao)
+                )) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

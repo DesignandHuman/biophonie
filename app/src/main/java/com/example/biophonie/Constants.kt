@@ -22,3 +22,5 @@ val templates = mapOf<String, @DrawableRes Int>(
     "rainforest" to R.drawable.rainforest,
     "temperateforest" to R.drawable.temperateforest
 )
+
+const val BASE_URL = "http://10.0.2.2:8080"

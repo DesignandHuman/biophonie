@@ -1,6 +1,5 @@
 package com.example.biophonie.ui.activities
 
-import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.os.Bundle
@@ -13,6 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -20,14 +20,8 @@ import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityTutorialBinding
 import com.example.biophonie.ui.fragments.NameFragment
 import com.example.biophonie.ui.fragments.TutorialFragment
-import com.google.android.material.tabs.TabLayoutMediator
-import android.content.SharedPreferences
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.lifecycleScope
-import androidx.security.crypto.EncryptedSharedPreferences
-import androidx.security.crypto.MasterKey
 import com.example.biophonie.viewmodels.TutorialViewModel
-import kotlinx.coroutines.launch
+import com.google.android.material.tabs.TabLayoutMediator
 
 
 private const val NUM_PAGES = 3

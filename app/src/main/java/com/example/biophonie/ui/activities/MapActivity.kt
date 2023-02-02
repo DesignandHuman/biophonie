@@ -27,8 +27,8 @@ import androidx.work.*
 import com.example.biophonie.PROPERTY_ID
 import com.example.biophonie.PROPERTY_NAME
 import com.example.biophonie.R
+import com.example.biophonie.data.Coordinates
 import com.example.biophonie.databinding.ActivityMapBinding
-import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
 import com.example.biophonie.util.CustomLocationProvider
@@ -41,7 +41,6 @@ import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
 import com.mapbox.geojson.FeatureCollection
-import com.mapbox.geojson.GeoJson
 import com.mapbox.geojson.Point
 import com.mapbox.maps.*
 import com.mapbox.maps.dsl.cameraOptions
@@ -54,7 +53,6 @@ import com.mapbox.maps.extension.style.layers.getLayerAs
 import com.mapbox.maps.extension.style.layers.properties.generated.TextAnchor
 import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
-import com.mapbox.maps.extension.style.sources.getSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.extension.style.style
 import com.mapbox.maps.plugin.LocationPuck2D

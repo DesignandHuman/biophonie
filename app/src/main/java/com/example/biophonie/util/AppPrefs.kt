@@ -1,6 +1,5 @@
 package com.example.biophonie.util
 
-import android.app.Application
 import android.content.Context
 import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences

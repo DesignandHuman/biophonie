@@ -1,4 +1,4 @@
-package com.example.biophonie.domain
+package com.example.biophonie.data.domain
 
 class BadRequestThrowable(override val message: String) : Throwable()
 class ConflictThrowable(override val message: String): Throwable()

@@ -6,11 +6,7 @@ import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.example.biophonie.R
-import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.util.AppPrefs
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MainActivity : AppCompatActivity() {
 

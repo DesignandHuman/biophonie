@@ -1,8 +1,6 @@
 package com.example.biophonie.ui.fragments
 
 import android.os.Bundle
-import android.text.InputFilter
-import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup

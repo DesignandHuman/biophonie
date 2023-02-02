@@ -9,10 +9,6 @@ import android.location.LocationManager
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
 import android.widget.EditText
-import com.example.biophonie.domain.Coordinates
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
 
 class GPSCheck(private val locationCallBack: LocationCallBack) :
     BroadcastReceiver() {

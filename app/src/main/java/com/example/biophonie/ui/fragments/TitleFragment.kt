@@ -4,8 +4,6 @@ import android.app.Service
 import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.os.Bundle
-import android.text.InputFilter
-import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +16,6 @@ import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentTitleBinding
 import com.example.biophonie.util.setFiltersOnEditText
 import com.example.biophonie.viewmodels.RecViewModel
-import java.util.*
 
 
 class TitleFragment : Fragment() {

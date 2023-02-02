@@ -24,10 +24,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.biophonie.*
+import com.example.biophonie.R
+import com.example.biophonie.REQUEST_CAMERA
+import com.example.biophonie.REQUEST_GALLERY
+import com.example.biophonie.data.DialogAdapterItem
+import com.example.biophonie.data.Landscape
 import com.example.biophonie.databinding.FragmentGalleryBinding
-import com.example.biophonie.domain.DialogAdapterItem
-import com.example.biophonie.domain.Landscape
+import com.example.biophonie.templates
 import com.example.biophonie.ui.LandscapesAdapter
 import com.example.biophonie.viewmodels.RecViewModel
 
@@ -130,8 +133,10 @@ class GalleryFragment : Fragment(),
         if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
             getPicture(REQUEST_GALLERY)
         } else {
-            val items = arrayOf(DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
-                DialogAdapterItem("Galerie", R.drawable.ic_library))
+            val items = arrayOf(
+                DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
+                DialogAdapterItem("Galerie", R.drawable.ic_library)
+            )
             activity?.supportFragmentManager?.let { ChooseMeanDialog(
                 requireContext(),
                 items,

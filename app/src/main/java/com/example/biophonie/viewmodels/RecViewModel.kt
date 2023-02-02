@@ -1,7 +1,5 @@
 package com.example.biophonie.viewmodels
 
-import android.R.attr
-import android.R.attr.bitmap
 import android.app.Application
 import android.content.ContentResolver
 import android.graphics.Bitmap

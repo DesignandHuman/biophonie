@@ -52,6 +52,8 @@ class MapActivityTest {
             clickPercent(0.355f, 0.438f)
         )
         Thread.sleep(200)
+        // todo move to bottomplayerfragmenttest
+        // and to test source set
         onView(withId(R.id.location)).check(matches(withText("WithTemplate")))
         onView(withId(R.id.date_picker)).check(matches(withText("Dec 2022")))
         onView(withId(R.id.play)).perform(click())

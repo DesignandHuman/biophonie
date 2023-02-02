@@ -1,6 +1,6 @@
-package com.example.biophonie.network
+package com.example.biophonie.data.source.remote
 
-import com.example.biophonie.repositories.TokenRepository
+import com.example.biophonie.data.source.TokenRepository
 import kotlinx.coroutines.runBlocking
 import okhttp3.Authenticator
 import okhttp3.Request

@@ -3,20 +3,23 @@ package com.example.biophonie.viewmodels
 import android.app.Application
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
-import com.example.biophonie.database.GeoPointDatabase
-import com.example.biophonie.domain.*
-import com.example.biophonie.network.BASE_URL
-import com.example.biophonie.repositories.GeoPointRepository
+import com.example.biophonie.BASE_URL
+import com.example.biophonie.data.Coordinates
+import com.example.biophonie.data.GeoPoint
+import com.example.biophonie.data.domain.*
+import com.example.biophonie.data.source.DefaultGeoPointRepository
+import com.example.biophonie.data.source.GeoPointRepository
+import com.example.biophonie.data.source.local.GeoPointDatabase
+import com.example.biophonie.data.source.local.GeoPointLocalDataSource
+import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
 import kotlinx.coroutines.*
 import java.io.FileNotFoundException
 import java.io.IOException
-import java.lang.RuntimeException
 
 class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) : AndroidViewModel(
     application
@@ -25,7 +28,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private var currentIndex = 0
     lateinit var playerController: DefaultPlayerController
 
-    private val geoPointId = MutableLiveData<Int>()
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val geoPointId = MutableLiveData<Int>()
 
     private val _bottomSheetState = MutableLiveData<Int>()
     val bottomSheetState: LiveData<Int>
@@ -106,7 +110,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     fun displayClosestGeoPoint(coordinates: Coordinates) {
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         viewModelScope.launch {
-            repository.fetchClosestGeoPoint(coordinates, passedIds)
+            repository.getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess { geoPointId.value = it }
                 .onFailure {
                     when (it) {
@@ -163,9 +167,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(GeoPointRepository(GeoPointDatabase.getInstance(context)),
-                    context as Application
-                ) as T
+                return BottomPlayerViewModel(
+                    DefaultGeoPointRepository(
+                    GeoPointRemoteDataSource(), //TODO check if no conflict with worker
+                    GeoPointLocalDataSource(GeoPointDatabase.getInstance(context).geoPointDao),
+                ), context as Application) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

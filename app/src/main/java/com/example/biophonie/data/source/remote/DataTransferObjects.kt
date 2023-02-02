@@ -1,11 +1,10 @@
 package com.example.biophonie.network
 
-import com.example.biophonie.database.DatabaseGeoPoint
-import com.example.biophonie.domain.Coordinates
-import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.domain.Resource
+import com.example.biophonie.data.Coordinates
+import com.example.biophonie.data.GeoPoint
+import com.example.biophonie.data.Resource
+import com.example.biophonie.data.source.DatabaseGeoPoint
 import com.example.biophonie.templates
-import com.example.biophonie.viewmodels.TutorialViewModel
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 import java.time.Instant
@@ -25,7 +24,7 @@ data class NetworkGeoPoint(
 )
 
 @JsonClass(generateAdapter = true)
-data class NetworkAddGeoPoint(
+data class NewNetworkGeoPoint(
     val title: String,
     val latitude: Double,
     val longitude: Double,
@@ -62,7 +61,7 @@ data class NetworkAuthUser(
 @JsonClass(generateAdapter = true)
 data class AccessToken(val token: String)
 
-fun NetworkGeoPoint.asDomainModel(): GeoPoint{
+fun NetworkGeoPoint.asDomainModel(): GeoPoint {
     return GeoPoint(
         id = id,
         title = title,
@@ -74,7 +73,7 @@ fun NetworkGeoPoint.asDomainModel(): GeoPoint{
     )
 }
 
-fun NetworkGeoPoint.asDatabaseModel(): DatabaseGeoPoint{
+fun NetworkGeoPoint.asDatabaseModel(): DatabaseGeoPoint {
     val isTemplate = templates.contains(picture.removeSuffix(".webp"))
     return DatabaseGeoPoint(
         title = title,
@@ -86,5 +85,16 @@ fun NetworkGeoPoint.asDatabaseModel(): DatabaseGeoPoint{
         remotePicture = if(!isTemplate) picture else null,
         remoteSound = sound,
         remoteId = id,
+    )
+}
+
+fun GeoPoint.asNewNetworkGeoPoint(): NewNetworkGeoPoint {
+    return NewNetworkGeoPoint(
+        title = title,
+        longitude = coordinates.longitude,
+        latitude = coordinates.latitude,
+        date = date.toString(),
+        amplitudes = amplitudes,
+        pictureTemplate = if (templates.contains(picture.local)) picture.local else null
     )
 }

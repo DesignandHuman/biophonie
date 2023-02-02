@@ -1,10 +1,10 @@
-package com.example.biophonie.database
+package com.example.biophonie.data.source
 
 import androidx.room.*
-import com.example.biophonie.domain.Coordinates
-import com.example.biophonie.domain.GeoPoint
-import com.example.biophonie.domain.Resource
-import com.example.biophonie.network.NetworkAddGeoPoint
+import com.example.biophonie.data.Coordinates
+import com.example.biophonie.data.GeoPoint
+import com.example.biophonie.data.Resource
+import com.example.biophonie.network.NewNetworkGeoPoint
 import com.example.biophonie.templates
 import java.time.Instant
 
@@ -66,8 +66,8 @@ fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
     )
 }
 
-fun DatabaseGeoPoint.asNetworkModel(): NetworkAddGeoPoint {
-    return NetworkAddGeoPoint(
+fun DatabaseGeoPoint.asNetworkModel(): NewNetworkGeoPoint {
+    return NewNetworkGeoPoint(
         title = title,
         longitude = longitude,
         latitude = latitude,

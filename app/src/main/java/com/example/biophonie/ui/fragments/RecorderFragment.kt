@@ -10,7 +10,6 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.navigation.findNavController
 import com.example.biophonie.BuildConfig
 import com.example.biophonie.R

@@ -1,18 +1,16 @@
-package com.example.biophonie.domain
+package com.example.biophonie.data
 
-import android.graphics.drawable.Drawable
 import androidx.annotation.DrawableRes
+import com.example.biophonie.data.source.DatabaseGeoPoint
+import com.example.biophonie.templates
 import com.example.biophonie.util.LocationConverter
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.Instant
-import java.util.*
 
 data class GeoPoint(
     var id: Int,
     var remoteId: Int = 0,
     var coordinates: Coordinates,
-    var title: String?,
+    var title: String,
     var date: Instant?,
     var amplitudes: List<Float>,
     var picture: Resource,
@@ -20,8 +18,8 @@ data class GeoPoint(
 )
 
 data class Resource(
-    val remote: String? = null,
-    val local: String? = null
+    var remote: String? = null,
+    var local: String? = null
 )
 
 data class Coordinates(val latitude: Double, val longitude: Double) {
@@ -34,4 +32,20 @@ data class Landscape(@DrawableRes var image: Int,
 
 data class DialogAdapterItem(var text: String, var icon: Int){
     override fun toString(): String = text
+}
+
+fun GeoPoint.asDatabaseModel(fromUser: Boolean = true): DatabaseGeoPoint {
+    return DatabaseGeoPoint(
+        remoteId = if (fromUser) id else 0,
+        title = title,
+        date = date.toString(),
+        amplitudes = amplitudes,
+        latitude = coordinates.latitude,
+        longitude = coordinates.longitude,
+        picture = picture.local,
+        sound = sound.local,
+        remotePicture = picture.remote,
+        remoteSound = sound.remote,
+        available = fromUser
+    )
 }

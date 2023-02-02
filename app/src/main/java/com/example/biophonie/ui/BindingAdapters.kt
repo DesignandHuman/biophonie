@@ -1,10 +1,8 @@
 package com.example.biophonie.ui
 
-import android.content.res.Resources
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.text.SpannableStringBuilder
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
@@ -12,17 +10,15 @@ import androidx.core.text.bold
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.example.biophonie.BASE_URL
 import com.example.biophonie.R
-import com.example.biophonie.domain.Resource
-import com.example.biophonie.network.BASE_URL
+import com.example.biophonie.data.Resource
 import com.example.biophonie.templates
 import fr.haran.soundwave.ui.PlayerView
-import java.text.SimpleDateFormat
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.HashMap
 
 //TODO(use?)
 /*

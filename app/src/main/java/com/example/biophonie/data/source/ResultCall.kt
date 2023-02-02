@@ -1,6 +1,6 @@
-package com.example.biophonie.network
+package com.example.biophonie.data.source
 
-import com.example.biophonie.domain.*
+import com.example.biophonie.data.domain.*
 import okhttp3.Request
 import okio.Timeout
 import retrofit2.*

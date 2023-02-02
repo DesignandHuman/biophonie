@@ -5,32 +5,26 @@ import android.animation.AnimatorListenerAdapter
 import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.SpannableStringBuilder
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.text.bold
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.example.biophonie.R
+import com.example.biophonie.data.Coordinates
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
-import com.example.biophonie.domain.Coordinates
 import com.example.biophonie.util.ScreenMetricsCompat
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
-import java.util.*
 
 
 private const val TAG = "BottomPlayerFragment"
@@ -39,7 +33,8 @@ class BottomPlayerFragment : Fragment() {
     private var imageDisplayed: Boolean = false
     private var animationDuration: Int = 0
 
-    private val viewModel: BottomPlayerViewModel by lazy {
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    val viewModel: BottomPlayerViewModel by lazy {
         ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext().applicationContext)).get(
             BottomPlayerViewModel::class.java
         )

@@ -1,22 +1,13 @@
 package com.example.biophonie.viewmodels
 
 import android.app.Application
-import android.util.Log
 import androidx.lifecycle.*
-import com.example.biophonie.domain.*
-import com.example.biophonie.network.ClientWeb
-import com.example.biophonie.network.NetworkAddUser
-import com.example.biophonie.network.NetworkUser
-import com.example.biophonie.network.asDomainModel
-import com.example.biophonie.repositories.TutorialRepository
-import com.example.biophonie.util.AppPrefs
-import kotlinx.coroutines.Dispatchers
+import com.example.biophonie.data.domain.BadRequestThrowable
+import com.example.biophonie.data.domain.ConflictThrowable
+import com.example.biophonie.data.domain.InternalErrorThrowable
+import com.example.biophonie.data.domain.NoConnectionThrowable
+import com.example.biophonie.data.source.TutorialRepository
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.HttpException
-import java.io.IOException
-import java.net.HttpURLConnection
-import java.net.HttpURLConnection.*
 
 private const val TAG = "TutorialViewModel"
 class TutorialViewModel(application: Application) : AndroidViewModel(application) {

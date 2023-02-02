@@ -1,12 +1,11 @@
-package com.example.biophonie.repositories
+package com.example.biophonie.data.source
 
+import com.example.biophonie.data.source.remote.ClientWeb
 import com.example.biophonie.network.AccessToken
-import com.example.biophonie.network.ClientWeb
 import com.example.biophonie.network.NetworkAuthUser
 import com.example.biophonie.util.AppPrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.Exception
 
 class TokenRepository {
     suspend fun fetchAccessToken(): Result<AccessToken> {
