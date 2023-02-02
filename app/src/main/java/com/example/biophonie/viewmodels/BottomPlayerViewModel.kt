@@ -3,6 +3,7 @@ package com.example.biophonie.viewmodels
 import android.app.Application
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import com.example.biophonie.BASE_URL
@@ -53,14 +54,14 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-    val geoPoint: LiveData<GeoPoint> = geoPointId.switchMap { id -> liveData {
-        _eventNetworkError.value = null
+    val geoPoint: LiveData<GeoPoint?> = geoPointId.switchMap { id -> liveData {
         repository.fetchGeoPoint(id)
             .onSuccess {
                 emit(it)
                 displayGeoPoint()
                 if (!passedIds.contains(id))
                     passedIds += id
+                _eventNetworkError.value?.run { _eventNetworkError.value = null }
             }
             .onFailure {
                 _eventNetworkError.value = when(it){
@@ -69,6 +70,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                     is NoConnectionThrowable -> "Connexion au serveur impossible"
                     else -> "Oups, une erreur s’est produite"
                 }
+                emit(null)
             }
     } }
 
@@ -145,10 +147,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                 e.printStackTrace()
             }
         }
-        geoPoint.value!!.sound.remote?.let {
-            val url = "$BASE_URL/api/v1/assets/sound/$it"
+
+        if (geoPoint.value!!.sound.remote != null) {
+            val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value!!.sound.remote}"
             try {
                 playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
+                return
             } catch (e: FileNotFoundException) {
                 _eventNetworkError.value = "Nous n’avons pas pu trouver le son. Réessayez plus tard."
             }
