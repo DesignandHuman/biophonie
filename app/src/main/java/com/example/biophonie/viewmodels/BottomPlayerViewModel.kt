@@ -7,6 +7,7 @@ import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import com.example.biophonie.BASE_URL
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.domain.*
@@ -166,16 +167,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         geoPointId.value = id
     }
 
-    class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    class ViewModelFactory(private val application: BiophonieApplication) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(
-                    DefaultGeoPointRepository(
-                    GeoPointRemoteDataSource(), //TODO check if no conflict with worker
-                    GeoPointLocalDataSource(GeoPointDatabase.getInstance(context).geoPointDao),
-                ), context as Application) as T
+                return BottomPlayerViewModel(application.geoPointRepository, application) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

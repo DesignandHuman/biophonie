@@ -3,6 +3,7 @@ package com.example.biophonie.work
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.source.DefaultGeoPointRepository
 import com.example.biophonie.data.source.local.GeoPointDatabase
 import com.example.biophonie.data.source.local.GeoPointLocalDataSource
@@ -15,13 +16,10 @@ class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
         initPrefs(applicationContext)
-        val database = GeoPointDatabase.getInstance(applicationContext)
-        val repository = DefaultGeoPointRepository(
-            GeoPointRemoteDataSource(),
-            GeoPointLocalDataSource(database.geoPointDao)
-        )
-        repository.refreshUnavailableGeoPoints()
-        return if (repository.addNewGeoPoints()) Result.success() else Result.failure()
+        with((applicationContext as BiophonieApplication).geoPointRepository) {
+            refreshUnavailableGeoPoints()
+            return if (addNewGeoPoints()) Result.success() else Result.failure()
+        }
     }
 
     companion object {

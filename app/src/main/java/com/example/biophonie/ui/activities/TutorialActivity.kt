@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityTutorialBinding
 import com.example.biophonie.ui.fragments.NameFragment
@@ -29,7 +30,7 @@ private const val NUM_PAGES = 3
 class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
 
     private val viewModel: TutorialViewModel by lazy {
-        ViewModelProvider(this, TutorialViewModel.ViewModelFactory(application)).get(TutorialViewModel::class.java)
+        ViewModelProvider(this, TutorialViewModel.ViewModelFactory((application as BiophonieApplication).tutorialRepository)).get(TutorialViewModel::class.java)
     }
     private var keyboardShown = false
     private lateinit var binding: ActivityTutorialBinding

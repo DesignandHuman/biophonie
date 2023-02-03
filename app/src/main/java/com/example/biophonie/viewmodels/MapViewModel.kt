@@ -6,10 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.Resource
-import com.example.biophonie.data.source.DefaultGeoPointRepository
+import com.example.biophonie.data.source.GeoPointRepository
 import com.example.biophonie.data.source.local.GeoPointDatabase
 import com.example.biophonie.data.source.local.GeoPointLocalDataSource
 import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
@@ -17,7 +18,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 
 private const val TAG = "MapViewModel"
-class MapViewModel(private val repository: DefaultGeoPointRepository): ViewModel() {
+class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
     val newGeoPoints = liveData {
         emit(repository.getUnavailableGeoPoints())
@@ -64,15 +65,12 @@ class MapViewModel(private val repository: DefaultGeoPointRepository): ViewModel
         }
     }*/
 
-    class ViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    class ViewModelFactory(private val geoPointRepository: GeoPointRepository) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return MapViewModel(DefaultGeoPointRepository(
-                    GeoPointRemoteDataSource(),
-                    GeoPointLocalDataSource(GeoPointDatabase.getInstance(context).geoPointDao)
-                )) as T
+                return MapViewModel(geoPointRepository) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

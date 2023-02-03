@@ -18,12 +18,14 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.work.*
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.PROPERTY_ID
 import com.example.biophonie.PROPERTY_NAME
 import com.example.biophonie.R
@@ -72,7 +74,7 @@ private const val REQUEST_LOCATION: Int = 0x02
 class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
 
     private val viewModel: MapViewModel by lazy {
-        ViewModelProvider(this, MapViewModel.ViewModelFactory(this)).get(MapViewModel::class.java)
+        ViewModelProvider(this, MapViewModel.ViewModelFactory((application as BiophonieApplication).geoPointRepository)).get(MapViewModel::class.java)
     }
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap

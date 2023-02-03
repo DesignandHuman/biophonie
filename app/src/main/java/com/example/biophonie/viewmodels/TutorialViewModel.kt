@@ -2,6 +2,7 @@ package com.example.biophonie.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.*
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.domain.BadRequestThrowable
 import com.example.biophonie.data.domain.ConflictThrowable
 import com.example.biophonie.data.domain.InternalErrorThrowable
@@ -10,7 +11,9 @@ import com.example.biophonie.data.source.TutorialRepository
 import kotlinx.coroutines.launch
 
 private const val TAG = "TutorialViewModel"
-class TutorialViewModel(application: Application) : AndroidViewModel(application) {
+class TutorialViewModel(
+    private val tutorialRepository: TutorialRepository
+) : ViewModel() {
 
     private val _warning = MutableLiveData<String>()
     val warning: LiveData<String>
@@ -25,7 +28,7 @@ class TutorialViewModel(application: Application) : AndroidViewModel(application
             name.isBlank() -> _warning.value = "Le nom ne peut pas être nul"
             name.length < 3 -> _warning.value = "Le nom doit faire plus de 2 caractères"
             else -> viewModelScope.launch {
-                TutorialRepository().postUser(name)
+                tutorialRepository.postUser(name)
                     .onSuccess {
                         _shouldStartActivity.value = true
                     }
@@ -42,12 +45,12 @@ class TutorialViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
+    class ViewModelFactory(private val tutorialRepository: TutorialRepository) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel?> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(TutorialViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
-                return TutorialViewModel(application) as T
+                return TutorialViewModel(tutorialRepository) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

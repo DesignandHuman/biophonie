@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.R
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
@@ -35,7 +36,7 @@ class BottomPlayerFragment : Fragment() {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext().applicationContext)).get(
+        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext().applicationContext as BiophonieApplication)).get(
             BottomPlayerViewModel::class.java
         )
     }

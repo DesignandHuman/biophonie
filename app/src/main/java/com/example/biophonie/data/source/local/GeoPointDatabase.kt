@@ -9,29 +9,5 @@ import com.example.biophonie.data.source.DatabaseGeoPoint
 @TypeConverters(Converters::class)
 abstract class GeoPointDatabase : RoomDatabase() {
 
-    abstract val geoPointDao: GeoPointDao
-
-    companion object {
-
-        @Volatile
-        private var INSTANCE: GeoPointDatabase? = null
-
-        fun getInstance(context: Context): GeoPointDatabase {
-            synchronized(this) {
-                var instance = INSTANCE
-
-                if (instance == null) {
-                    instance = Room.databaseBuilder(
-                        context.applicationContext,
-                        GeoPointDatabase::class.java,
-                        "new_geopoint_database"
-                    )
-                        .fallbackToDestructiveMigration()
-                        .build()
-                    INSTANCE = instance
-                }
-                return instance
-            }
-        }
-    }
+    abstract fun geoPointDao(): GeoPointDao
 }
