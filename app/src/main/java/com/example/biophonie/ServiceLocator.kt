@@ -9,8 +9,8 @@ import com.example.biophonie.data.source.GeoPointRepository
 import com.example.biophonie.data.source.TutorialRepository
 import com.example.biophonie.data.source.local.GeoPointDatabase
 import com.example.biophonie.data.source.local.GeoPointLocalDataSource
-import com.example.biophonie.data.source.remote.WebClient
 import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
+import com.example.biophonie.data.source.remote.WebClient
 import kotlinx.coroutines.runBlocking
 
 object ServiceLocator {

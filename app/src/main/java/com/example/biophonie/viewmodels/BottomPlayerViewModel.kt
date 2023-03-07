@@ -1,25 +1,24 @@
 package com.example.biophonie.viewmodels
 
 import android.app.Application
-import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
 import com.example.biophonie.BASE_URL
 import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
-import com.example.biophonie.data.domain.*
-import com.example.biophonie.data.source.DefaultGeoPointRepository
+import com.example.biophonie.data.domain.InternalErrorThrowable
+import com.example.biophonie.data.domain.NoConnectionThrowable
+import com.example.biophonie.data.domain.NotFoundThrowable
 import com.example.biophonie.data.source.GeoPointRepository
-import com.example.biophonie.data.source.local.GeoPointDatabase
-import com.example.biophonie.data.source.local.GeoPointLocalDataSource
-import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
 import java.io.IOException
 

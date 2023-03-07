@@ -1,19 +1,14 @@
 package com.example.biophonie.viewmodels
 
-import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import androidx.lifecycle.viewModelScope
-import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.Resource
 import com.example.biophonie.data.source.GeoPointRepository
-import com.example.biophonie.data.source.local.GeoPointDatabase
-import com.example.biophonie.data.source.local.GeoPointLocalDataSource
-import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
 import kotlinx.coroutines.launch
 import java.time.Instant
 

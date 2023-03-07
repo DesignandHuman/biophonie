@@ -4,11 +4,6 @@ import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.biophonie.BiophonieApplication
-import com.example.biophonie.data.source.DefaultGeoPointRepository
-import com.example.biophonie.data.source.local.GeoPointDatabase
-import com.example.biophonie.data.source.local.GeoPointLocalDataSource
-import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
-import com.example.biophonie.util.AppPrefs
 
 class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {

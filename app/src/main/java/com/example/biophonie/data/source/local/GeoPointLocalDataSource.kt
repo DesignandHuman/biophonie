@@ -1,6 +1,5 @@
 package com.example.biophonie.data.source.local
 
-import android.util.Log
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.asDatabaseModel

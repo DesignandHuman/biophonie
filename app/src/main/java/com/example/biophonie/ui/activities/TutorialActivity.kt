@@ -88,7 +88,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
             //Get rid of overscrolling effect
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
-        TabLayoutMediator(binding.tabLayout, binding.pager) { tab, position ->
+        TabLayoutMediator(binding.tabLayout, binding.pager) { _, _ ->
             //tab.view.isClickable = false
         }.attach()
     }

@@ -1,8 +1,6 @@
 package com.example.biophonie.viewmodels
 
-import android.app.Application
 import androidx.lifecycle.*
-import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.data.domain.BadRequestThrowable
 import com.example.biophonie.data.domain.ConflictThrowable
 import com.example.biophonie.data.domain.InternalErrorThrowable

@@ -1,6 +1,5 @@
 package com.example.biophonie.data.source
 
-import android.util.Log
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import kotlinx.coroutines.CoroutineDispatcher

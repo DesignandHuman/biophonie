@@ -2,7 +2,6 @@ package com.example.biophonie.data
 
 import androidx.annotation.DrawableRes
 import com.example.biophonie.data.source.DatabaseGeoPoint
-import com.example.biophonie.templates
 import com.example.biophonie.util.LocationConverter
 import java.time.Instant
 

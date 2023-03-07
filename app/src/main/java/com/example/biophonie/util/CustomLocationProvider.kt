@@ -1,7 +1,6 @@
 package com.example.biophonie.util
 
 import android.content.Context
-import android.util.Log
 import com.mapbox.common.location.compat.*
 import com.mapbox.geojson.Point
 import com.mapbox.maps.plugin.locationcomponent.LocationConsumer

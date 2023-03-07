@@ -4,9 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.app.AppCompatDelegate
 import com.example.biophonie.R
-import com.example.biophonie.util.AppPrefs
 
 class MainActivity : AppCompatActivity() {
 

@@ -3,7 +3,6 @@ package com.example.biophonie.data.source.remote
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.source.GeoPointDataSource
-import com.example.biophonie.data.source.local.GeoPointDao
 import com.example.biophonie.network.asDomainModel
 import com.example.biophonie.network.asNewNetworkGeoPoint
 import kotlinx.coroutines.CoroutineDispatcher

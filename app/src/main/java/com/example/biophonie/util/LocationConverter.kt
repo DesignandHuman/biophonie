@@ -29,16 +29,16 @@ object LocationConverter {
         return strLongitude
     }
 
-    fun replaceDelimiters(str: String, decimalPlace: Int): String {
-        var str = str
-        str = str.replaceFirst(":".toRegex(), "°")
-        str = str.replaceFirst(":".toRegex(), "'")
-        val pointIndex = str.indexOf(".")
+    private fun replaceDelimiters(str: String, decimalPlace: Int): String {
+        var newStr = str
+        newStr = newStr.replaceFirst(":".toRegex(), "°")
+        newStr = newStr.replaceFirst(":".toRegex(), "'")
+        val pointIndex = newStr.indexOf(".")
         val endIndex = pointIndex + 1 + decimalPlace
-        if (endIndex < str.length) {
-            str = str.substring(0, endIndex)
+        if (endIndex < newStr.length) {
+            newStr = newStr.substring(0, endIndex)
         }
-        str += "\""
-        return str
+        newStr += "\""
+        return newStr
     }
 }

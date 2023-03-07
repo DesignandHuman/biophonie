@@ -1,7 +1,8 @@
 package com.example.biophonie.data.source.local
 
-import android.content.Context
-import androidx.room.*
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.example.biophonie.data.source.Converters
 import com.example.biophonie.data.source.DatabaseGeoPoint
 
