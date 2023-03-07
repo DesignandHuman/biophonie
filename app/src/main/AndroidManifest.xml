@@ -23,9 +23,10 @@
         android:theme="@style/AppTheme">
         <activity android:name=".ui.activities.RecSoundActivity" android:windowSoftInputMode="adjustResize" />
         <activity android:name=".ui.activities.TutorialActivity" android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".ui.activities.MapActivity" android:foregroundServiceType="location"/>
-        <activity android:name=".ui.activities.MainActivity" android:theme="@style/SplashTheme"
-            android:exported="true">
+        <activity android:name=".ui.activities.MapActivity"
+            android:theme="@style/SplashTheme"
+            android:foregroundServiceType="location"
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

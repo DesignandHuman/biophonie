@@ -10,9 +10,6 @@ import com.example.biophonie.util.AppPrefs
 
 class MainActivity : AppCompatActivity() {
 
-    init {
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
@@ -22,20 +19,6 @@ class MainActivity : AppCompatActivity() {
         }
         findViewById<Button>(R.id.toTutorial).setOnClickListener {
             startActivity(Intent(this, TutorialActivity::class.java))
-        }
-        initPrefs()
-        checkTutorial()
-    }
-
-    private fun initPrefs() {
-        AppPrefs.setup(application)
-    }
-
-    private fun checkTutorial() {
-        if (AppPrefs.userId == null) {
-            val intent =
-                Intent(this@MainActivity, TutorialActivity::class.java)
-            startActivity(intent)
         }
     }
 }
