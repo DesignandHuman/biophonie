@@ -15,8 +15,6 @@ private const val SoundId2 = "{\"id\":2,\"sounds\":[{\"title\":\"Chouette le mat
 // Only for testing purpose. Use a MockWebServer for more complete tests
 class FakeInterceptor : Interceptor {
 
-    private val TAG = FakeInterceptor::class.java.simpleName
-
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val responseString: String

@@ -5,8 +5,8 @@ import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import timber.log.Timber
 
-private const val TAG = "DefaultGeoPointRepository"
 class DefaultGeoPointRepository(
     private val geoPointRemoteDataSource: GeoPointDataSource,
     private val geoPointLocalDataSource: GeoPointDataSource,
@@ -38,9 +38,9 @@ class DefaultGeoPointRepository(
         var success = true
         geoPointLocalDataSource.getNewGeoPoints().forEach { geoPoint ->
             geoPointRemoteDataSource.addGeoPoint(geoPoint)
-                .onSuccess { Log.d(TAG, "saveNewGeoPoints: ${geoPoint.title} posted") }
+                .onSuccess { Timber.i("saveNewGeoPoints: ${geoPoint.title} posted") }
                 .onFailure {
-                    Log.d(TAG, "saveNewGeoPoints: could not post ${geoPoint.title}")
+                    Timber.e("saveNewGeoPoints: could not post ${geoPoint.title}")
                     success = false
                 }
         }
@@ -51,13 +51,13 @@ class DefaultGeoPointRepository(
         getUnavailableGeoPoints().forEach { geoPoint ->
             geoPointRemoteDataSource.getGeoPoint(geoPoint.remoteId)
                 .onSuccess {
-                    Log.d(TAG, "refreshUnavailableGeoPoints: ${geoPoint.title} posted")
+                    Timber.i("refreshUnavailableGeoPoints: ${geoPoint.title} posted")
                     it.remoteId = it.id
                     it.id = geoPoint.id
                     geoPointLocalDataSource.refreshGeoPoint(it)
                 }
                 .onFailure {
-                    Log.d(TAG, "refreshUnavailableGeoPoints: ${geoPoint.title} was not enabled yet")
+                    Timber.w("refreshUnavailableGeoPoints: ${geoPoint.title} was not enabled yet")
                 }
         }
     }

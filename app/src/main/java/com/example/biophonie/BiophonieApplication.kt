@@ -7,6 +7,7 @@ import com.example.biophonie.data.source.GeoPointRepository
 import com.example.biophonie.data.source.TutorialRepository
 import com.example.biophonie.ui.activities.TutorialActivity
 import com.example.biophonie.util.AppPrefs
+import com.example.biophonie.util.ReleaseTree
 import timber.log.Timber
 import timber.log.Timber.Forest.plant
 
@@ -22,6 +23,8 @@ class BiophonieApplication: Application() {
         super.onCreate()
         if (BuildConfig.DEBUG)
             plant(Timber.DebugTree())
+        else
+            plant(ReleaseTree())
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         AppPrefs.setup(this)
         checkTutorial()

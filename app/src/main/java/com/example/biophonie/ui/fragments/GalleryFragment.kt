@@ -33,8 +33,8 @@ import com.example.biophonie.databinding.FragmentGalleryBinding
 import com.example.biophonie.templates
 import com.example.biophonie.ui.LandscapesAdapter
 import com.example.biophonie.viewmodels.RecViewModel
+import timber.log.Timber
 
-private const val TAG = "GalleryFragment"
 class GalleryFragment : Fragment(),
     LandscapesAdapter.OnLandscapeListener,
     ChooseMeanDialog.ChooseMeanListener {
@@ -47,7 +47,7 @@ class GalleryFragment : Fragment(),
         if (it)
             viewModel.pictureResult(null)
         else
-            Log.i(TAG, "onChoiceClick: could not take picture")
+            Timber.i("onChoiceClick: could not take picture")
     }
     private val fetchGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
         viewModel.pictureResult(it)

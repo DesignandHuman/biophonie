@@ -77,7 +77,6 @@ fun DatabaseGeoPoint.asNetworkModel(): NewNetworkGeoPoint {
     )
 }
 
-private const val TAG = "DatabaseEntities"
 class Converters {
     @TypeConverter
     fun fromListOfFloats(list: List<Float>?): String {

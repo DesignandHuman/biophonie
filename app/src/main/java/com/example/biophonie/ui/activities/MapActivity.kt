@@ -66,6 +66,7 @@ import com.mapbox.maps.plugin.gestures.*
 import com.mapbox.maps.plugin.locationcomponent.*
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.util.function.Consumer
 
 private const val REQUEST_RECORD: Int = 0x01
@@ -156,7 +157,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                 },
                 object : OnMapLoadErrorListener {
                     override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                        Log.i(TAG, "onMapLoadError: could not refresh sounds, retry later")
+                        Timber.w("onMapLoadError: could not refresh sounds, retry later")
                     }
                 }
             )
@@ -500,7 +501,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     companion object {
-        private const val TAG = "MapActivity"
         private const val REMOTE: String = "remote"
         private const val CACHE: String = "cache"
         private const val SOURCE: String = "source"

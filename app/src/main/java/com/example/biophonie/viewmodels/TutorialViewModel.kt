@@ -10,7 +10,6 @@ import com.example.biophonie.data.domain.NoConnectionThrowable
 import com.example.biophonie.data.source.TutorialRepository
 import kotlinx.coroutines.launch
 
-private const val TAG = "TutorialViewModel"
 class TutorialViewModel(
     private val tutorialRepository: TutorialRepository
 ) : ViewModel() {

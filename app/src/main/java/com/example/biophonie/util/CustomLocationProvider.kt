@@ -6,6 +6,7 @@ import com.mapbox.common.location.compat.*
 import com.mapbox.geojson.Point
 import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.LocationProvider
+import timber.log.Timber
 import java.lang.ref.WeakReference
 
 class CustomLocationProvider(
@@ -16,7 +17,6 @@ class CustomLocationProvider(
 ) : LocationProvider {
 
     companion object {
-        private const val TAG = "CustomLocationProvider"
         private const val DEFAULT_LOCATION_UPDATES_INTERVAL = 200L
 
         private const val DEFAULT_LOCATION_UPDATES_MIN_WAIT_TIME = 50L
@@ -37,7 +37,7 @@ class CustomLocationProvider(
         }
 
         override fun onFailure(exception: Exception) {
-            Log.i(TAG, "onFailure: ${exception.localizedMessage}")
+            Timber.e("onFailure: ${exception.localizedMessage}")
         }
     }
 
@@ -68,12 +68,12 @@ class CustomLocationProvider(
     }
 
     private fun updateLocation(point: Point) {
-        println("CustomLocationProvider.updateLocation - ($point)")
+        Timber.i("updateLocation: $point")
         consumers.forEach { it.onLocationUpdated(point) }
     }
 
     private fun updateBearing(bearing: Double) {
-        println("CustomLocationProvider.updateBearing - ($bearing)")
+        Timber.i("updateBearing: $bearing")
         consumers.forEach { it.onBearingUpdated(bearing) }
     }
 

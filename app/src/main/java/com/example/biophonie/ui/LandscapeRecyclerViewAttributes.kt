@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.biophonie.data.Landscape
 import com.example.biophonie.databinding.LandscapeViewBinding
 
-private const val TAG = "LandscapeRecyclerViewAt"
 class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLandscapeListener: OnLandscapeListener) :
     RecyclerView.Adapter<LandscapesAdapter.LandscapeViewHolder>(){
 

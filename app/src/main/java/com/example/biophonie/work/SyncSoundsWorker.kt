@@ -10,7 +10,6 @@ import com.example.biophonie.data.source.local.GeoPointLocalDataSource
 import com.example.biophonie.data.source.remote.GeoPointRemoteDataSource
 import com.example.biophonie.util.AppPrefs
 
-private const val TAG = "SyncSoundsWorker"
 class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
     CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {

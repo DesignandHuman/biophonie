@@ -26,8 +26,6 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-
-private const val TAG = "RecViewModel"
 class RecViewModel(application: Application) : AndroidViewModel(application), AacRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null

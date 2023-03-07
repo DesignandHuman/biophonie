@@ -27,8 +27,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
-private const val TAG = "BottomPlayerFragment"
 class BottomPlayerFragment : Fragment() {
 
     private var imageDisplayed: Boolean = false
