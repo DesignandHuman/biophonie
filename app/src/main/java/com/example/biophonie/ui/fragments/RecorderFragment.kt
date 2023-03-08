@@ -19,7 +19,6 @@ import fr.haran.soundwave.controller.AacRecorderController
 import kotlin.properties.Delegates
 
 private const val MINIMUM_DURATION = 60000
-//TODO something takes a very long time before recording
 class RecorderFragment : Fragment() {
 
     private var duration by Delegates.notNull<Long>()
@@ -28,7 +27,6 @@ class RecorderFragment : Fragment() {
     }
     private var _binding: FragmentRecordingBinding? = null
     private val binding get() = _binding!!
-    private var recorderController: AacRecorderController? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -92,8 +90,6 @@ class RecorderFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        recorderController?.destroyController()
-        recorderController = null
         _binding = null
     }
 }

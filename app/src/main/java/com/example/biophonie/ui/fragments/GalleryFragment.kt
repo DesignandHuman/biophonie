@@ -54,8 +54,8 @@ class GalleryFragment : Fragment(),
 
     private var _binding: FragmentGalleryBinding? = null
     private val binding get() = _binding!!
-    private lateinit var viewManager: LinearLayoutManager
-    private lateinit var viewAdapter: LandscapesAdapter
+    private var viewManager: LinearLayoutManager? = null
+    private var viewAdapter: LandscapesAdapter? = null
     private lateinit var defaultLandscapes: List<Landscape>
 
     override fun onCreateView(
@@ -85,13 +85,13 @@ class GalleryFragment : Fragment(),
         }
         viewModel.fromDefault.observe(viewLifecycleOwner) {
             if (it) {
-                viewAdapter.apply {
+                viewAdapter?.apply {
                     selectedPosition = viewModel.currentId
                     notifyItemChanged(selectedPosition)
                 }
                 binding.thumbnail.isSelected = false
             } else {
-                viewAdapter.apply {
+                viewAdapter?.apply {
                     val previousPosition = selectedPosition
                     selectedPosition = RecyclerView.NO_POSITION
                     notifyItemChanged(previousPosition)
@@ -168,6 +168,8 @@ class GalleryFragment : Fragment(),
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+        viewManager = null
+        viewAdapter = null
     }
 }
 

@@ -217,6 +217,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
 
     fun onNextFragment(){
         _goToNext.value = false
+        recorderController?.destroyController()
+        recorderController = null
     }
 
     fun setCoordinates(extras: Bundle?) {
@@ -227,11 +229,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
 
     fun startRecording() {
         recorderController?.startRecording()
-    }
-
-    fun destroyController(){
-        recorderController?.destroyController()
-        recorderController = null
     }
 
     data class Result(val title: String,
