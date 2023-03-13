@@ -36,6 +36,7 @@ import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
 import com.example.biophonie.util.CustomLocationProvider
 import com.example.biophonie.util.GPSCheck
+import com.example.biophonie.util.ScreenMetricsCompat
 import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
 import com.example.biophonie.work.SyncSoundsWorker
@@ -446,7 +447,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onMapClick(point: Point): Boolean {
         val screenCoor = mapboxMap.pixelForCoordinate(point)
-
         mapboxMap.queryRenderedFeatures(
             RenderedQueryGeometry(
                 ScreenBox(
@@ -459,27 +459,34 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             val features = expected.value
             val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
-                val id = feature.getNumberProperty(PROPERTY_ID).toLong()
-                mapboxMap.getStyle()?.apply {
-                    updateLayerSelected("$REMOTE.$LAYER.$SELECTED",id)
-                    updateLayerSelected("$CACHE.$LAYER.$SELECTED",id)
-                }
+                val id = feature.getNumberProperty(PROPERTY_ID).toInt()
 
-                binding.mapView.camera.flyTo(
-                    cameraOptions { center(feature.geometry() as Point) },
-                    mapAnimationOptions { duration(1000) }
-                )
+                flyToPoint(feature.geometry() as Point, id)
 
-                bottomPlayer.clickOnGeoPoint(id.toInt())
+                bottomPlayer.clickOnGeoPoint(id)
             }
         }
         return false
     }
 
-    private fun Style.updateLayerSelected(layerId: String, id: Long) {
+    fun flyToPoint(point: Point, id: Int) {
+        binding.mapView.camera.flyTo(
+            cameraOptions {
+                center(point)
+                padding(EdgeInsets(0.0, 0.0, ScreenMetricsCompat.getScreenSize(this@MapActivity).height/3.0, 0.0))
+            },
+            mapAnimationOptions { duration(1000) }
+        )
+        mapboxMap.getStyle()?.apply {
+            updateLayerSelected("$REMOTE.$LAYER.$SELECTED",id)
+            updateLayerSelected("$CACHE.$LAYER.$SELECTED",id)
+        }
+    }
+
+    private fun Style.updateLayerSelected(layerId: String, id: Int) {
         getLayerAs<SymbolLayer>(layerId)?.filter(eq{
             get(PROPERTY_ID)
-            literal(id)}
+            literal(id.toLong())}
         )
     }
 

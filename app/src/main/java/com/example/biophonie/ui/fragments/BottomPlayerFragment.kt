@@ -19,9 +19,11 @@ import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.R
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.databinding.FragmentBottomPlayerBinding
+import com.example.biophonie.ui.activities.MapActivity
 import com.example.biophonie.util.ScreenMetricsCompat
 import com.example.biophonie.viewmodels.BottomPlayerViewModel
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -181,6 +183,14 @@ class BottomPlayerFragment : Fragment() {
         }
         viewModel.bottomSheetState.observe(viewLifecycleOwner) {
             bottomSheetBehavior.state = it
+        }
+        viewModel.geoPoint.observe(viewLifecycleOwner) {
+            it?.let {
+                (activity as? MapActivity)?.flyToPoint(
+                    Point.fromLngLat(it.coordinates.longitude,it.coordinates.latitude),
+                    it.id
+                )
+            }
         }
     }
 
