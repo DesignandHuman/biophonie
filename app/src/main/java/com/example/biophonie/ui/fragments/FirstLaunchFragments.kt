@@ -10,15 +10,39 @@ import com.example.biophonie.R
 import com.example.biophonie.util.setFiltersOnEditText
 import com.google.android.material.textfield.TextInputLayout
 
-class TutorialFragment : Fragment() {
+class TutoMapFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_tutorial, container, false)
+    ): View = inflater.inflate(R.layout.fragment_tuto_map, container, false)
 }
 
-class NameFragment: Fragment(){
+class TutoDetailsFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = inflater.inflate(R.layout.fragment_tuto_details, container, false)
+}
+
+class TutoLocationFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = inflater.inflate(R.layout.fragment_tuto_location, container, false)
+}
+
+class TutoRecordFragment : Fragment() {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View = inflater.inflate(R.layout.fragment_tuto_record, container, false)
+}
+
+class TutoNameFragment: Fragment(){
     lateinit var name: EditText
     lateinit var textInput: TextInputLayout
     override fun onCreateView(

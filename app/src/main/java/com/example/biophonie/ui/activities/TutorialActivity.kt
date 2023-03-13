@@ -1,6 +1,8 @@
 package com.example.biophonie.ui.activities
 
 import android.content.Intent
+import android.content.res.ColorStateList
+import android.content.res.Resources
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.TypedValue
@@ -19,13 +21,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityTutorialBinding
-import com.example.biophonie.ui.fragments.NameFragment
-import com.example.biophonie.ui.fragments.TutorialFragment
+import com.example.biophonie.ui.fragments.*
 import com.example.biophonie.viewmodels.TutorialViewModel
 import com.google.android.material.tabs.TabLayoutMediator
 
 
-private const val NUM_PAGES = 3
+private const val NUM_PAGES = 5
 
 class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
 
@@ -39,7 +40,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_tutorial)
-
+        
         setUpViewPager()
         setUpListeners()
         setUpDataObservers()
@@ -56,12 +57,14 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                         next.setOnClickListener { viewModel.onClickEnter(adapter.nameFragment.name.text.toString()) }
                         next.text = getString(R.string.done)
                         next.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.button_font_size))
-                        skip.visibility = View.INVISIBLE
+                        // setting visibility does not work :(
+                        skip.setTextColor(this@TutorialActivity.getColor(R.color.colorAccent))
                     } else {
                         next.setOnClickListener { pager.currentItem++ }
                         next.text = getString(R.string.next)
                         next.textSize = 30F
-                        skip.visibility = View.VISIBLE
+                        // setting visibility does not work :(
+                        skip.setTextColor(this@TutorialActivity.getColor(R.color.colorPrimary))
                     }
                 }
 
@@ -85,7 +88,6 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     private fun setUpViewPager() {
         binding.pager.apply {
             adapter = this@TutorialActivity.adapter
-            //Get rid of overscrolling effect
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
         TabLayoutMediator(binding.tabLayout, binding.pager) { _, _ ->
@@ -112,19 +114,27 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     }
 
     private inner class TutorialPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa){
-        val nameFragment = NameFragment()
+        val mapFragment = TutoMapFragment()
+        val detailsFragment = TutoDetailsFragment()
+        val nameFragment = TutoNameFragment()
+        val locationFragment = TutoLocationFragment()
+        val recordFragment = TutoRecordFragment()
+
         override fun getItemCount(): Int =
             NUM_PAGES
 
         override fun createFragment(position: Int): Fragment{
             return when(position){
-                NUM_PAGES -1 -> nameFragment
-                else -> TutorialFragment()
+                NUM_PAGES -5 -> mapFragment
+                NUM_PAGES -4 -> detailsFragment
+                NUM_PAGES -3 -> locationFragment
+                NUM_PAGES -2 -> recordFragment
+                else -> nameFragment
             }
         }
     }
 
-    // Used only to check if keyboard has opened
+    // Used only to check if keyboard was opened
     override fun onGlobalLayout() {
         val r = Rect()
         binding.root.getWindowVisibleDisplayFrame(r)
