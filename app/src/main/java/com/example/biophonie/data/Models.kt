@@ -22,8 +22,8 @@ data class Resource(
 )
 
 data class Coordinates(val latitude: Double, val longitude: Double) {
-    override fun toString() = LocationConverter.latitudeAsDMS(latitude, 4) +
-            LocationConverter.longitudeAsDMS(longitude, 4)
+    override fun toString() = LocationConverter.latitudeAsDMS(latitude, 2) +
+            LocationConverter.longitudeAsDMS(longitude, 2)
 }
 
 data class Landscape(@DrawableRes var image: Int,

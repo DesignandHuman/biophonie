@@ -51,24 +51,10 @@
             android:textStyle="bold"
             android:text="@{viewModel.geoPoint.title}"
             android:background="@drawable/border_bottom_top"
-            app:layout_constraintEnd_toStartOf="@id/coordinates"
+            app:layout_constraintEnd_toStartOf="@id/close"
             app:layout_constraintHorizontal_weight="6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
-
-        <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomPlayerTextView"
-            android:id="@+id/coordinates"
-            android:layout_height="0dp"
-            android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
-            android:text="@{viewModel.geoPoint.coordinates.toString()}"
-            android:gravity="center"
-            android:background="@drawable/border_bottom_top"
-            app:layout_constraintEnd_toEndOf="@+id/close"
-            app:layout_constraintHorizontal_weight="4"
-            app:layout_constraintStart_toEndOf="@id/location"
-            app:layout_constraintTop_toTopOf="@id/location"
-            app:layout_constraintBottom_toBottomOf="@id/location"/>
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/error_message"
@@ -115,7 +101,7 @@
             android:theme="@style/ClickableButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/coordinates"
+            app:layout_constraintStart_toEndOf="@id/location"
             app:layout_constraintBottom_toBottomOf="@id/location"
             app:layout_constraintTop_toTopOf="@id/location"
             style="@style/ButtonStyle"/>
@@ -167,19 +153,23 @@
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/date_picker"
+                app:layout_constraintEnd_toStartOf="@id/coordinates"
                 style="@style/ButtonStyle.BottomPlayer"/>
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/BottomPlayerTextView"
-                android:id="@+id/date_picker"
-                android:background="@drawable/border_top"
-                tools:text="janv. 1970"
-                app:date="@{viewModel.geoPoint.date}"
+                android:id="@+id/coordinates"
+                android:layout_height="0dp"
+                android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
+                android:text="@{viewModel.geoPoint.coordinates.toString()}"
+                android:gravity="center"
+                android:background="@drawable/border_bottom_top"
+                android:textSize="11sp"
+                app:layout_constraintEnd_toStartOf="@id/right"
+                app:layout_constraintStart_toEndOf="@id/left"
                 app:layout_constraintHorizontal_weight="4"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/left"
-                app:layout_constraintEnd_toStartOf="@id/right"/>
+                app:layout_constraintTop_toTopOf="@id/right"/>
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/right"
@@ -192,7 +182,7 @@
                 android:theme="@style/ClickableButton"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/date_picker"
+                app:layout_constraintStart_toEndOf="@+id/coordinates"
                 app:layout_constraintEnd_toStartOf="@id/expand"
                 style="@style/ButtonStyle.BottomPlayer"/>
 
@@ -201,7 +191,7 @@
                 android:background="@drawable/border_top_left"
                 android:text="Voir la photo"
                 android:theme="@style/ClickableButton"
-                app:layout_constraintHorizontal_weight="5"
+                app:layout_constraintHorizontal_weight="3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/right"

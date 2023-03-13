@@ -12,7 +12,6 @@ import com.example.biophonie.data.source.GeoPointRepository
 import kotlinx.coroutines.launch
 import java.time.Instant
 
-private const val TAG = "MapViewModel"
 class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
     val newGeoPoints = liveData {
