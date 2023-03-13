@@ -25,9 +25,8 @@ import java.io.IOException
 class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) : AndroidViewModel(
     application
 ) {
-
     private var currentIndex = 0
-    lateinit var playerController: DefaultPlayerController
+    private var playerController: DefaultPlayerController? = null
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val geoPointId = MutableLiveData<Int>()
@@ -141,7 +140,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private fun addSoundToPlayer() {
         if (geoPoint.value!!.sound.local != null) {
             try {
-                playerController.addAudioFileUri(getApplication(), Uri.parse(geoPoint.value!!.sound.local), geoPoint.value!!.amplitudes)
+                playerController?.addAudioFileUri(getApplication(), Uri.parse(geoPoint.value!!.sound.local), geoPoint.value!!.amplitudes)
                 return
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -151,7 +150,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         if (geoPoint.value!!.sound.remote != null) {
             val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value!!.sound.remote}"
             try {
-                playerController.addAudioUrl(url, geoPoint.value!!.amplitudes)
+                playerController?.addAudioUrl(url, geoPoint.value!!.amplitudes)
                 return
             } catch (e: FileNotFoundException) {
                 _eventNetworkError.value = "Nous n’avons pas pu trouver le son. Réessayez plus tard."
@@ -164,6 +163,15 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         if (geoPoint.value?.id == id)
             return
         geoPointId.value = id
+    }
+
+    fun pauseController() {
+        playerController?.pause()
+    }
+
+    fun destroyController() {
+        playerController?.destroyPlayer()
+        playerController = null
     }
 
     class ViewModelFactory(private val application: BiophonieApplication) : ViewModelProvider.Factory {

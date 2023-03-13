@@ -275,12 +275,12 @@ class BottomPlayerFragment : Fragment() {
 
     override fun onPause() {
         super.onPause()
-        viewModel.playerController.pause()
+        viewModel.pauseController()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
-        viewModel.playerController.destroyPlayer()
+        viewModel.destroyController()
     }
 }
