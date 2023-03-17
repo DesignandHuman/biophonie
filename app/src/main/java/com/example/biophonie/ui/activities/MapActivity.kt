@@ -1,6 +1,10 @@
 package com.example.biophonie.ui.activities
 
 import android.Manifest.permission.*
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -8,6 +12,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.graphics.BitmapFactory
+import android.graphics.drawable.Drawable
 import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
@@ -15,16 +20,21 @@ import android.location.LocationManager
 import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
+import android.view.ViewPropertyAnimator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.animation.addListener
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
+import androidx.vectordrawable.graphics.drawable.Animatable2Compat
+import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import androidx.work.*
 import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.PROPERTY_ID
@@ -41,6 +51,7 @@ import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
 import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
@@ -88,6 +99,15 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory((application as BiophonieApplication).geoPointRepository)).get(MapViewModel::class.java)
+    }
+    private val locationAnimation: AnimatedVectorDrawableCompat? by lazy {
+        AnimatedVectorDrawableCompat.create(this, R.drawable.loading_rec)?.apply {
+            this.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    binding.rec.post { this@apply.start() }
+                }
+            })
+        }
     }
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
@@ -252,6 +272,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
+    private fun changeRecFabState(){
+        binding.rec.setImageDrawable(locationAnimation)
+        binding.rec.isEnabled = false
+        locationAnimation?.start()
+    }
+
     @SuppressLint("MissingPermission") //TODO there may be a better way to distinguish between build versions
     private fun retrieveLocation(callback: Consumer<Location>, listener: LocationListener){
         val locationManager =
@@ -264,9 +290,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun launchRecActivity(location: Location) {
-        binding.rec.isEnabled = false
-        Toast.makeText(this, "Acquisition de la position en cours", Toast.LENGTH_SHORT)
-            .show()
         locationSettings.launch(
             Intent(this@MapActivity, RecSoundActivity::class.java).apply {
                 putExtras(Bundle().apply {
@@ -308,6 +331,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             }
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
                 if (isGPSEnabled(this)) {
+                    changeRecFabState()
                     retrieveLocation(launchRecCallback) { launchRecActivity(it) }
                 } else {
                     askLocationSettings()
@@ -353,10 +377,16 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
             when (requestCode) {
                 REQUEST_RECORD -> {
-                    if (PermissionsManager.areLocationPermissionsGranted(this))
-                        retrieveLocation(launchRecCallback) {launchRecActivity(it)}
-                    else
-                        ActivityCompat.requestPermissions(this,arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
+                    if (PermissionsManager.areLocationPermissionsGranted(this)) {
+                        changeRecFabState()
+                        retrieveLocation(launchRecCallback) { launchRecActivity(it) }
+                    } else {
+                        ActivityCompat.requestPermissions(
+                            this,
+                            arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
+                            REQUEST_LOCATION
+                        )
+                    }
                 }
                 REQUEST_LOCATION -> {
                     if (trackingExpected) trackLocation()
@@ -411,6 +441,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onResume() {
         super.onResume()
         binding.rec.isEnabled = true
+        binding.rec.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.ic_microphone,theme))
+        locationAnimation?.stop()
         syncToServer()
     }
 

@@ -76,19 +76,9 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:layout_marginBottom="15dp"
-            android:src="@drawable/button_rec"
-            android:tint="@color/buttons_darker"
+            android:src="@drawable/ic_microphone"
             app:backgroundTint="@color/buttons"
             style="@style/FloatingActionButton.Big"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:layout_marginBottom="36dp"
-            android:text="Rec."
-            android:textColor="@color/design_default_color_background"
-            android:elevation="14dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
