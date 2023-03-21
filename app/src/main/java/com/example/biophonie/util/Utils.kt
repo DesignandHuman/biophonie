@@ -8,6 +8,7 @@ import android.content.Intent
 import android.location.LocationManager
 import android.text.InputFilter
 import android.text.SpannableStringBuilder
+import android.view.View
 import android.widget.EditText
 
 class GPSCheck(private val locationCallBack: LocationCallBack) :
@@ -63,4 +64,10 @@ fun EditText.setFiltersOnEditText() {
         }
     }
     this.filters += filter
+}
+
+fun View.fadeIn() {
+    visibility = View.VISIBLE
+    alpha = 0f
+    animate().alpha(1f).setDuration(500)
 }

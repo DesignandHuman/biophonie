@@ -1,5 +1,6 @@
 package com.example.biophonie.viewmodels
 
+import androidx.databinding.ObservableField
 import androidx.lifecycle.*
 import com.example.biophonie.data.domain.BadRequestThrowable
 import com.example.biophonie.data.domain.ConflictThrowable
@@ -7,6 +8,7 @@ import com.example.biophonie.data.domain.InternalErrorThrowable
 import com.example.biophonie.data.domain.NoConnectionThrowable
 import com.example.biophonie.data.source.TutorialRepository
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class TutorialViewModel(
     private val tutorialRepository: TutorialRepository
@@ -20,12 +22,16 @@ class TutorialViewModel(
     val shouldStartActivity: LiveData<Boolean>
         get() = _shouldStartActivity
 
-    fun onClickEnter(name: String) {
+    val name = ObservableField<String>()
+
+    fun onClickEnter() {
+        val nameEntered = name.get()
+        Timber.d("$nameEntered nameEntered")
         when {
-            name.isBlank() -> _warning.value = "Le nom ne peut pas être nul"
-            name.length < 3 -> _warning.value = "Le nom doit faire plus de 2 caractères"
+            nameEntered == null -> _warning.value = "Le nom ne peut pas être nul"
+            nameEntered.length < 3 -> _warning.value = "Le nom doit faire plus de 2 caractères"
             else -> viewModelScope.launch {
-                tutorialRepository.postUser(name)
+                tutorialRepository.postUser(nameEntered)
                     .onSuccess {
                         _shouldStartActivity.value = true
                     }

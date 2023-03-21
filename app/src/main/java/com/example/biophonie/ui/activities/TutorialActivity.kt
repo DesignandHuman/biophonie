@@ -1,8 +1,6 @@
 package com.example.biophonie.ui.activities
 
 import android.content.Intent
-import android.content.res.ColorStateList
-import android.content.res.Resources
 import android.graphics.Rect
 import android.os.Bundle
 import android.util.TypedValue
@@ -11,6 +9,7 @@ import android.view.ViewTreeObserver
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -54,7 +53,9 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
                     if (position == NUM_PAGES - 1){
-                        next.setOnClickListener { viewModel.onClickEnter(adapter.nameFragment.name.text.toString()) }
+                        next.setOnClickListener {
+                            viewModel.onClickEnter()
+                        }
                         next.text = getString(R.string.done)
                         next.setTextSize(TypedValue.COMPLEX_UNIT_PX, resources.getDimension(R.dimen.button_font_size))
                         // setting visibility does not work :(
@@ -73,9 +74,6 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     }
 
     private fun setUpDataObservers() {
-        viewModel.warning.observe(this) {
-            adapter.nameFragment.textInput.error = it
-        }
         viewModel.shouldStartActivity.observe(this) {
             if (it) {
                 startActivity(
@@ -89,6 +87,12 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         binding.pager.apply {
             adapter = this@TutorialActivity.adapter
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    (supportFragmentManager.findFragmentByTag("f$position") as? FirstLaunchFragments)?.animate()
+                }
+            })
         }
         TabLayoutMediator(binding.tabLayout, binding.pager) { _, _ ->
             //tab.view.isClickable = false
@@ -114,22 +118,17 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     }
 
     private inner class TutorialPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa){
-        val mapFragment = TutoMapFragment()
-        val detailsFragment = TutoDetailsFragment()
-        val nameFragment = TutoNameFragment()
-        val locationFragment = TutoLocationFragment()
-        val recordFragment = TutoRecordFragment()
 
         override fun getItemCount(): Int =
             NUM_PAGES
 
         override fun createFragment(position: Int): Fragment{
             return when(position){
-                NUM_PAGES -5 -> mapFragment
-                NUM_PAGES -4 -> detailsFragment
-                NUM_PAGES -3 -> locationFragment
-                NUM_PAGES -2 -> recordFragment
-                else -> nameFragment
+                NUM_PAGES -5 -> TutoMapFragment()
+                NUM_PAGES -4 -> TutoDetailsFragment()
+                NUM_PAGES -3 -> TutoLocationFragment()
+                NUM_PAGES -2 -> TutoRecordFragment()
+                else -> TutoNameFragment()
             }
         }
     }
@@ -158,6 +157,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                     R.color.colorAccent
                 )
             )
+            circle.background = ResourcesCompat.getDrawable(resources,R.drawable.background_circle,theme)
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
                 clear(R.id.pager, ConstraintSet.VERTICAL)
@@ -177,6 +177,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                     R.color.design_default_color_background
                 )
             )
+            circle.background = null
             ConstraintSet().apply {
                 clone(root as ConstraintLayout)
                 clear(R.id.pager, ConstraintSet.VERTICAL)

@@ -6,10 +6,10 @@
     <string name="skip">Passer</string>
     <string name="done">Commencer</string>
     <string name="next"><![CDATA[>]]></string>
-    <string name="tuto_map">Naviguez sur la carte de Biophonie pour trouver des paysages sonores.</string>
-    <string name="tuto_details">Cliquez pour écouter et parcourir le paysage en détail.</string>
-    <string name="tuto_location">Localisez votre position et découvrez le paysage sonore le plus proche.</string>
-    <string name="tuto_record">Ce bouton vous permettra d’enregistrer un paysage sonore une fois localisé. Il sera envoyé dès que du réseau sera disponible. Enfin, nous le validerons dès que possible.</string>
+    <string name="tuto_map"><b>Naviguez</b> sur la carte de Biophonie et <b>écoutez</b> les paysages sonores.</string>
+    <string name="tuto_details"><b>Cliquez</b> pour écouter <b>un paysage</b>.</string>
+    <string name="tuto_location"><b>Géolocalisez-vous</b> pour écouter les paysages proches de vous.</string>
+    <string name="tuto_record"><b>Enregistrez</b> vos propres paysages sonores sur la carte !</string>
     <string name="subtitle"><![CDATA[Écoutons & préservons les paysages sonores de notre planète]]></string>
     <string name="asking_name"><b>Chez Labo.mg</b>, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
     <string name="georges">Georges</string>

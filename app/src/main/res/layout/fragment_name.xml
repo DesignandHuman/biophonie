@@ -1,8 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="viewModel"
+            type="com.example.biophonie.viewmodels.TutorialViewModel" />
+    </data>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/description_name"
@@ -11,6 +19,8 @@
         android:textColor="@color/colorAccent"
         android:text="@string/asking_name"
         android:gravity="center"
+        android:textSize="18sp"
+        android:paddingHorizontal="15dp"
         app:layout_constraintVertical_chainStyle="packed"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/name"
@@ -37,9 +47,11 @@
             android:textAppearance="@style/MyTextAppearance"
             android:textColor="@color/colorAccent"
             android:hint="@string/georges"
-            android:textSize="@dimen/default_font_size"
+            android:textSize="18sp"
+            android:text="@={viewModel.name}"
             android:inputType="textShortMessage"/>
 
     </com.google.android.material.textfield.TextInputLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

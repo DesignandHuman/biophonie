@@ -5,30 +5,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/record_image"
+        android:id="@+id/map_image"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:src="@drawable/map"
-        android:layout_marginTop="25dp"
-        app:layout_constraintBottom_toTopOf="@id/record_text"
+        android:layout_height="0dp"
+        android:maxHeight="250dp"
+        android:src="@drawable/tuto_map_animated"
+        android:layout_marginHorizontal="50dp"
+        android:layout_marginTop="20dp"
+        android:scaleType="fitCenter"
+        android:adjustViewBounds="true"
+        app:layout_constraintBottom_toTopOf="@id/map_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed"/>
 
     <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/record_text"
+        android:id="@+id/map_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:gravity="center"
         android:lineSpacingMultiplier="1.3"
-        android:padding="16dp"
+        android:layout_marginHorizontal="35dp"
+        android:layout_marginBottom="50dp"
         android:text="@string/tuto_map"
         android:textColor="@color/colorAccent"
+        android:textSize="16sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/record_image" />
+        app:layout_constraintTop_toBottomOf="@id/map_image" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
