@@ -34,7 +34,8 @@
         app:layout_constraintEnd_toEndOf="@id/background_rec"
         app:layout_constraintStart_toStartOf="@id/background_rec"
         app:layout_constraintTop_toTopOf="@id/background_rec"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintVertical_chainStyle="packed"
+        android:contentDescription="@string/record" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/record_text"

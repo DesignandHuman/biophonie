@@ -15,7 +15,6 @@ import com.example.biophonie.BuildConfig
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentRecordingBinding
 import com.example.biophonie.viewmodels.RecViewModel
-import fr.haran.soundwave.controller.AacRecorderController
 import kotlin.properties.Delegates
 
 private const val MINIMUM_DURATION = 60000

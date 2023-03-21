@@ -85,7 +85,8 @@
             app:layout_constraintBottom_toTopOf="@id/error_message"
             app:layout_constraintStart_toStartOf="@id/error_message"
             app:layout_constraintEnd_toEndOf="@id/error_message"
-            app:borderWidth="1dp"/>
+            app:borderWidth="1dp"
+            android:contentDescription="@string/retry" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/close"

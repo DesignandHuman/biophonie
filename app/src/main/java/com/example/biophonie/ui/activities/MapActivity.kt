@@ -470,6 +470,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(gpsReceiver)
+        if (this::customLocationProvider.isInitialized)
+            customLocationProvider.onDestroy()
         onCameraTrackingDismissed()
     }
 

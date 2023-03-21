@@ -20,18 +20,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.*
 
-//TODO(use?)
-/*
-@BindingAdapter("isNetworkError", "playlist")
-fun hideIfNetworkError(view: View, isNetWorkError: Boolean, playlist: Any?) {
-    view.visibility = if (playlist != null) View.GONE else View.VISIBLE
-
-    if(isNetWorkError) {
-        view.visibility = View.GONE
-    }
-}
-}*/
-
 @BindingAdapter("uri")
 fun setImageUri(view: AppCompatImageView, imageUri: Uri?){
     imageUri?.let {

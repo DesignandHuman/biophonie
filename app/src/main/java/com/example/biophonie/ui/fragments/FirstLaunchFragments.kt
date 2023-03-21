@@ -10,18 +10,14 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentNameBinding
-import com.example.biophonie.databinding.FragmentTitleBinding
 import com.example.biophonie.util.fadeIn
 import com.example.biophonie.util.setFiltersOnEditText
-import com.example.biophonie.viewmodels.RecViewModel
 import com.example.biophonie.viewmodels.TutorialViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 

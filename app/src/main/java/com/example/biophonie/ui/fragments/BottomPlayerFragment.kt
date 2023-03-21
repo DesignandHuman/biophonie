@@ -236,7 +236,7 @@ class BottomPlayerFragment : Fragment() {
     private fun displayImage(){
         binding.apply {
             crossFade(soundImage, playerView)
-            expand.text = "Voir le son"
+            expand.text = getString(R.string.expand_player)
         }
         imageDisplayed = true
     }
@@ -245,7 +245,7 @@ class BottomPlayerFragment : Fragment() {
         binding.apply {
             crossFade(playerView, soundImage)
             playerView.layoutParams.height = 0
-            expand.text = "Voir l'image"
+            expand.text = getString(R.string.expand_image)
         }
         imageDisplayed = false
     }

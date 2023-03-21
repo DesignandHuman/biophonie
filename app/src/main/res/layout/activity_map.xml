@@ -55,7 +55,8 @@
             app:maxImageSize="22dp"
             app:fabCustomSize="40dp"
             app:shapeAppearanceOverlay="@style/FabSquare"
-            style="@style/ButtonStyle"/>
+            style="@style/ButtonStyle"
+            android:contentDescription="@string/about" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/location_fab"
@@ -68,7 +69,8 @@
             android:layout_marginHorizontal="15dp"
             android:focusable="true"
             android:clickable="true"
-            app:borderWidth="1dp"/>
+            app:borderWidth="1dp"
+            android:contentDescription="@string/locate" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/rec"
@@ -78,7 +80,8 @@
             android:layout_marginBottom="15dp"
             android:src="@drawable/ic_microphone"
             app:backgroundTint="@color/buttons"
-            style="@style/FloatingActionButton.Big"/>
+            style="@style/FloatingActionButton.Big"
+            android:contentDescription="@string/record" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

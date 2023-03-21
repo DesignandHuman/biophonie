@@ -23,4 +23,17 @@
     <string name="shhh">Chut, écoutez…</string>
     <string name="network_error">Connexion au serveur échouée</string>
     <string name="default_error">Oups, une erreur s’est produite</string>
+    <string name="expand_player">Voir le son</string>
+    <string name="expand_image">Voir l\'image</string>
+    <string name="about_biophonie">À propos de Biophonie</string>
+    <string name="licence">LICENCE</string>
+    <string name="gnu_gpl_v3_0">GNU GPL v3.0</string>
+    <string name="developped_location">réalisé ici : 121°E 33°N</string>
+    <string name="go_to_labo_mg">Retrouvez Labo.mg</string>
+    <string name="retry">Réessayer</string>
+    <string name="play">Play</string>
+    <string name="locate">Se localiser</string>
+    <string name="trip">Voyager</string>
+    <string name="record">Enregistrer</string>
+    <string name="about">À propos</string>
 </resources>

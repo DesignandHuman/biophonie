@@ -36,7 +36,8 @@
         app:layout_constraintBottom_toBottomOf="@id/details_image"
         app:layout_constraintEnd_toEndOf="@id/details_image"
         app:layout_constraintStart_toStartOf="@id/details_image"
-        app:layout_constraintTop_toTopOf="@id/details_image" />
+        app:layout_constraintTop_toTopOf="@id/details_image"
+        android:contentDescription="@string/play" />
 
     <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/details_text"
