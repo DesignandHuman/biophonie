@@ -36,9 +36,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import androidx.work.*
-import com.example.biophonie.BiophonieApplication
-import com.example.biophonie.PROPERTY_ID
-import com.example.biophonie.PROPERTY_NAME
+import com.example.biophonie.*
 import com.example.biophonie.R
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.databinding.ActivityMapBinding
@@ -155,7 +153,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             loadStyle(
                 style(styleUri = getString(R.string.style_url)) {
                     +geoJsonSource(id = "$REMOTE.$SOURCE") {
-                        url(getString(R.string.geojson_url))
+                        url("$BASE_URL/${getString(R.string.geojson_url)}")
                         cluster(false)
                     }
                     +geoJsonSource("$CACHE.$SOURCE")

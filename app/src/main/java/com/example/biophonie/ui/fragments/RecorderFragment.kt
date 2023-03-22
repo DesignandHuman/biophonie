@@ -6,21 +6,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
-import com.example.biophonie.BuildConfig
 import com.example.biophonie.R
 import com.example.biophonie.databinding.FragmentRecordingBinding
 import com.example.biophonie.viewmodels.RecViewModel
-import kotlin.properties.Delegates
 
-private const val MINIMUM_DURATION = 60000
+private const val MINIMUM_DURATION = 120000
 class RecorderFragment : Fragment() {
 
-    private var duration by Delegates.notNull<Long>()
     private val viewModel: RecViewModel by activityViewModels{
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
@@ -46,23 +42,11 @@ class RecorderFragment : Fragment() {
     }
 
     private fun setDataObserver() {
-        viewModel.goToNext.observe(viewLifecycleOwner) {
-            if (BuildConfig.DEBUG) {
-                if (it) {
-                    binding.root.findNavController()
-                        .navigate(R.id.action_recordingFragment_to_galleryFragment)
-                    viewModel.onNextFragment()
-                }
-            } else {
-                if (duration >= MINIMUM_DURATION)
-                    binding.root.findNavController()
-                        .navigate(R.id.action_recordingFragment_to_galleryFragment)
-                else
-                    Toast.makeText(
-                        requireContext(),
-                        "Une durée de plus de ${MINIMUM_DURATION / 60000} minutes est nécessaire",
-                        Toast.LENGTH_SHORT
-                    ).show()
+        viewModel.recordComplete.observe(viewLifecycleOwner) {
+            if (it) {
+                binding.root.findNavController()
+                    .navigate(R.id.action_recordingFragment_to_galleryFragment)
+                viewModel.onFragmentRecordQuit()
             }
         }
     }
@@ -75,9 +59,8 @@ class RecorderFragment : Fragment() {
             ViewTreeObserver.OnGlobalLayoutListener {
             override fun onGlobalLayout() {
                 val recordedPreviously = viewModel.setRecorderController(binding.recPlayerView)
-                if (recordedPreviously) viewModel.startRecording()
-                val obs: ViewTreeObserver = binding.root.viewTreeObserver
-                obs.removeOnGlobalLayoutListener(this)
+                if (!recordedPreviously) viewModel.startRecording()
+                binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
             }
         })
     }

@@ -12,6 +12,7 @@ import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
 import androidx.databinding.ObservableField
 import androidx.lifecycle.*
+import com.example.biophonie.BuildConfig
 import com.example.biophonie.templates
 import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.AacRecorderController
@@ -58,9 +59,9 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
     val adviceText: LiveData<String>
         get() = _adviceText
 
-    private val _goToNext = MutableLiveData(false)
-    val goToNext: LiveData<Boolean>
-        get() = _goToNext
+    private val _recordComplete = MutableLiveData(false)
+    val recordComplete: LiveData<Boolean>
+        get() = _recordComplete
 
     private val _result = MutableLiveData<Result>()
     val result: LiveData<Result>
@@ -184,16 +185,23 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
                     this
                 ).apply { setRecorderListener(
                     start = { _adviceText.value = "Chhhhhut, écoutez !" },
+                    stop = {
+                        if (!BuildConfig.DEBUG)
+                            this.complete()
+                        else
+                            _adviceText.value = "L’enregistrement doit durer 2 minutes."
+                           },
                     complete = { _adviceText.value = "C'est tout bon !" },
-                    validate = { _goToNext.value = true })}
+                    validate = { _recordComplete.value = true },
+                )}
             }
             recorderController?.prepareRecorder()
-            return true
+            return false
         } else {
             recorderController!!.recPlayerView = recPlayerView
             recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
-            return false
+            return true
         }
     }
 
@@ -215,10 +223,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
         }
     }
 
-    fun onNextFragment(){
-        _goToNext.value = false
-        recorderController?.destroyController()
-        recorderController = null
+    fun onFragmentRecordQuit(){
+        _recordComplete.value = false
     }
 
     fun setCoordinates(extras: Bundle?) {

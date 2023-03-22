@@ -1,5 +1,5 @@
 <resources>
-    <string name="geojson_url">http://10.0.2.2:8080/api/v1/assets/geojson.json</string>
+    <string name="geojson_url">api/v1/assets/geojson.json</string>
     <string name="app_name">Biophonie</string>
     <string name="map">Map</string>
     <string name="lorem_ipsum">Puisqu’elle est parfois invisible à nos yeux, Biophonie est une interface à l’écoute de la nature et de sa biodiversité.\n—\nÀ l’instar du travail de Bernie Krause qui étudie la bioacoustique, le projet numérique Biophonie cartographie des environnements sonores naturels au fil du temps. Qu’il s’agisse du vent dans les arbres, du chant des oiseaux, des sons subtils d’insectes à la tombée du jour, ces paysages sonores sont le reflet de la biodiversité et de la vie présente dans notre environnement.\n—\nUne fois ces paysages sonores captés et observés, Biophonie permettra de les comparer d’une période à l’autre pour saisir l’appauvrissement ou la croissance des espaces naturels.\n—\nCe projet est réalisé par Labo.mg (Margaux Crinon et Geoffrey Dorne : concept et design) en partenariat avec Alban Rahier (développement).</string>
