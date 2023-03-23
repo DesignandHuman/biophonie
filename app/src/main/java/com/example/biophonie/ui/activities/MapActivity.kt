@@ -30,6 +30,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.content.res.ResourcesCompat.getFont
+import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
@@ -158,10 +159,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     }
                     +geoJsonSource("$CACHE.$SOURCE")
                     +image(imageId = "$REMOTE.$ICON") {
-                        bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_marker))
+                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_marker)!!.toBitmap(75,75))
                     }
                     +image(imageId = "$CACHE.$ICON") {
-                        bitmap(BitmapFactory.decodeResource(resources,R.drawable.ic_syncing))
+                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(75,75))
                     }
                     +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
                         buildProperties(0.6, "Regular", CACHE, false)
@@ -206,6 +207,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String, overlap: Boolean = true) {
         iconImage(literal("$origin.$ICON"))
+        iconColor(literal(String.format("#%06X", 0xFFFFFF and resources.getColor(
+            if (origin == REMOTE) R.color.colorAccent
+            else R.color.colorPrimaryDark
+            , theme))))
         iconSize(iconSize)
         iconOpacity(1.0)
         iconAllowOverlap(overlap)
@@ -468,9 +473,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onDestroy() {
         super.onDestroy()
         unregisterReceiver(gpsReceiver)
+        onCameraTrackingDismissed()
+    }
+
+    override fun onPause() {
+        super.onPause()
         if (this::customLocationProvider.isInitialized)
             customLocationProvider.onDestroy()
-        onCameraTrackingDismissed()
     }
 
     override fun onCameraChanged(eventData: CameraChangedEventData) {

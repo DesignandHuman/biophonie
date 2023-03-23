@@ -8,7 +8,6 @@ import android.view.View
 import android.widget.ImageView
 import androidx.annotation.DrawableRes
 import androidx.core.content.ContextCompat
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.ViewAction
 import androidx.test.espresso.action.CoordinatesProvider
@@ -22,7 +21,6 @@ import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import com.example.biophonie.R
-import com.example.biophonie.ui.activities.MapActivity
 import org.hamcrest.Matcher
 
 import org.junit.Test
@@ -55,7 +53,7 @@ class MapActivityTest {
         // todo move to bottomplayerfragmenttest
         // and to test source set
         onView(withId(R.id.location)).check(matches(withText("WithTemplate")))
-        onView(withId(R.id.date_picker)).check(matches(withText("Dec 2022")))
+        onView(withId(R.id.coordinates)).check(matches(withText("Dec 2022")))
         onView(withId(R.id.play)).perform(click())
         onView(withId(R.id.player_view)).perform(clickPercent(0.99f, 0.747f))
         onView(withId(R.id.duration)).check(matches(withText("00:00")))
