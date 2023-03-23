@@ -126,7 +126,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/clearing"
             android:visibility="gone"
             app:resource="@{viewModel.geoPoint.picture}"
             app:layout_constraintBottom_toTopOf="@id/pin"
@@ -190,7 +189,7 @@
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/expand"
                 android:background="@drawable/border_top_left"
-                android:text="Voir la photo"
+                android:text="@string/see_picture"
                 android:theme="@style/ClickableButton"
                 app:layout_constraintHorizontal_weight="3"
                 app:layout_constraintBottom_toBottomOf="parent"
