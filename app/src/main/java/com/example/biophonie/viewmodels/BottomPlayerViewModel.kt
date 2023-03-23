@@ -54,8 +54,10 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint?> = geoPointId.switchMap { id -> liveData {
+        _visibility.value = false
         repository.fetchGeoPoint(id)
             .onSuccess {
+                _visibility.value = true
                 emit(it)
                 displayGeoPoint()
                 if (!passedIds.contains(id))
@@ -63,6 +65,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                 _eventNetworkError.value?.run { _eventNetworkError.value = null }
             }
             .onFailure {
+                _visibility.value = true
                 _eventNetworkError.value = when(it){
                     is NotFoundThrowable -> "Ce son n’est plus disponible"
                     is InternalErrorThrowable -> "Oups, notre serveur a des soucis"
@@ -110,10 +113,15 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     fun displayClosestGeoPoint(coordinates: Coordinates) {
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
+        _visibility.value = false
         viewModelScope.launch {
             repository.getClosestGeoPointId(coordinates, passedIds)
-                .onSuccess { geoPointId.value = it }
+                .onSuccess {
+                    _visibility.value = true
+                    geoPointId.value = it
+                }
                 .onFailure {
+                    _visibility.value = true
                     when (it) {
                         is NotFoundThrowable -> {
                             _eventNetworkError.value = "Vous avez écouté tous les points disponibles"
@@ -134,7 +142,6 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private fun displayGeoPoint() {
         addSoundToPlayer()
         checkClickability()
-        _visibility.value = true
     }
 
     private fun addSoundToPlayer() {
