@@ -61,11 +61,6 @@ class CustomLocationProvider(
         }
     }
 
-    fun onDestroy() {
-        locationEngine.removeLocationUpdates(onLocationUpdated)
-        consumers.clear()
-    }
-
     private fun updateLocation(point: Point) {
         Timber.i("updateLocation: $point")
         consumers.forEach { it.onLocationUpdated(point) }

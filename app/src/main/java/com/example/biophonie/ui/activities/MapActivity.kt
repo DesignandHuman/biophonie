@@ -139,6 +139,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
@@ -474,12 +475,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         super.onDestroy()
         unregisterReceiver(gpsReceiver)
         onCameraTrackingDismissed()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        if (this::customLocationProvider.isInitialized)
-            customLocationProvider.onDestroy()
     }
 
     override fun onCameraChanged(eventData: CameraChangedEventData) {
