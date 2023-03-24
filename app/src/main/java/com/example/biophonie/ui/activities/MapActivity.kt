@@ -62,6 +62,7 @@ import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.extension.style.expressions.dsl.generated.boolean
 import com.mapbox.maps.extension.style.expressions.dsl.generated.eq
+import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.expressions.dsl.generated.literal
 import com.mapbox.maps.extension.style.image.image
 import com.mapbox.maps.extension.style.layers.generated.SymbolLayer
@@ -82,8 +83,10 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
+import com.mapbox.maps.plugin.locationcomponent.location2
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -111,7 +114,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private lateinit var customLocationProvider: CustomLocationProvider
-
     private var trackingExpected = false
     private var tracking = false
     private var bottomPlayer: BottomPlayerFragment = BottomPlayerFragment()
@@ -202,6 +204,18 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             locationPuck = LocationPuck2D(
                 bearingImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.bearing),
                 topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
+                scaleExpression = interpolate {
+                    linear()
+                    zoom()
+                    stop {
+                        literal(0.0)
+                        literal(0.6)
+                    }
+                    stop {
+                        literal(20.0)
+                        literal(1.0)
+                    }
+                }.toJson()
             )
         }
     }
@@ -256,7 +270,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun trackLocation(){
-        trackingExpected
         tracking = true
         enableLocationProvider()
         binding.mapView.run {
@@ -265,32 +278,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
-    private val launchRecCallback = Consumer<Location> { location ->
-        location?.let {
-            launchRecActivity(location)
-        }
-    }
-    private val playClosestCallback = Consumer<Location> { location ->
-        location?.let {
-            bottomPlayer.displayClosestGeoPoint(Coordinates(location.altitude,location.longitude))
-        }
-    }
-
     private fun changeRecFabState(){
         binding.rec.setImageDrawable(locationAnimation)
         binding.rec.isEnabled = false
         locationAnimation?.start()
-    }
-
-    @SuppressLint("MissingPermission") //TODO there may be a better way to distinguish between build versions
-    private fun retrieveLocation(callback: Consumer<Location>, listener: LocationListener){
-        val locationManager =
-            this.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            locationManager.getCurrentLocation(LocationManager.GPS_PROVIDER,null,this.mainExecutor,callback)
-        } else {
-            locationManager.requestSingleUpdate(Criteria(), listener, null)
-        }
     }
 
     private fun launchRecActivity(location: Location) {
@@ -304,6 +295,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         )
     }
 
+    @SuppressLint("MissingPermission")
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
             supportFragmentManager.beginTransaction()
@@ -314,9 +306,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         binding.locationFab.setOnClickListener {
             if (PermissionsManager.areLocationPermissionsGranted(this))
                 if (isGPSEnabled(this)) {
-                    if (tracking) retrieveLocation(playClosestCallback) { bottomPlayer.displayClosestGeoPoint(
-                        Coordinates(it.latitude,it.longitude)
-                    ) }
+                    if (tracking) {
+                        customLocationProvider.addSingleRequestLocationConsumer {
+                            bottomPlayer.displayClosestGeoPoint(
+                                Coordinates(this.latitude,this.longitude)
+                            )
+                        }
+                    }
                     else trackLocation()
                 } else {
                     askLocationSettings()
@@ -336,7 +332,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
                 if (isGPSEnabled(this)) {
                     changeRecFabState()
-                    retrieveLocation(launchRecCallback) { launchRecActivity(it) }
+                    customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
                 } else {
                     askLocationSettings()
                 }
@@ -383,7 +379,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                 REQUEST_RECORD -> {
                     if (PermissionsManager.areLocationPermissionsGranted(this)) {
                         changeRecFabState()
-                        retrieveLocation(launchRecCallback) { launchRecActivity(it) }
+                        customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
                     } else {
                         ActivityCompat.requestPermissions(
                             this,
@@ -394,7 +390,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                 }
                 REQUEST_LOCATION -> {
                     if (trackingExpected) trackLocation()
-                    else retrieveLocation(launchRecCallback) {launchRecActivity(it)}
+                    else customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
                 }
             }
         } else {

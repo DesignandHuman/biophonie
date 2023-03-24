@@ -1,6 +1,9 @@
 package com.example.biophonie.util
 
+import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
+import android.location.Location
 import com.mapbox.common.location.compat.*
 import com.mapbox.geojson.Point
 import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
@@ -69,6 +72,21 @@ class CustomLocationProvider(
     private fun updateBearing(bearing: Double) {
         Timber.i("updateBearing: $bearing")
         consumers.forEach { it.onBearingUpdated(bearing) }
+    }
+
+    @SuppressLint("MissingPermission")
+    fun addSingleRequestLocationConsumer(callback: (Location.() -> Unit)) {
+        locationEngine.getLastLocation(object: LocationEngineCallback<LocationEngineResult> {
+            override fun onFailure(exception: Exception) {
+                Timber.e(exception)
+            }
+
+            override fun onSuccess(result: LocationEngineResult?) {
+                result?.lastLocation?.let {
+                    callback(it)
+                }
+            }
+        })
     }
 
     override fun registerLocationConsumer(locationConsumer: LocationConsumer) {
