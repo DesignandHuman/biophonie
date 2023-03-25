@@ -26,24 +26,21 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/progress_bar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:padding="35dp"
-            android:visibility="invisible"
-            android:scaleType="centerInside"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            android:visibility="@{viewModel.event == viewModel.Event.LOADING ? View.VISIBLE : View.GONE}"
             app:srcCompat="@drawable/loader"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.12" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/BottomPlayerTextView"
             android:id="@+id/location"
             android:layout_height="wrap_content"
             android:minHeight="@dimen/pinnable"
-            android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
             android:gravity="center_vertical"
             android:paddingStart="15dp"
             android:paddingEnd="15dp"
@@ -60,28 +57,24 @@
             android:id="@+id/error_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.eventNetworkError != null ? View.VISIBLE : View.GONE}"
-            android:gravity="center|top"
+            android:gravity="center"
             android:text="@{viewModel.eventNetworkError}"
-            android:layout_margin="15dp"
             android:background="@color/design_default_color_background"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/close"
-            app:layout_constraintVertical_bias="0.20" />
+            app:layout_constraintBottom_toBottomOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/retry_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{viewModel.eventNetworkError != null ? View.VISIBLE : View.GONE}"
             android:backgroundTint="@color/design_default_color_background"
             android:src="@drawable/ic_reload"
             android:focusable="true"
             android:clickable="true"
             android:onClick="@{() -> viewModel.onRetry()}"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="15dp"
             app:layout_constraintBottom_toTopOf="@id/error_message"
             app:layout_constraintStart_toStartOf="@id/error_message"
             app:layout_constraintEnd_toEndOf="@id/error_message"
@@ -112,7 +105,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:paddingBottom="10dp"
-            android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toTopOf="@id/pin"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/location"
@@ -136,7 +128,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:id="@+id/pin"
-            android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
             app:layout_constraintTop_toBottomOf="@id/player_view"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent">
@@ -160,7 +151,6 @@
                 style="@style/BottomPlayerTextView"
                 android:id="@+id/coordinates"
                 android:layout_height="0dp"
-                android:visibility="@{viewModel.eventNetworkError == null ? View.VISIBLE : View.GONE}"
                 android:text="@{viewModel.geoPoint.coordinates.toString()}"
                 android:gravity="center"
                 android:background="@drawable/border_bottom_top"
@@ -198,6 +188,20 @@
                 style="@style/ButtonStyle.BottomPlayer"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.event == viewModel.Event.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
+            app:constraint_referenced_ids="location,sound_image,player_view,pin,close"/>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.event == viewModel.Event.FAILURE ? View.VISIBLE : View.GONE}"
+            app:constraint_referenced_ids="retry_fab,error_message"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

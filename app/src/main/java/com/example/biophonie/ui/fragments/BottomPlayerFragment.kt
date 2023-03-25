@@ -28,6 +28,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class BottomPlayerFragment : Fragment() {
 
@@ -101,9 +102,12 @@ class BottomPlayerFragment : Fragment() {
                 else screenHeight / 3
         }
         binding.apply {
-            CoroutineScope(Dispatchers.Main).launch {
+            CoroutineScope(Dispatchers.Main).launch { //TODO: superflu ?
                 withContext(Dispatchers.Main){
                     pin.translationY = - root.top.toFloat()
+                    errorMessage.translationY = - root.top.toFloat() / 2.5f
+                    retryFab.translationY = - root.top.toFloat() / 2.5f
+                    progressBar.translationY = - root.top.toFloat() / 2f
                     if (imageDisplayed)
                         updateViewMargins(soundImage, root.top)
                     else
@@ -133,6 +137,9 @@ class BottomPlayerFragment : Fragment() {
             // No other solution was found to pin a view to the bottom of the BottomSheet
             override fun onSlide(bottomSheet: View, slideOffset: Float) {
                 binding.pin.translationY = -bottomSheet.top.toFloat()
+                binding.errorMessage.translationY = -bottomSheet.top.toFloat() / 2.5f
+                binding.retryFab.translationY = -bottomSheet.top.toFloat() / 2.5f
+                binding.progressBar.translationY = -bottomSheet.top.toFloat() / 2f
                 if (imageDisplayed)
                     updateViewMargins(binding.soundImage, bottomSheet.top)
                 else
@@ -177,9 +184,6 @@ class BottomPlayerFragment : Fragment() {
         }
         viewModel.rightClickable.observe(viewLifecycleOwner) {
             binding.right.isEnabled = it
-        }
-        viewModel.visibility.observe(viewLifecycleOwner) {
-            changeWidgetsVisibility(it)
         }
         viewModel.bottomSheetState.observe(viewLifecycleOwner) {
             bottomSheetBehavior.state = it
@@ -248,29 +252,6 @@ class BottomPlayerFragment : Fragment() {
             expand.text = getString(R.string.expand_image)
         }
         imageDisplayed = false
-    }
-
-    private fun changeWidgetsVisibility(makeVisible: Boolean){
-        binding.apply {
-            if (makeVisible){
-                location.visibility = View.VISIBLE
-                close.visibility = View.VISIBLE
-                playerView.visibility = View.VISIBLE
-                pin.visibility = View.VISIBLE
-                coordinates.visibility = View.VISIBLE
-
-                progressBar.visibility = View.GONE
-            }
-            else{
-                location.visibility = View.GONE
-                close.visibility = View.GONE
-                playerView.visibility = View.GONE
-                pin.visibility = View.GONE
-                coordinates.visibility = View.GONE
-
-                progressBar.visibility = View.VISIBLE
-            }
-        }
     }
 
     override fun onPause() {

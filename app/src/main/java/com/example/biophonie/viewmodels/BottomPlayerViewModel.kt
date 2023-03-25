@@ -26,6 +26,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     application
 ) {
     private var currentIndex = 0
+    private var lastLocation: Coordinates? = null
+    private var isFetchingClose = false
     private var playerController: DefaultPlayerController? = null
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -35,9 +37,9 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     val bottomSheetState: LiveData<Int>
         get() = _bottomSheetState
 
-    private val _visibility = MutableLiveData<Boolean>()
-    val visibility: LiveData<Boolean>
-        get() = _visibility
+    private val _event = MutableLiveData<Event>()
+    val event: LiveData<Event>
+        get() = _event
 
     private val _eventNetworkError = MutableLiveData<String>()
     val eventNetworkError: LiveData<String>
@@ -54,10 +56,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
     val geoPoint: LiveData<GeoPoint?> = geoPointId.switchMap { id -> liveData {
-        _visibility.value = false
+        _event.value = Event.LOADING
+        isFetchingClose = false
+        lastLocation = null
         repository.fetchGeoPoint(id)
             .onSuccess {
-                _visibility.value = true
+                _event.value = Event.SUCCESS
                 emit(it)
                 displayGeoPoint()
                 if (!passedIds.contains(id))
@@ -65,7 +69,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                 _eventNetworkError.value?.run { _eventNetworkError.value = null }
             }
             .onFailure {
-                _visibility.value = true
+                _event.value = Event.FAILURE
                 _eventNetworkError.value = when(it){
                     is NotFoundThrowable -> "Ce son n’est plus disponible"
                     is InternalErrorThrowable -> "Oups, notre serveur a des soucis"
@@ -92,6 +96,10 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     }
 
     fun onRetry() {
+        _eventNetworkError.value = null
+        _event.value = Event.LOADING
+        if (isFetchingClose && lastLocation != null)
+            displayClosestGeoPoint(lastLocation!!)
         geoPointId.value?.let {
             geoPointId.value = it
         }
@@ -112,16 +120,18 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     }
 
     fun displayClosestGeoPoint(coordinates: Coordinates) {
+        isFetchingClose = true
+        lastLocation = coordinates
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
-        _visibility.value = false
+        _event.value = Event.LOADING
         viewModelScope.launch {
             repository.getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess {
-                    _visibility.value = true
+                    _event.value = Event.SUCCESS
                     geoPointId.value = it
                 }
                 .onFailure {
-                    _visibility.value = true
+                    _event.value = Event.FAILURE
                     when (it) {
                         is NotFoundThrowable -> {
                             _eventNetworkError.value = "Vous avez écouté tous les points disponibles"
@@ -191,5 +201,9 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
             throw IllegalArgumentException("Unknown class name")
         }
 
+    }
+
+    enum class Event {
+        LOADING, FAILURE, SUCCESS
     }
 }

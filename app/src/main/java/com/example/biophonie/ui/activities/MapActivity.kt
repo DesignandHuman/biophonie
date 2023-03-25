@@ -1,9 +1,6 @@
 package com.example.biophonie.ui.activities
 
 import android.Manifest.permission.*
-import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.ObjectAnimator
 import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -50,7 +47,6 @@ import com.example.biophonie.util.isGPSEnabled
 import com.example.biophonie.viewmodels.MapViewModel
 import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.android.gestures.MoveGestureDetector
 import com.mapbox.geojson.Feature
@@ -83,16 +79,13 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
-import com.mapbox.maps.plugin.locationcomponent.location2
 import com.mapbox.maps.plugin.scalebar.scalebar
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import java.util.function.Consumer
 
 private const val REQUEST_RECORD: Int = 0x01
 private const val REQUEST_LOCATION: Int = 0x02
@@ -270,7 +263,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun trackLocation(){
-        tracking = true
         enableLocationProvider()
         binding.mapView.run {
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
@@ -332,7 +324,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
                 if (isGPSEnabled(this)) {
                     changeRecFabState()
-                    customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
+                    getLocationAndLaunchRecord()
                 } else {
                     askLocationSettings()
                 }
@@ -357,14 +349,18 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun enableLocationProvider() {
-        if (!this::customLocationProvider.isInitialized) {
-            customLocationProvider = CustomLocationProvider(this)
-            binding.mapView.location.setLocationProvider(customLocationProvider)
-        }
+        initLocationProvider()
         binding.mapView.location.run {
             updateSettings {
                 enabled = true
             }
+        }
+    }
+
+    private fun initLocationProvider() {
+        if (!this::customLocationProvider.isInitialized) {
+            customLocationProvider = CustomLocationProvider(this)
+            binding.mapView.location.setLocationProvider(customLocationProvider)
         }
     }
 
@@ -379,7 +375,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                 REQUEST_RECORD -> {
                     if (PermissionsManager.areLocationPermissionsGranted(this)) {
                         changeRecFabState()
-                        customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
+                        getLocationAndLaunchRecord()
                     } else {
                         ActivityCompat.requestPermissions(
                             this,
@@ -390,13 +386,18 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                 }
                 REQUEST_LOCATION -> {
                     if (trackingExpected) trackLocation()
-                    else customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
+                    else getLocationAndLaunchRecord()
                 }
             }
         } else {
             Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG)
                 .show()
         }
+    }
+
+    private fun getLocationAndLaunchRecord() {
+        initLocationProvider()
+        customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
     }
 
     private fun bindScaleView() {
@@ -505,7 +506,9 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         binding.mapView.camera.flyTo(
             cameraOptions {
                 center(point)
-                padding(EdgeInsets(0.0, 0.0, ScreenMetricsCompat.getScreenSize(this@MapActivity).height/3.0, 0.0))
+                padding(EdgeInsets(0.0, 0.0,
+                    ScreenMetricsCompat.getScreenSize(this@MapActivity).height/3.0, 0.0)
+                )
             },
             mapAnimationOptions { duration(1000) }
         )
@@ -533,12 +536,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onMoveEnd(detector: MoveGestureDetector) {}
 
     override fun onIndicatorPositionChanged(point: Point) {
-        mapboxMap.setCamera(cameraOptions {
+        binding.mapView.camera.flyTo(cameraOptions {
             center(point)
             zoom(10.0)
         })
         binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
         binding.locationFab.setImageResource(R.drawable.ic_trip)
+        tracking = true
     }
 
     private fun onCameraTrackingDismissed() {
