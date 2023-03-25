@@ -116,3 +116,6 @@ fabric.properties
 
 ### Secret values ###
 **/*/res/values/secrets.xml
+
+### Build results ###
+app/release
