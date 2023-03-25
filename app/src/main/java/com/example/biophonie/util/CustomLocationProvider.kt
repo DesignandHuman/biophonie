@@ -1,6 +1,5 @@
 package com.example.biophonie.util
 
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
@@ -60,7 +59,7 @@ class CustomLocationProvider(
                 //getLastLocation(onLocationUpdated) // if this is commented out, callback is never called
             }
         } catch (e: SecurityException) {
-            throw RuntimeException(e)
+            Timber.e(e)
         }
     }
 
