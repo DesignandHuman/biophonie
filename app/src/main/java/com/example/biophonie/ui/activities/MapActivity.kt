@@ -276,12 +276,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         locationAnimation?.start()
     }
 
-    private fun launchRecActivity(location: Location) {
+    private fun launchRecActivity(location: Point) {
         locationSettings.launch(
             Intent(this@MapActivity, RecSoundActivity::class.java).apply {
                 putExtras(Bundle().apply {
-                    putDouble("latitude", location.latitude)
-                    putDouble("longitude", location.longitude)
+                    putDouble("latitude", location.latitude())
+                    putDouble("longitude", location.longitude())
                 })
             },
         )
@@ -301,7 +301,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     if (tracking) {
                         customLocationProvider.addSingleRequestLocationConsumer {
                             bottomPlayer.displayClosestGeoPoint(
-                                Coordinates(this.latitude,this.longitude)
+                                Coordinates(this.latitude(),this.longitude())
                             )
                         }
                     }
