@@ -186,7 +186,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
                 ).apply { setRecorderListener(
                     start = { _adviceText.value = "Chhhhhut, écoutez !" },
                     stop = {
-                        if (!BuildConfig.DEBUG)
+                        if (BuildConfig.DEBUG)
                             this.complete()
                         else
                             _adviceText.value = "L’enregistrement doit durer 2 minutes."
