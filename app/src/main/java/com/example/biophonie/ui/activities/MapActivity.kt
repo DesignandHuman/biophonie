@@ -70,7 +70,6 @@ import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.extension.style.style
-import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
@@ -193,24 +192,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             setDataObservers()
         }
         binding.mapView.scalebar.enabled = false
-        binding.mapView.location.updateSettings {
-            locationPuck = LocationPuck2D(
-                bearingImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.bearing),
-                topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location),
-                scaleExpression = interpolate {
-                    linear()
-                    zoom()
-                    stop {
-                        literal(0.0)
-                        literal(0.6)
-                    }
-                    stop {
-                        literal(20.0)
-                        literal(1.0)
-                    }
-                }.toJson()
-            )
-        }
     }
 
     private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String, overlap: Boolean = true) {
