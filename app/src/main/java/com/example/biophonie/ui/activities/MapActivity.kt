@@ -305,12 +305,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                 return@setOnClickListener
             }
             if (PermissionsManager.areLocationPermissionsGranted(this)) {
-                if (isGPSEnabled(this)) {
-                    changeRecFabState()
-                    getLocationAndLaunchRecord()
-                } else {
-                    askLocationSettings()
-                }
+                if (isGPSEnabled(this)) getLocationAndLaunchRecord()
+                else askLocationSettings()
             } else {
                 trackingExpected = false
                 ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
@@ -357,7 +353,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             when (requestCode) {
                 REQUEST_RECORD -> {
                     if (PermissionsManager.areLocationPermissionsGranted(this)) {
-                        changeRecFabState()
                         getLocationAndLaunchRecord()
                     } else {
                         ActivityCompat.requestPermissions(
@@ -380,6 +375,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun getLocationAndLaunchRecord() {
         initLocationProvider()
+        changeRecFabState()
         customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
     }
 
