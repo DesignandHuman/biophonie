@@ -194,7 +194,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="@{viewModel.event == viewModel.Event.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
-            app:constraint_referenced_ids="location,sound_image,player_view,pin,close"/>
+            app:constraint_referenced_ids="location,player_view,pin,close"/>
 
         <androidx.constraintlayout.widget.Group
             android:id="@+id/error"
