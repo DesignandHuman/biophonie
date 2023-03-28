@@ -48,16 +48,19 @@ class DefaultGeoPointRepository(
 
     override suspend fun refreshUnavailableGeoPoints() {
         getUnavailableGeoPoints().forEach { geoPoint ->
-            geoPointRemoteDataSource.getGeoPoint(geoPoint.remoteId)
-                .onSuccess {
-                    Timber.i("refreshUnavailableGeoPoints: ${geoPoint.title} posted")
-                    it.remoteId = it.id
-                    it.id = geoPoint.id
-                    geoPointLocalDataSource.refreshGeoPoint(it)
-                }
-                .onFailure {
-                    Timber.w("refreshUnavailableGeoPoints: ${geoPoint.title} was not enabled yet")
-                }
+            if (geoPoint.remoteId != 0)
+                geoPointRemoteDataSource.getGeoPoint(geoPoint.remoteId)
+                    .onSuccess {
+                        Timber.i("refreshUnavailableGeoPoints: ${geoPoint.title} enabled")
+                        it.remoteId = it.id
+                        it.id = geoPoint.id
+                        geoPointLocalDataSource.refreshGeoPoint(it)
+                    }
+                    .onFailure {
+                        Timber.w("refreshUnavailableGeoPoints: ${geoPoint.title} was not enabled yet")
+                    }
+            else
+                Timber.w("refreshUnavailableGeoPoints: ${geoPoint.title} not posted yet")
         }
     }
 }
