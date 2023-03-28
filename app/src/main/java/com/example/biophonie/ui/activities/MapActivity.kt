@@ -1,28 +1,18 @@
 package com.example.biophonie.ui.activities
 
 import android.Manifest.permission.*
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
-import android.location.Criteria
-import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
-import android.view.ViewPropertyAnimator
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.content.res.AppCompatResources
-import androidx.core.animation.addListener
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -58,7 +48,6 @@ import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
 import com.mapbox.maps.extension.style.expressions.dsl.generated.boolean
 import com.mapbox.maps.extension.style.expressions.dsl.generated.eq
-import com.mapbox.maps.extension.style.expressions.dsl.generated.interpolate
 import com.mapbox.maps.extension.style.expressions.dsl.generated.literal
 import com.mapbox.maps.extension.style.image.image
 import com.mapbox.maps.extension.style.layers.generated.SymbolLayer
@@ -226,7 +215,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                             Point.fromLngLat(geoPoint.coordinates.longitude, geoPoint.coordinates.latitude)
                         ).apply {
                             addStringProperty(PROPERTY_NAME, geoPoint.title)
-                            addNumberProperty(PROPERTY_ID, geoPoint.id)
+                            //set a negative id to know it is from cache
+                            addNumberProperty(PROPERTY_ID, -geoPoint.id)
                         }
                     )
                 }
@@ -474,8 +464,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
                 val id = feature.getNumberProperty(PROPERTY_ID).toInt()
-
-                flyToPoint(feature.geometry() as Point, id)
+                selectPoint(feature.geometry() as Point, id)
 
                 bottomPlayer.clickOnGeoPoint(id)
             }
@@ -483,7 +472,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         return false
     }
 
-    fun flyToPoint(point: Point, id: Int) {
+    fun selectPoint(point: Point, id: Int) {
+        flyToPoint(point)
+        unselectGeoPoint(id)
+    }
+
+    private fun flyToPoint(point: Point) {
         binding.mapView.camera.flyTo(
             cameraOptions {
                 center(point)
@@ -493,17 +487,19 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             },
             mapAnimationOptions { duration(1000) }
         )
-        mapboxMap.getStyle()?.apply {
-            updateLayerSelected("$REMOTE.$LAYER.$SELECTED",id)
-            updateLayerSelected("$CACHE.$LAYER.$SELECTED",id)
-        }
     }
 
-    private fun Style.updateLayerSelected(layerId: String, id: Int) {
-        getLayerAs<SymbolLayer>(layerId)?.filter(eq{
-            get(PROPERTY_ID)
-            literal(id.toLong())}
-        )
+    fun unselectGeoPoint(id: Int) {
+        mapboxMap.getStyle()?.apply {
+            getLayerAs<SymbolLayer>("$REMOTE.$LAYER.$SELECTED")?.filter(eq{
+                get(PROPERTY_ID)
+                literal(id.toLong())}
+            )
+            getLayerAs<SymbolLayer>("$CACHE.$LAYER.$SELECTED")?.filter(eq{
+                get(PROPERTY_ID)
+                literal(id.toLong())}
+            )
+        }
     }
 
     override fun onMoveBegin(detector: MoveGestureDetector) {

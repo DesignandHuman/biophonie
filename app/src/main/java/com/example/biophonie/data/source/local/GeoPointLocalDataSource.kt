@@ -17,12 +17,11 @@ class GeoPointLocalDataSource(
 ): GeoPointDataSource {
 
     override suspend fun getGeoPoint(id: Int): Result<GeoPoint> = withContext(ioDispatcher) {
-        val geoPoint = geoPointDao.getGeoPoint(id)
+        val geoPoint = if (id > 0) geoPointDao.getGeoPoint(id) else geoPointDao.getNewGeoPoint(-id)
         if (geoPoint != null)
             Result.success(geoPoint.asDomainModel())
         else
             Result.failure(Exception("geoPoint not found"))
-
     }
 
     override suspend fun refreshGeoPoint(geoPoint: GeoPoint) = withContext(ioDispatcher) {

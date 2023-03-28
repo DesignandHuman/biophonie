@@ -14,7 +14,7 @@ class DefaultGeoPointRepository(
     
     override suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
         return with(geoPointLocalDataSource.getGeoPoint(id)) {
-            if (!isFailure)
+            if (isSuccess)
                 return@with this
             else
                 return@with geoPointRemoteDataSource.getGeoPoint(id).onSuccess {
