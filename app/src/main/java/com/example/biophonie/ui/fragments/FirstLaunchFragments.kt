@@ -15,7 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.example.biophonie.R
-import com.example.biophonie.databinding.FragmentNameBinding
+import com.example.biophonie.databinding.FragmentTutoNameBinding
 import com.example.biophonie.util.fadeIn
 import com.example.biophonie.util.setFiltersOnEditText
 import com.example.biophonie.viewmodels.TutorialViewModel
@@ -100,7 +100,7 @@ class TutoRecordFragment : Fragment(), FirstLaunchFragments {
 }
 
 class TutoNameFragment: Fragment(){
-    private var _binding: FragmentNameBinding? = null
+    private var _binding: FragmentTutoNameBinding? = null
     private val binding get() = _binding!!
     private val viewModel: TutorialViewModel by activityViewModels()
     override fun onCreateView(
@@ -110,7 +110,7 @@ class TutoNameFragment: Fragment(){
     ): View {
         _binding = DataBindingUtil.inflate(
             inflater,
-            R.layout.fragment_name,
+            R.layout.fragment_tuto_name,
             container,
             false)
         binding.viewModel = viewModel
