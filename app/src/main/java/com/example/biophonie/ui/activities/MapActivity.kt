@@ -146,7 +146,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                         bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_marker)!!.toBitmap(75,75))
                     }
                     +image(imageId = "$CACHE.$ICON") {
-                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(75,75))
+                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(75,56))
                     }
                     +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
                         buildProperties(0.6, "Regular", CACHE, false)
@@ -178,7 +178,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             )
             addOnMapClickListener(this@MapActivity)
             addOnCameraChangeListener(this@MapActivity)
-            setDataObservers()
         }
         binding.mapView.scalebar.enabled = false
     }
@@ -416,6 +415,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         binding.rec.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.ic_microphone,theme))
         locationAnimation?.stop()
         syncToServer()
+        setDataObservers()
     }
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
