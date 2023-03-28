@@ -205,9 +205,9 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun setDataObservers() {
-        viewModel.newGeoPoints.observe(this) {
-            val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
+        viewModel.newGeoPoints.observe(this) { it ->
             if (!it.isNullOrEmpty()) {
+                val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
                 for (geoPoint in it) {
                     symbolLayerIconFeatureList.add(
                         Feature.fromGeometry(
@@ -219,8 +219,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                         }
                     )
                 }
-                mapboxMap.getStyle()?.getSourceAs<GeoJsonSource>("$CACHE.$SOURCE")
-                    ?.featureCollection(FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
+                mapboxMap.getStyle { style ->
+                    style.getSourceAs<GeoJsonSource>("$CACHE.$SOURCE")
+                        ?.featureCollection(FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
+                }
             }
         }
     }
