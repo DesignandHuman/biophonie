@@ -4,28 +4,20 @@ import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
-import android.os.Handler
 import android.os.Looper
-import androidx.annotation.VisibleForTesting
-import androidx.annotation.VisibleForTesting.PRIVATE
 import com.mapbox.android.core.location.LocationEngineCallback
 import com.mapbox.android.core.location.LocationEngineProvider
 import com.mapbox.android.core.location.LocationEngineRequest
 import com.mapbox.android.core.location.LocationEngineResult
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.geojson.Point
-import com.mapbox.maps.logE
-import com.mapbox.maps.logW
-import com.mapbox.maps.plugin.PuckBearingSource
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentConstants
 import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
-import com.mapbox.maps.plugin.locationcomponent.LocationConsumer2
 import com.mapbox.maps.plugin.locationcomponent.LocationProvider
 import kotlinx.coroutines.*
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArraySet
-import kotlin.coroutines.coroutineContext
 
 /**
  * Custom Location Provider implementation adapted from mapbox DefaultLocationProvider
@@ -72,27 +64,26 @@ class CustomLocationProvider(
     private fun notifyLocationUpdates(location: Location) {
         locationConsumers.forEach { consumer ->
             consumer.onLocationUpdated(Point.fromLngLat(location.longitude, location.latitude))
-            consumer.onBearingUpdated(location.bearing.toDouble())
-            if (consumer is LocationConsumer2) {
-                consumer.onAccuracyRadiusUpdated(location.accuracy.toDouble())
-            }
         }
     }
 
     fun addSingleRequestLocationConsumer(callback: (Point.() -> Unit)) {
         this.registerLocationConsumer(object : LocationConsumer {
+            private var updates = 0
             override fun onBearingUpdated(
                 vararg bearing: Double,
                 options: (ValueAnimator.() -> Unit)?
-            ) {
-            }
+            ) {}
 
             override fun onLocationUpdated(
                 vararg location: Point,
                 options: (ValueAnimator.() -> Unit)?
             ) {
-                callback(location[0])
-                this@CustomLocationProvider.unRegisterLocationConsumer(this)
+                updates++
+                if (updates > UPDATES_NEEDED) {
+                    callback(location[0])
+                    this@CustomLocationProvider.unRegisterLocationConsumer(this)
+                }
             }
 
             override fun onPuckBearingAnimatorDefaultOptionsUpdated(options: ValueAnimator.() -> Unit) {
@@ -143,7 +134,8 @@ class CustomLocationProvider(
     }
 
     private companion object {
-        private const val INIT_UPDATE_DELAY = 100L
+        private const val INIT_UPDATE_DELAY = 1000L
         private const val MAX_UPDATE_DELAY = 5000L
+        private const val UPDATES_NEEDED = 3
     }
 }
