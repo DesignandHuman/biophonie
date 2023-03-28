@@ -205,12 +205,8 @@ class BottomPlayerFragment : Fragment() {
     private fun onClose() {
         if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        else {
+        else
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            viewModel.geoPointId.value?.let {
-                (activity as? MapActivity)?.unselectGeoPoint(it)
-            }
-        }
     }
 
     private fun crossFade(fadeIn: View, fadeOut: View) {

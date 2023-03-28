@@ -489,7 +489,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         )
     }
 
-    fun unselectGeoPoint(id: Int) {
+    private fun unselectGeoPoint(id: Int) {
         mapboxMap.getStyle()?.apply {
             getLayerAs<SymbolLayer>("$REMOTE.$LAYER.$SELECTED")?.filter(eq{
                 get(PROPERTY_ID)
