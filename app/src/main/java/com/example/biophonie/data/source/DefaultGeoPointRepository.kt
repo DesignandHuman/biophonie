@@ -37,9 +37,9 @@ class DefaultGeoPointRepository(
         var success = true
         geoPointLocalDataSource.getNewGeoPoints().forEach { geoPoint ->
             geoPointRemoteDataSource.addGeoPoint(geoPoint)
-                .onSuccess { Timber.i("saveNewGeoPoints: ${geoPoint.title} posted") }
+                .onSuccess { Timber.i("${geoPoint.title} posted") }
                 .onFailure {
-                    Timber.e("saveNewGeoPoints: could not post ${geoPoint.title}")
+                    Timber.e("could not post ${geoPoint.title}: $it")
                     success = false
                 }
         }

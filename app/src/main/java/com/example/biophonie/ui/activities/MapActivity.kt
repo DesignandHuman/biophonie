@@ -112,7 +112,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     })
 
-    private val locationSettings = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+    private val recordLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             if (data?.extras != null) {
@@ -131,6 +131,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         addBottomPlayerFragment()
         bindScaleView()
         setOnClickListeners()
+        setDataObservers()
     }
 
     private fun setUpMapbox() {
@@ -205,7 +206,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun setDataObservers() {
-        viewModel.newGeoPoints.observe(this) { it ->
+        viewModel.newGeoPoints.observe(this) {
             if (!it.isNullOrEmpty()) {
                 val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
                 for (geoPoint in it) {
@@ -249,7 +250,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun launchRecActivity(location: Point) {
-        locationSettings.launch(
+        recordLauncher.launch(
             Intent(this@MapActivity, RecSoundActivity::class.java).apply {
                 putExtras(Bundle().apply {
                     putDouble("latitude", location.latitude())
@@ -313,7 +314,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             setMessage("Le GPS n'est pas actif. Voulez-vous l'activer dans les menus ?")
             setPositiveButton("Paramètres") { _, _ ->
                 val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                locationSettings.launch(intent)
+                recordLauncher.launch(intent)
             }
             setNegativeButton("Annuler") { dialog, _ -> dialog.cancel() }
             show()
@@ -417,7 +418,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         binding.rec.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.ic_microphone,theme))
         locationAnimation?.stop()
         syncToServer()
-        setDataObservers()
     }
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)

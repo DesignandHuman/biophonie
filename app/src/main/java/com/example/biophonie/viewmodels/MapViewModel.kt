@@ -1,10 +1,7 @@
 package com.example.biophonie.viewmodels
 
 import android.os.Bundle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.Resource
@@ -14,8 +11,13 @@ import java.time.Instant
 
 class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
-    val newGeoPoints = liveData {
-        emit(repository.getUnavailableGeoPoints())
+    private val _newGeoPoints = MutableLiveData<List<GeoPoint>>()
+    val newGeoPoints = _newGeoPoints
+
+    init {
+        viewModelScope.launch {
+            _newGeoPoints.value = repository.getUnavailableGeoPoints()
+        }
     }
 
     fun requestAddGeoPoint(extras: Bundle?) {
@@ -41,6 +43,7 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
                         id = 0
                     )
                 )
+                _newGeoPoints.postValue(repository.getUnavailableGeoPoints())
             }
         }
     }
