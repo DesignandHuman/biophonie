@@ -1,6 +1,7 @@
 package com.example.biophonie.ui.activities
 
 import android.Manifest.permission.*
+import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
@@ -13,6 +14,7 @@ import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -59,6 +61,7 @@ import com.mapbox.maps.extension.style.sources.generated.GeoJsonSource
 import com.mapbox.maps.extension.style.sources.generated.geoJsonSource
 import com.mapbox.maps.extension.style.sources.getSourceAs
 import com.mapbox.maps.extension.style.style
+import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
@@ -67,6 +70,8 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
+import com.mapbox.maps.plugin.locationcomponent.DefaultLocationProvider
+import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
@@ -181,6 +186,11 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             addOnCameraChangeListener(this@MapActivity)
         }
         binding.mapView.scalebar.enabled = false
+        binding.mapView.location.updateSettings {
+            locationPuck = LocationPuck2D(
+                topImage = AppCompatResources.getDrawable(this@MapActivity, R.drawable.ic_location)
+            )
+        }
     }
 
     private fun SymbolLayerDsl.buildProperties(iconSize: Double, fontFamily: String, origin: String, overlap: Boolean = true) {
