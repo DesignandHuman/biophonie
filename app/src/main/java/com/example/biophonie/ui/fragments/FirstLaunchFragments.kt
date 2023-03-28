@@ -115,7 +115,7 @@ class TutoNameFragment: Fragment(){
             false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.nameEditText.setFiltersOnEditText()
+        binding.nameEditText.setFiltersOnEditText(strict = true)
         return binding.root
     }
 

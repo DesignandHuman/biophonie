@@ -10,6 +10,7 @@ import android.text.InputFilter
 import android.text.SpannableStringBuilder
 import android.view.View
 import android.widget.EditText
+import java.util.regex.Pattern
 
 class GPSCheck(private val locationCallBack: LocationCallBack) :
     BroadcastReceiver() {
@@ -36,15 +37,12 @@ fun dpToPx(context: Context, dp: Int): Int {
     return dp*(context.resources.displayMetrics.density).toInt()
 }
 
-fun EditText.setFiltersOnEditText() {
+fun EditText.setFiltersOnEditText(strict: Boolean = false) {
     val filter = InputFilter { source, start, end, _, _, _ ->
         return@InputFilter if (source is SpannableStringBuilder) {
             for (i in end - 1 downTo start) {
                 val currentChar: Char = source[i]
-                if (!Character.isLetterOrDigit(currentChar) && !Character.isSpaceChar(
-                        currentChar
-                    )
-                ) {
+                if (!currentChar.isAllowed(strict)) {
                     source.delete(i, i + 1)
                 }
             }
@@ -53,10 +51,7 @@ fun EditText.setFiltersOnEditText() {
             val filteredStringBuilder = StringBuilder()
             for (i in start until end) {
                 val currentChar: Char = source[i]
-                if (Character.isLetterOrDigit(currentChar) || Character.isSpaceChar(
-                        currentChar
-                    )
-                ) {
+                if (currentChar.isAllowed(strict)) {
                     filteredStringBuilder.append(currentChar)
                 }
             }
@@ -64,6 +59,12 @@ fun EditText.setFiltersOnEditText() {
         }
     }
     this.filters += filter
+}
+
+private fun Char.isAllowed(strict: Boolean): Boolean {
+    val ps = Pattern.compile(if (strict) "^[\\-\'’\\p{L} ]+$" else "^[\\-\\p{L} ]+$")
+    val ms = ps.matcher(this.toString())
+    return ms.matches()
 }
 
 fun View.fadeIn() {
