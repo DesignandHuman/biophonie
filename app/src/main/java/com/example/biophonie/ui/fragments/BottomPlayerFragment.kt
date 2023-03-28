@@ -44,6 +44,7 @@ class BottomPlayerFragment : Fragment() {
     private var _binding: FragmentBottomPlayerBinding? = null
     private val binding get() = _binding!!
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
+    private var progressBarAnimation: AnimatedVectorDrawableCompat? = null
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -71,19 +72,14 @@ class BottomPlayerFragment : Fragment() {
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
+        AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
+            this?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    binding.progressBar.post { this@apply.start() }
+                }
+            })
+        }
         return binding.root
-    }
-
-    override fun onStart() {
-        super.onStart()
-        val animated = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader)
-        animated?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-            override fun onAnimationEnd(drawable: Drawable?) {
-                binding.progressBar.post { animated.start() }
-            }
-        })
-        binding.progressBar.setImageDrawable(animated)
-        animated?.start()
     }
 
     private fun setProgressBarPosition() {
@@ -188,6 +184,14 @@ class BottomPlayerFragment : Fragment() {
         viewModel.bottomSheetState.observe(viewLifecycleOwner) {
             bottomSheetBehavior.state = it
         }
+        viewModel.event.observe(viewLifecycleOwner) {
+            if (it == BottomPlayerViewModel.Event.LOADING) {
+                binding.progressBar.setImageDrawable(progressBarAnimation)
+                progressBarAnimation?.start()
+            } else {
+                progressBarAnimation?.stop()
+            }
+        }
         viewModel.geoPoint.observe(viewLifecycleOwner) {
             it?.let {
                 (activity as? MapActivity)?.flyToPoint(
@@ -207,18 +211,14 @@ class BottomPlayerFragment : Fragment() {
 
     private fun crossFade(fadeIn: View, fadeOut: View) {
         fadeIn.apply {
-            // Sets the content view to 0% opacity but visible
             alpha = 0f
             visibility = View.VISIBLE
 
-            // Animate the content view to 100% opacity
             animate()
                 .alpha(1f)
                 .setDuration(animationDuration.toLong())
                 .setListener(null)
         }
-        // Animate the loading view to 0% opacity.
-        // After the animation ends, set its visibility to GONE
         fadeOut.animate()
             .alpha(0f)
             .setDuration(animationDuration.toLong())
@@ -257,6 +257,7 @@ class BottomPlayerFragment : Fragment() {
     override fun onPause() {
         super.onPause()
         viewModel.pauseController()
+        progressBarAnimation?.stop()
     }
 
     override fun onDestroyView() {
