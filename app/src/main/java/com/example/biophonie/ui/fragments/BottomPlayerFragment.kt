@@ -72,7 +72,7 @@ class BottomPlayerFragment : Fragment() {
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
-        AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
+        progressBarAnimation = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
             this?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
                     binding.progressBar.post { this@apply.start() }
