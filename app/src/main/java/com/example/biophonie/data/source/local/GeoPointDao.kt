@@ -2,7 +2,6 @@ package com.example.biophonie.data.source.local
 
 import androidx.room.*
 import com.example.biophonie.data.source.DatabaseGeoPoint
-import com.example.biophonie.data.source.GeoPointAvailable
 import com.example.biophonie.data.source.GeoPointSync
 
 @Dao
@@ -28,6 +27,6 @@ interface GeoPointDao {
     @Update(entity = DatabaseGeoPoint::class)
     fun syncGeoPoint(sync: GeoPointSync)
 
-    @Update(entity = DatabaseGeoPoint::class)
-    fun setGeoPointAvailable(geoPoint: GeoPointAvailable)
+    @Query("UPDATE databasegeopoint SET available = 1 WHERE remote_id == :remoteId")
+    fun setGeoPointAvailable(remoteId: Int)
 }

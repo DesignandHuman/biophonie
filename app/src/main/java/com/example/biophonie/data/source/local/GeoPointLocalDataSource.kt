@@ -3,7 +3,6 @@ package com.example.biophonie.data.source.local
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.asDatabaseModel
-import com.example.biophonie.data.source.GeoPointAvailable
 import com.example.biophonie.data.source.GeoPointDataSource
 import com.example.biophonie.data.source.GeoPointSync
 import com.example.biophonie.data.source.asDomainModel
@@ -43,7 +42,7 @@ class GeoPointLocalDataSource(
     }
 
     override suspend fun makeAvailable(geoPoint: GeoPoint) {
-        geoPointDao.setGeoPointAvailable(GeoPointAvailable(geoPoint.id))
+        geoPointDao.setGeoPointAvailable(geoPoint.remoteId)
     }
 
     override suspend fun getClosestGeoPointId(coord: Coordinates, not: Array<Int>): Result<Int> {

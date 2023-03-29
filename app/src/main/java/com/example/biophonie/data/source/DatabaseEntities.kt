@@ -46,13 +46,6 @@ data class GeoPointSync (
     val remoteSound: String?,
 )
 
-@Entity
-data class GeoPointAvailable (
-    val id: Int,
-    @ColumnInfo(name = "available")
-    val available: Boolean = true
-)
-
 fun DatabaseGeoPoint.asDomainModel(): GeoPoint {
     return GeoPoint(
         id = id,
