@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -177,7 +178,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     fun setGeoPointQuery(id: Int){
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
-        if (geoPoint.value?.id == id)
+        if (geoPoint.value?.remoteId == id)
             return
         geoPointId.value = id
     }
