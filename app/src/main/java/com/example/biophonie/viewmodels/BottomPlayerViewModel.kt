@@ -20,6 +20,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 
@@ -158,7 +159,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private fun addSoundToPlayer() {
         if (geoPoint.value!!.sound.local != null) {
             try {
-                playerController?.addAudioFileUri(getApplication(), Uri.parse(geoPoint.value!!.sound.local), geoPoint.value!!.amplitudes)
+                playerController?.addAudioFileUri(getApplication(), Uri.fromFile(File(geoPoint.value!!.sound.local!!)), geoPoint.value!!.amplitudes)
                 return
             } catch (e: IOException) {
                 e.printStackTrace()
