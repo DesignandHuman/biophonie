@@ -39,7 +39,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     val bottomSheetState: LiveData<Int>
         get() = _bottomSheetState
 
-    private val _event = MutableLiveData<Event>()
+    private val _event = MutableLiveData(Event.LOADING)
     val event: LiveData<Event>
         get() = _event
 
@@ -159,7 +159,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private fun addSoundToPlayer() {
         if (geoPoint.value!!.sound.local != null) {
             try {
-                playerController?.addAudioFileUri(getApplication(), Uri.fromFile(File(geoPoint.value!!.sound.local!!)), geoPoint.value!!.amplitudes)
+                playerController?.addAudioFileUri(getApplication(), Uri.fromFile(File(geoPoint.value!!.sound.local!!)))
                 return
             } catch (e: IOException) {
                 e.printStackTrace()
@@ -169,7 +169,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         if (geoPoint.value!!.sound.remote != null) {
             val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value!!.sound.remote}"
             try {
-                playerController?.addAudioUrl(url, geoPoint.value!!.amplitudes)
+                playerController?.addAudioUrl(url)
                 return
             } catch (e: FileNotFoundException) {
                 _eventNetworkError.value = "Nous n’avons pas pu trouver le son. Réessayez plus tard."
