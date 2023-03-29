@@ -1,7 +1,6 @@
 package com.example.biophonie.ui.activities
 
 import android.Manifest.permission.*
-import android.animation.ValueAnimator
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
@@ -70,8 +69,6 @@ import com.mapbox.maps.plugin.gestures.OnMapClickListener
 import com.mapbox.maps.plugin.gestures.OnMoveListener
 import com.mapbox.maps.plugin.gestures.addOnMapClickListener
 import com.mapbox.maps.plugin.gestures.gestures
-import com.mapbox.maps.plugin.locationcomponent.DefaultLocationProvider
-import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
@@ -88,15 +85,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory((application as BiophonieApplication).geoPointRepository)).get(MapViewModel::class.java)
     }
-    private val locationAnimation: AnimatedVectorDrawableCompat? by lazy {
-        AnimatedVectorDrawableCompat.create(this, R.drawable.loading_rec)?.apply {
-            this.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    binding.rec.post { this@apply.start() }
-                }
-            })
-        }
-    }
+    private var willRecordAnimation: AnimatedVectorDrawableCompat? = null
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private lateinit var customLocationProvider: CustomLocationProvider
@@ -253,10 +242,27 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
-    private fun changeRecFabState(){
-        binding.rec.setImageDrawable(locationAnimation)
-        binding.rec.isEnabled = false
-        locationAnimation?.start()
+    private fun toggleRecFabAnimated(animate: Boolean){
+        if (animate) {
+            if (willRecordAnimation == null) {
+                willRecordAnimation =
+                    AnimatedVectorDrawableCompat.create(this, R.drawable.loading_rec)?.apply {
+                        this.registerAnimationCallback(object :
+                            Animatable2Compat.AnimationCallback() {
+                            override fun onAnimationEnd(drawable: Drawable?) {
+                                binding.rec.post { this@apply.start() }
+                            }
+                        })
+                    }
+            }
+            binding.rec.setImageDrawable(willRecordAnimation)
+            binding.rec.isEnabled = false
+            willRecordAnimation?.start()
+        } else {
+            binding.rec.isEnabled = true
+            binding.rec.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.ic_microphone,theme))
+            willRecordAnimation?.stop()
+        }
     }
 
     private fun launchRecActivity(location: Point) {
@@ -375,7 +381,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun getLocationAndLaunchRecord() {
         initLocationProvider()
-        changeRecFabState()
+        toggleRecFabAnimated(true)
         customLocationProvider.addSingleRequestLocationConsumer { launchRecActivity(this) }
     }
 
@@ -420,9 +426,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onResume() {
         super.onResume()
-        binding.rec.isEnabled = true
-        binding.rec.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.ic_microphone,theme))
-        locationAnimation?.stop()
+        toggleRecFabAnimated(false)
         syncToServer()
     }
 
@@ -449,6 +453,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onDestroy() {
         super.onDestroy()
+        willRecordAnimation = null
         unregisterReceiver(gpsReceiver)
         onCameraTrackingDismissed()
     }
