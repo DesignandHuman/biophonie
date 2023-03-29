@@ -63,7 +63,8 @@ data class AccessToken(val token: String)
 
 fun NetworkGeoPoint.asDomainModel(): GeoPoint {
     return GeoPoint(
-        id = id,
+        id = 0,
+        remoteId = id,
         title = title,
         coordinates = Coordinates(latitude,longitude),
         date = Instant.parse(date),

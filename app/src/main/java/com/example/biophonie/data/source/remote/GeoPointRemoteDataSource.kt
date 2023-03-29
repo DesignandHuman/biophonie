@@ -3,6 +3,7 @@ package com.example.biophonie.data.source.remote
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.source.GeoPointDataSource
+import com.example.biophonie.network.Message
 import com.example.biophonie.network.asDomainModel
 import com.example.biophonie.network.asNewNetworkGeoPoint
 import kotlinx.coroutines.CoroutineDispatcher
@@ -11,6 +12,7 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import timber.log.Timber
 import java.io.File
 
 class GeoPointRemoteDataSource(
@@ -57,6 +59,14 @@ class GeoPointRemoteDataSource(
         }
 
     override suspend fun refreshGeoPoint(geoPoint: GeoPoint) {
+        //NO-OP
+    }
+
+    override suspend fun pingRestricted(): Result<Message> {
+        return webService.pingRestricted()
+    }
+
+    override suspend fun makeAvailable(geoPoint: GeoPoint) {
         //NO-OP
     }
 }

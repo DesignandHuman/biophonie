@@ -41,9 +41,9 @@ data class GeoPointSync (
     @ColumnInfo(name = "remote_id")
     val remoteId: Int,
     @ColumnInfo(name = "remote_picture")
-    val remotePicture: String,
+    val remotePicture: String?,
     @ColumnInfo(name = "remote_sound")
-    val remoteSound: String,
+    val remoteSound: String?,
 )
 
 @Entity

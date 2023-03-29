@@ -3,9 +3,11 @@ package com.example.biophonie.data.source.local
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.data.asDatabaseModel
+import com.example.biophonie.data.source.GeoPointAvailable
 import com.example.biophonie.data.source.GeoPointDataSource
 import com.example.biophonie.data.source.GeoPointSync
 import com.example.biophonie.data.source.asDomainModel
+import com.example.biophonie.network.Message
 import com.example.biophonie.templates
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -29,10 +31,19 @@ class GeoPointLocalDataSource(
             GeoPointSync(
                 id = geoPoint.id,
                 remoteId = geoPoint.remoteId,
-                remoteSound = geoPoint.sound.remote!!,
-                remotePicture = geoPoint.picture.remote!!
+                remoteSound = geoPoint.sound.remote,
+                remotePicture = geoPoint.picture.remote
             )
         )
+    }
+
+    override suspend fun pingRestricted(): Result<Message> {
+        // NO-OP
+        return Result.success(Message(""))
+    }
+
+    override suspend fun makeAvailable(geoPoint: GeoPoint) {
+        geoPointDao.setGeoPointAvailable(GeoPointAvailable(geoPoint.id))
     }
 
     override suspend fun getClosestGeoPointId(coord: Coordinates, not: Array<Int>): Result<Int> {

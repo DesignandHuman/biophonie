@@ -2,6 +2,7 @@ package com.example.biophonie.data.source
 
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
+import com.example.biophonie.network.Message
 
 interface GeoPointDataSource {
 
@@ -17,4 +18,7 @@ interface GeoPointDataSource {
 
     suspend fun refreshGeoPoint(geoPoint: GeoPoint)
 
+    suspend fun pingRestricted(): Result<Message>
+
+    suspend fun makeAvailable(geoPoint: GeoPoint)
 }

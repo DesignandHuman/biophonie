@@ -35,13 +35,23 @@ class DefaultGeoPointRepository(
 
     override suspend fun addNewGeoPoints(): Boolean {
         var success = true
-        geoPointLocalDataSource.getNewGeoPoints().forEach { geoPoint ->
-            geoPointRemoteDataSource.addGeoPoint(geoPoint)
-                .onSuccess { Timber.i("${geoPoint.title} posted") }
-                .onFailure {
-                    Timber.e("could not post ${geoPoint.title}: $it")
-                    success = false
+        val newGeoPoints = geoPointLocalDataSource.getNewGeoPoints()
+        if (newGeoPoints.isNotEmpty()) {
+            success = geoPointRemoteDataSource.pingRestricted().isSuccess
+            if (success) {
+                newGeoPoints.forEach { geoPoint ->
+                    geoPointRemoteDataSource.addGeoPoint(geoPoint)
+                        .onSuccess {
+                            it.apply { id = geoPoint.id }
+                            geoPointLocalDataSource.refreshGeoPoint(it)
+                            Timber.i("${geoPoint.title} posted")
+                        }
+                        .onFailure {
+                            Timber.e("could not post ${geoPoint.title}: $it")
+                            success = false
+                        }
                 }
+            }
         }
         return success
     }
@@ -51,16 +61,13 @@ class DefaultGeoPointRepository(
             if (geoPoint.remoteId != 0)
                 geoPointRemoteDataSource.getGeoPoint(geoPoint.remoteId)
                     .onSuccess {
-                        Timber.i("refreshUnavailableGeoPoints: ${geoPoint.title} enabled")
-                        it.remoteId = it.id
-                        it.id = geoPoint.id
-                        geoPointLocalDataSource.refreshGeoPoint(it)
+                        geoPointLocalDataSource.makeAvailable(it)
                     }
                     .onFailure {
-                        Timber.w("refreshUnavailableGeoPoints: ${geoPoint.title} was not enabled yet")
+                        Timber.w("${geoPoint.title} was not enabled yet")
                     }
             else
-                Timber.w("refreshUnavailableGeoPoints: ${geoPoint.title} not posted yet")
+                Timber.w("${geoPoint.title} not posted yet")
         }
     }
 }
