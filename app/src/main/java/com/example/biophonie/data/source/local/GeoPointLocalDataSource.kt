@@ -63,7 +63,7 @@ class GeoPointLocalDataSource(
         withContext(ioDispatcher) {
             if (templates.contains(geoPoint.picture.remote?.removeSuffix(".webp")))
                 geoPoint.picture.local = geoPoint.picture.remote?.removeSuffix(".webp")
-            geoPointDao.insert(geoPoint.asDatabaseModel(!fromUser))
+            geoPointDao.insert(geoPoint.asDatabaseModel(fromUser))
             Result.success(geoPoint)
         }
 }

@@ -35,7 +35,7 @@ data class DialogAdapterItem(var text: String, var icon: Int){
 
 fun GeoPoint.asDatabaseModel(fromUser: Boolean = true): DatabaseGeoPoint {
     return DatabaseGeoPoint(
-        remoteId = if (fromUser) id else 0,
+        remoteId = if (!fromUser) remoteId else 0,
         title = title,
         date = date.toString(),
         amplitudes = amplitudes,
@@ -45,6 +45,6 @@ fun GeoPoint.asDatabaseModel(fromUser: Boolean = true): DatabaseGeoPoint {
         sound = sound.local,
         remotePicture = picture.remote,
         remoteSound = sound.remote,
-        available = fromUser
+        available = !fromUser
     )
 }
