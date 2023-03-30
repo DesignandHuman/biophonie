@@ -39,7 +39,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     val bottomSheetState: LiveData<Int>
         get() = _bottomSheetState
 
-    private val _event = MutableLiveData(Event.LOADING)
+    private val _event = MutableLiveData<Event>()
     val event: LiveData<Event>
         get() = _event
 
