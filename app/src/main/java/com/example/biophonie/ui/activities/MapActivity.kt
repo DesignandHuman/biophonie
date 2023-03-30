@@ -306,7 +306,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         binding.rec.setOnClickListener {
             if (ContextCompat.checkSelfPermission(this, RECORD_AUDIO)
                 != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO), REQUEST_RECORD)
+                ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO,ACCESS_FINE_LOCATION,
+                    ACCESS_COARSE_LOCATION), REQUEST_RECORD)
                 trackingExpected = false
                 return@setOnClickListener
             }
@@ -426,8 +427,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onResume() {
         super.onResume()
-        toggleRecFabAnimated(false)
         syncToServer()
+    }
+
+    override fun onStop() {
+        super.onStop()
+        toggleRecFabAnimated(false)
     }
 
     private val applicationScope = CoroutineScope(Dispatchers.Default)
