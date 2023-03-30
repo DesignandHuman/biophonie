@@ -39,10 +39,11 @@ fun dpToPx(context: Context, dp: Int): Int {
 
 fun EditText.setFiltersOnEditText(strict: Boolean = false) {
     val filter = InputFilter { source, start, end, _, _, _ ->
+        val ps = Pattern.compile(if (strict) "^[\\-\\p{L} ]+$" else "^[\\-\'’\\p{L} ]+$")
         return@InputFilter if (source is SpannableStringBuilder) {
             for (i in end - 1 downTo start) {
                 val currentChar: Char = source[i]
-                if (!currentChar.isAllowed(strict)) {
+                if (!currentChar.isAllowed(ps)) {
                     source.delete(i, i + 1)
                 }
             }
@@ -51,7 +52,7 @@ fun EditText.setFiltersOnEditText(strict: Boolean = false) {
             val filteredStringBuilder = StringBuilder()
             for (i in start until end) {
                 val currentChar: Char = source[i]
-                if (currentChar.isAllowed(strict)) {
+                if (currentChar.isAllowed(ps)) {
                     filteredStringBuilder.append(currentChar)
                 }
             }
@@ -61,11 +62,7 @@ fun EditText.setFiltersOnEditText(strict: Boolean = false) {
     this.filters += filter
 }
 
-private fun Char.isAllowed(strict: Boolean): Boolean {
-    val ps = Pattern.compile(if (strict) "^[\\-\'’\\p{L} ]+$" else "^[\\-\\p{L} ]+$")
-    val ms = ps.matcher(this.toString())
-    return ms.matches()
-}
+private fun Char.isAllowed(ps: Pattern): Boolean = ps.matcher(this.toString()).matches()
 
 fun View.fadeIn() {
     visibility = View.VISIBLE
