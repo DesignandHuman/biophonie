@@ -264,5 +264,6 @@ class BottomPlayerFragment : Fragment() {
         super.onDestroyView()
         _binding = null
         viewModel.destroyController()
+        progressBarAnimation = null
     }
 }

@@ -153,7 +153,7 @@
                 android:layout_height="0dp"
                 android:text="@{viewModel.geoPoint.coordinates.toString()}"
                 android:gravity="center"
-                android:background="@drawable/border_bottom_top"
+                android:background="@drawable/border_top"
                 android:textSize="11sp"
                 app:layout_constraintEnd_toStartOf="@id/right"
                 app:layout_constraintStart_toEndOf="@id/left"
