@@ -31,10 +31,7 @@ import com.example.biophonie.data.Coordinates
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
-import com.example.biophonie.util.CustomLocationProvider
-import com.example.biophonie.util.GPSCheck
-import com.example.biophonie.util.ScreenMetricsCompat
-import com.example.biophonie.util.isGPSEnabled
+import com.example.biophonie.util.*
 import com.example.biophonie.viewmodels.MapViewModel
 import com.example.biophonie.work.SyncSoundsWorker
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -118,6 +115,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.AppTheme)
         super.onCreate(savedInstanceState)
+        checkTutorial()
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
         setUpMapbox()
@@ -126,6 +124,16 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         bindScaleView()
         setOnClickListeners()
         setDataObservers()
+    }
+
+    private fun checkTutorial() {
+        if (AppPrefs.userId == null) {
+            val intent =
+                Intent(this, TutorialActivity::class.java). apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                }
+            startActivity(intent)
+        }
     }
 
     private fun setUpMapbox() {

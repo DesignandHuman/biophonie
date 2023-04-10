@@ -101,7 +101,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
 
     override fun onBackPressed() {
         if (binding.pager.currentItem == 0) {
-            super.onBackPressed()
+            finishAffinity()
         } else {
             binding.pager.currentItem--
         }
