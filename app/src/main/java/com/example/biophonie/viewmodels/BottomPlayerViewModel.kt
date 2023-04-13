@@ -66,7 +66,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                 _event.value = Event.SUCCESS
                 emit(it)
                 displayGeoPoint()
-                if (!passedIds.contains(id))
+                if (passedIds.isEmpty())
                     passedIds += id
                 _eventNetworkError.value?.run { _eventNetworkError.value = null }
             }
@@ -102,8 +102,10 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         _event.value = Event.LOADING
         if (isFetchingClose && lastLocation != null)
             displayClosestGeoPoint(lastLocation!!)
-        geoPointId.value?.let {
-            geoPointId.value = it
+        else {
+            geoPointId.value?.let {
+                geoPointId.value = it
+            }
         }
     }
 
@@ -114,11 +116,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     }
 
     fun onRightClick(){
-        currentIndex++
-        if (currentIndex == passedIds.size)
+        if (currentIndex == passedIds.size-1)
             displayClosestGeoPoint(geoPoint.value!!.coordinates)
-        else
+        else {
+            currentIndex++
             geoPointId.value = passedIds[currentIndex]
+        }
     }
 
     fun displayClosestGeoPoint(coordinates: Coordinates) {
@@ -130,6 +133,10 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
             repository.getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess {
                     _event.value = Event.SUCCESS
+                    currentIndex++
+                    if (!passedIds.contains(it))
+                        passedIds += it
+                    isFetchingClose = false
                     geoPointId.value = it
                 }
                 .onFailure {
@@ -179,8 +186,9 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     fun setGeoPointQuery(id: Int){
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
-        if (geoPoint.value?.remoteId == id)
+        if (geoPoint.value?.remoteId == id && _event.value != Event.FAILURE)
             return
+        passedIds = arrayOf()
         geoPointId.value = id
     }
 
