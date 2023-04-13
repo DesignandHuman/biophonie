@@ -80,7 +80,7 @@ class CustomLocationProvider(
                 options: (ValueAnimator.() -> Unit)?
             ) {
                 updates++
-                if (updates > UPDATES_NEEDED) {
+                if (updates >= UPDATES_NEEDED) {
                     callback(location[0])
                     this@CustomLocationProvider.unRegisterLocationConsumer(this)
                 }
