@@ -137,6 +137,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun setUpMapbox() {
+        val longDimension = dpToPx(this@MapActivity,30)
+        val shortDimension = dpToPx(this@MapActivity,23)
         this.mapboxMap = binding.mapView.getMapboxMap().apply {
             loadStyle(
                 style(styleUri = getString(R.string.style_url)) {
@@ -146,10 +148,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
                     }
                     +geoJsonSource("$CACHE.$SOURCE")
                     +image(imageId = "$REMOTE.$ICON") {
-                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_marker)!!.toBitmap(75,75))
+                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_marker)!!.toBitmap(longDimension,longDimension))
                     }
                     +image(imageId = "$CACHE.$ICON") {
-                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(75,56))
+                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(longDimension,shortDimension))
                     }
                     +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
                         buildProperties(0.6, "Regular", CACHE, false)
