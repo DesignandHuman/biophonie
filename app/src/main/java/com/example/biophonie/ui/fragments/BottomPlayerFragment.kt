@@ -75,7 +75,7 @@ class BottomPlayerFragment : Fragment() {
         progressBarAnimation = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
             this?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
                 override fun onAnimationEnd(drawable: Drawable?) {
-                    binding.progressBar.post { this@apply.start() }
+                    _binding?.progressBar?.post { this@apply.start() }
                 }
             })
         }
