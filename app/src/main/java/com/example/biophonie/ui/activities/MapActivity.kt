@@ -60,6 +60,7 @@ import com.mapbox.maps.extension.style.style
 import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
+import com.mapbox.maps.plugin.animation.easeTo
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
@@ -424,8 +425,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onBackPressed() {
         if (bottomPlayer.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN
-            && !supportFragmentManager.fragments.contains(about))
+            && !supportFragmentManager.fragments.contains(about)) {
             bottomPlayer.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            onBottomSheetClose()
+        }
         else
             super.onBackPressed()
     }
@@ -557,6 +560,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
         setUpFabResource()
         tracking = false
+    }
+
+    fun onBottomSheetClose() {
+        mapboxMap.easeTo(
+            cameraOptions { padding(EdgeInsets(.0,.0,.0,.0)) },
+        )
     }
 
     companion object {

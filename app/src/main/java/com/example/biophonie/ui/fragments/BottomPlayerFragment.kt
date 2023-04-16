@@ -28,7 +28,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import timber.log.Timber
 
 class BottomPlayerFragment : Fragment() {
 
@@ -205,8 +204,10 @@ class BottomPlayerFragment : Fragment() {
     private fun onClose() {
         if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        else
+        else {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            (activity as? MapActivity)?.onBottomSheetClose()
+        }
     }
 
     private fun crossFade(fadeIn: View, fadeOut: View) {
