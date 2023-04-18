@@ -199,7 +199,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             recorderController?.prepareRecorder()
             return false
         } else {
-            recorderController!!.recPlayerView = recPlayerView
+            recorderController!!.recPlayerView = recPlayerView.apply { toggleValidate(true) }
             recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
             return true
