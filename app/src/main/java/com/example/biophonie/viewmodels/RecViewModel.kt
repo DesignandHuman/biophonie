@@ -20,6 +20,7 @@ import fr.haran.soundwave.ui.RecPlayerView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -231,6 +232,12 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
         extras?.let {
             coordinates = Point.fromLngLat(it.getDouble("longitude"), it.getDouble("latitude"))
         }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        recorderController?.destroyController()
+        recorderController = null
     }
 
     fun startRecording() {
