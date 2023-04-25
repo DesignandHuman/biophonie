@@ -153,6 +153,9 @@ class BottomPlayerFragment : Fragment() {
                         binding.close.setImageResource(R.drawable.ic_stripe_down)
                         binding.playerView.apply { requestLayout() }.layoutParams.height = 0
                     }
+                    BottomSheetBehavior.STATE_HIDDEN -> {
+                        (activity as? MapActivity)?.onBottomSheetClose()
+                    }
                     else -> binding.close.setImageResource(R.drawable.ic_close)
                 }
             }
@@ -206,7 +209,6 @@ class BottomPlayerFragment : Fragment() {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
         else {
             bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            (activity as? MapActivity)?.onBottomSheetClose()
         }
     }
 
