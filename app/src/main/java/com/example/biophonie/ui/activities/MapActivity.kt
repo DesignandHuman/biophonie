@@ -80,6 +80,7 @@ private const val REQUEST_LOCATION: Int = 0x02
 
 class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListener, OnIndicatorPositionChangedListener, OnMoveListener {
 
+    private var isRecAnimating: Boolean = false
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory((application as BiophonieApplication).geoPointRepository)).get(MapViewModel::class.java)
     }
@@ -105,6 +106,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     })
 
     private val recordLauncher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        isRecAnimating = false
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             if (data?.extras != null) {
@@ -255,6 +257,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun toggleRecFabAnimated(animate: Boolean){
         if (animate) {
+            isRecAnimating = true
             if (willRecordAnimation == null) {
                 willRecordAnimation =
                     AnimatedVectorDrawableCompat.create(this, R.drawable.loading_rec)?.apply {
@@ -440,11 +443,13 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onResume() {
         super.onResume()
+        if (isRecAnimating)
+            toggleRecFabAnimated(true)
         syncToServer()
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onPause() {
+        super.onPause()
         toggleRecFabAnimated(false)
     }
 
