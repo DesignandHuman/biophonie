@@ -44,7 +44,7 @@ class GalleryFragment : Fragment(),
 
     private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
         if (it)
-            viewModel.pictureResult(null)
+            viewModel.pictureResult()
         else
             Timber.i("onChoiceClick: could not take picture")
     }
@@ -147,7 +147,7 @@ class GalleryFragment : Fragment(),
     private fun getPicture(choice: Int) {
         when(choice) {
             REQUEST_CAMERA -> {
-                val uri = viewModel.createCaptureUri()
+                val uri = viewModel.getCaptureUri()
                 if (uri != null)
                     takePicture.launch(uri)
             }

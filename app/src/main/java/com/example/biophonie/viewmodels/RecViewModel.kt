@@ -21,9 +21,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -35,7 +33,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
 
     private var recorderController: AacRecorderController? = null
     private lateinit var currentAmplitudes: List<Int>
-    private lateinit var currentPhotoPath: String
     private lateinit var currentSoundPath: String
     private lateinit var coordinates: Point
     var currentId: Int = 0
@@ -68,20 +65,20 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
     val result: LiveData<Result>
         get() = _result
 
-    fun pictureResult(picture: Uri?){
+    fun pictureResult(picture: Uri? = null){
         updateFromDefault(false)
         _landscapeUri.value = picture ?: captureUri
         _landscapeThumbnail.value = _landscapeUri.value
     }
 
     @Throws(IOException::class)
-    private fun createImageFile(): File? {
+    private fun createImageFile(extension: String): File {
         val timeStamp = ZonedDateTime.now( ZoneOffset.UTC ).format( DateTimeFormatter.ISO_DATE_TIME )
         val storageDir = File(getApplication<Application>().applicationContext.externalCacheDir?.absolutePath + File.separator + "images" + File.separator)
         return run {
             if (!storageDir.exists())
                 storageDir.mkdir()
-            File.createTempFile("JPEG_${timeStamp}_", ".jpg", storageDir)
+            File.createTempFile("${timeStamp}_", extension, storageDir)
         }
     }
 
@@ -93,22 +90,25 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
      * See https://stackoverflow.com/questions/6390163/deleting-a-gallery-image-after-camera-intent-photo-taken
      *
      */
-    fun createCaptureUri() : Uri? {
+    private fun createLocalImageUri(extension: String) : Uri? {
         val photoFile: File? = try {
-            createImageFile()
+            createImageFile(extension)
         } catch (ex: IOException) {
             _toast.value =
                 ToastModel("Impossible d'écrire dans le stockage", Toast.LENGTH_SHORT)
             null
         }
-        if (photoFile != null) {
-            currentPhotoPath = photoFile.absolutePath
-            captureUri = FileProvider.getUriForFile(
+        return if (photoFile != null)
+            FileProvider.getUriForFile(
                 getApplication<Application>().applicationContext,
                 "com.example.biophonie.fileprovider",
                 photoFile
             )
-        }
+        else null
+    }
+
+    fun getCaptureUri(): Uri? {
+        captureUri = createLocalImageUri(".jpg")
         return captureUri
     }
 
@@ -138,22 +138,21 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             _fromDefault.value = fromDefault
     }
 
-    private fun convertToWebp(path: String): String {
-        val compressedPath = path.replaceAfterLast(".", "webp")
-        viewModelScope.launch { compressPicture(path, compressedPath) }
-        return compressedPath
+    private fun convertToWebp(fileDescriptor: FileDescriptor): String {
+        val file = createImageFile(".webp")
+        viewModelScope.launch { compressPicture(fileDescriptor, file) }
+        return file.absolutePath
     }
 
-    private suspend fun compressPicture(path: String, newPath: String) {
+    private suspend fun compressPicture(imageFd: FileDescriptor, compressedImage: File) {
         withContext(Dispatchers.IO) {
-            val picture = BitmapFactory.decodeFile(path)
-            val out = FileOutputStream(newPath)
+            val picture = BitmapFactory.decodeFileDescriptor(imageFd)
+            val out = FileOutputStream(compressedImage)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
                 picture.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75,out)
             else
                 picture.compress(Bitmap.CompressFormat.WEBP,75,out)
             out.close()
-            File(path).deleteOnExit()
         }
     }
 
@@ -216,7 +215,18 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
                 var landscapePath = ""
                 var templatePath = ""
 
-                if (_fromDefault.value == false) landscapePath = convertToWebp(currentPhotoPath)
+                if (_fromDefault.value == false) {
+                    val inputPFD = try {
+                        getApplication<Application>().applicationContext.contentResolver.openFileDescriptor(
+                            _landscapeUri.value!!,
+                            "r"
+                        )
+                    } catch (exception: FileNotFoundException) {
+                        Timber.e(exception)
+                        return
+                    }
+                    landscapePath = convertToWebp(inputPFD!!.fileDescriptor)
+                }
                 else templatePath = templates.keys.elementAt(currentId)
                 _result.value =
                     Result(it, instant, currentAmplitudes, coordinates, currentSoundPath, landscapePath, templatePath)
