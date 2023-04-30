@@ -154,6 +154,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         }
     }
 
+    fun resetClosestPlaylist() {
+        passedIds = arrayOf()
+        _rightClickable.value = true
+        currentIndex = 0
+    }
+
     private fun checkClickability(){
         _leftClickable.value = currentIndex - 1 >= 0
     }
