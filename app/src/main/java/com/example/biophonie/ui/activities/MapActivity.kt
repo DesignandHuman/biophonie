@@ -448,8 +448,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         syncToServer()
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
         toggleRecFabAnimated(false)
     }
 
