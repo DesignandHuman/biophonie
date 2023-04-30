@@ -28,6 +28,7 @@ import androidx.work.*
 import com.example.biophonie.*
 import com.example.biophonie.R
 import com.example.biophonie.data.Coordinates
+import com.example.biophonie.data.GeoPoint
 import com.example.biophonie.databinding.ActivityMapBinding
 import com.example.biophonie.ui.fragments.AboutFragment
 import com.example.biophonie.ui.fragments.BottomPlayerFragment
@@ -44,6 +45,7 @@ import com.mapbox.maps.*
 import com.mapbox.maps.dsl.cameraOptions
 import com.mapbox.maps.extension.observable.eventdata.CameraChangedEventData
 import com.mapbox.maps.extension.observable.eventdata.MapLoadingErrorEventData
+import com.mapbox.maps.extension.style.StyleContract
 import com.mapbox.maps.extension.style.expressions.dsl.generated.boolean
 import com.mapbox.maps.extension.style.expressions.dsl.generated.eq
 import com.mapbox.maps.extension.style.expressions.dsl.generated.literal
@@ -84,7 +86,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private val viewModel: MapViewModel by lazy {
         ViewModelProvider(this, MapViewModel.ViewModelFactory((application as BiophonieApplication).geoPointRepository)).get(MapViewModel::class.java)
     }
-    private var willRecordAnimation: AnimatedVectorDrawableCompat? = null
+    private var recAnimation: AnimatedVectorDrawableCompat? = null
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap
     private lateinit var customLocationProvider: CustomLocationProvider
@@ -121,7 +123,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         checkTutorial()
         binding = DataBindingUtil.setContentView(this, R.layout.activity_map)
         binding.viewModel = viewModel
-        setUpMapbox()
+        setUpMapboxMap()
+        setUpMapView()
         setUpFabResource()
         addBottomPlayerFragment()
         bindScaleView()
@@ -139,54 +142,56 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
-    private fun setUpMapbox() {
-        val longDimension = dpToPx(this@MapActivity,30)
-        val shortDimension = dpToPx(this@MapActivity,23)
-        this.mapboxMap = binding.mapView.getMapboxMap().apply {
-            loadStyle(
-                style(styleUri = getString(R.string.style_url)) {
-                    +geoJsonSource(id = "$REMOTE.$SOURCE") {
-                        url("$BASE_URL/${getString(R.string.geojson_url)}")
-                        cluster(false)
-                    }
-                    +geoJsonSource("$CACHE.$SOURCE")
-                    +image(imageId = "$REMOTE.$ICON") {
-                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_marker)!!.toBitmap(longDimension,longDimension))
-                    }
-                    +image(imageId = "$CACHE.$ICON") {
-                        bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(longDimension,shortDimension))
-                    }
-                    +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
-                        buildProperties(0.6, "Regular", CACHE, false)
-                    }
-                    +symbolLayer(layerId = "$CACHE.$LAYER.$SELECTED", sourceId = "$CACHE.$SOURCE") {
-                        buildProperties(0.8, "Bold", CACHE, false)
-                        filter(boolean{
-                            get(PROPERTY_ID)
-                            literal(false)})
-                    }
-                    +symbolLayer(layerId = "$REMOTE.$LAYER", sourceId = "$REMOTE.$SOURCE") {
-                        buildProperties(0.5, "Regular", REMOTE)
-                    }
-                    +symbolLayer(layerId = "$REMOTE.$LAYER.$SELECTED", sourceId = "$REMOTE.$SOURCE") {
-                        buildProperties(0.7, "Bold", REMOTE)
-                        filter(boolean{
-                            get(PROPERTY_ID)
-                            literal(false)})
-                    }
-                },
-                {
-                    // on style loaded
-                },
-                object : OnMapLoadErrorListener {
-                    override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
-                        Timber.w("onMapLoadError: could not refresh sounds, retry later")
-                    }
+    private fun setUpMapboxMap() {
+        mapboxMap = binding.mapView.getMapboxMap()
+        mapboxMap.loadStyle(
+            createStyle(dpToPx(this@MapActivity,30),dpToPx(this@MapActivity,23)),
+            {
+                // on style loaded
+            },
+            object : OnMapLoadErrorListener {
+                override fun onMapLoadError(eventData: MapLoadingErrorEventData) {
+                    Timber.w("onMapLoadError: could not refresh sounds, retry later")
                 }
-            )
-            addOnMapClickListener(this@MapActivity)
-            addOnCameraChangeListener(this@MapActivity)
+            }
+        )
+        mapboxMap.addOnMapClickListener(this@MapActivity)
+        mapboxMap.addOnCameraChangeListener(this@MapActivity)
+    }
+
+    private fun createStyle(longDimension: Int, shortDimension: Int): StyleContract.StyleExtension = style(styleUri = getString(R.string.style_url)) {
+        +geoJsonSource(id = "$REMOTE.$SOURCE") {
+            url("$BASE_URL/${getString(R.string.geojson_url)}")
+            cluster(false)
         }
+        +geoJsonSource("$CACHE.$SOURCE")
+        +image(imageId = "$REMOTE.$ICON") {
+            bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_marker)!!.toBitmap(longDimension,longDimension))
+        }
+        +image(imageId = "$CACHE.$ICON") {
+            bitmap(ContextCompat.getDrawable(this@MapActivity,R.drawable.ic_syncing)!!.toBitmap(longDimension,shortDimension))
+        }
+        +symbolLayer(layerId = "$CACHE.$LAYER", sourceId = "$CACHE.$SOURCE") {
+            buildProperties(0.6, "Regular", CACHE, false)
+        }
+        +symbolLayer(layerId = "$CACHE.$LAYER.$SELECTED", sourceId = "$CACHE.$SOURCE") {
+            buildProperties(0.8, "Bold", CACHE, false)
+            filter(boolean{
+                get(PROPERTY_ID)
+                literal(false)})
+        }
+        +symbolLayer(layerId = "$REMOTE.$LAYER", sourceId = "$REMOTE.$SOURCE") {
+            buildProperties(0.5, "Regular", REMOTE)
+        }
+        +symbolLayer(layerId = "$REMOTE.$LAYER.$SELECTED", sourceId = "$REMOTE.$SOURCE") {
+            buildProperties(0.7, "Bold", REMOTE)
+            filter(boolean{
+                get(PROPERTY_ID)
+                literal(false)})
+        }
+    }
+
+    private fun setUpMapView() {
         binding.mapView.scalebar.enabled = false
         binding.mapView.location.updateSettings {
             locationPuck = LocationPuck2D(
@@ -220,23 +225,22 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private fun setDataObservers() {
         viewModel.newGeoPoints.observe(this) {
             if (!it.isNullOrEmpty()) {
-                val symbolLayerIconFeatureList: MutableList<Feature> = ArrayList()
-                for (geoPoint in it) {
-                    symbolLayerIconFeatureList.add(
-                        Feature.fromGeometry(
-                            Point.fromLngLat(geoPoint.coordinates.longitude, geoPoint.coordinates.latitude)
-                        ).apply {
-                            addStringProperty(PROPERTY_NAME, geoPoint.title)
-                            //set a negative id to know it is from cache
-                            addNumberProperty(PROPERTY_ID, -geoPoint.id)
-                        }
-                    )
-                }
+                val geoPointsFeatures = buildListOfFeatures(it)
                 mapboxMap.getStyle { style ->
                     style.getSourceAs<GeoJsonSource>("$CACHE.$SOURCE")
-                        ?.featureCollection(FeatureCollection.fromFeatures(symbolLayerIconFeatureList))
+                        ?.featureCollection(FeatureCollection.fromFeatures(geoPointsFeatures))
                 }
             }
+        }
+    }
+
+    private fun buildListOfFeatures(geopoints: List<GeoPoint>): List<Feature> = geopoints.map {
+        Feature.fromGeometry(
+            Point.fromLngLat(it.coordinates.longitude, it.coordinates.latitude)
+        ).apply {
+            addStringProperty(PROPERTY_NAME, it.title)
+            //set a negative id to know it is from cache
+            addNumberProperty(PROPERTY_ID, -it.id)
         }
     }
 
@@ -248,6 +252,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun trackLocation(){
+        checkLocationConditions()
         enableLocationProvider()
         binding.mapView.run {
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
@@ -258,26 +263,28 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     private fun toggleRecFabAnimated(animate: Boolean){
         if (animate) {
             isRecAnimating = true
-            if (willRecordAnimation == null) {
-                willRecordAnimation =
-                    AnimatedVectorDrawableCompat.create(this, R.drawable.loading_rec)?.apply {
-                        this.registerAnimationCallback(object :
-                            Animatable2Compat.AnimationCallback() {
-                            override fun onAnimationEnd(drawable: Drawable?) {
-                                binding.rec.post { this@apply.start() }
-                            }
-                        })
-                    }
+            if (recAnimation == null) {
+                recAnimation = createRecordAnimation()
             }
-            binding.rec.setImageDrawable(willRecordAnimation)
+            binding.rec.setImageDrawable(recAnimation)
             binding.rec.isEnabled = false
-            willRecordAnimation?.start()
+            recAnimation?.start()
         } else {
             binding.rec.isEnabled = true
             binding.rec.setImageDrawable(ResourcesCompat.getDrawable(resources,R.drawable.ic_microphone,theme))
-            willRecordAnimation?.stop()
+            recAnimation?.stop()
         }
     }
+
+    private fun createRecordAnimation() = AnimatedVectorDrawableCompat.create(this, R.drawable.loading_rec)
+        ?.apply {
+            this.registerAnimationCallback(object :
+                Animatable2Compat.AnimationCallback() {
+                override fun onAnimationEnd(drawable: Drawable?) {
+                    binding.rec.post { this@apply.start() }
+                }
+            })
+        }
 
     private fun launchRecActivity(location: Point) {
         recordLauncher.launch(
@@ -290,62 +297,74 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         )
     }
 
-    @SuppressLint("MissingPermission")
     private fun setOnClickListeners() {
         binding.about.setOnClickListener {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.containerMap, about, FRAGMENT_TAG + "about")
-                .addToBackStack(null)
-                .commit()
+            openAbout()
         }
         binding.locationFab.setOnClickListener {
-            if (PermissionsManager.areLocationPermissionsGranted(this))
-                if (isGPSEnabled(this)) {
-                    if (tracking) {
-                        customLocationProvider.addSingleRequestLocationConsumer {
-                            bottomPlayer.displayClosestGeoPoint(
-                                Coordinates(this.latitude(),this.longitude())
-                            )
-                        }
-                    }
-                    else trackLocation()
-                } else {
-                    askLocationSettings()
-                }
-            else {
-                trackingExpected = true
-                ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
-            }
+            if (tracking) showClosestGeoPoint()
+            else trackLocation()
         }
         binding.rec.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(this, RECORD_AUDIO)
-                != PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, arrayOf(RECORD_AUDIO,ACCESS_FINE_LOCATION,
-                    ACCESS_COARSE_LOCATION), REQUEST_RECORD)
-                trackingExpected = false
-                return@setOnClickListener
-            }
-            if (PermissionsManager.areLocationPermissionsGranted(this)) {
-                if (isGPSEnabled(this)) getLocationAndLaunchRecord()
-                else askLocationSettings()
-            } else {
-                trackingExpected = false
-                ActivityCompat.requestPermissions(this, arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),REQUEST_LOCATION)
-            }
+            record()
         }
     }
 
-    private fun askLocationSettings() {
-        AlertDialog.Builder(this).apply {
-            setTitle("Paramètres GPS")
-            setMessage("Le GPS n'est pas actif. Voulez-vous l'activer dans les menus ?")
-            setPositiveButton("Paramètres") { _, _ ->
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                recordLauncher.launch(intent)
-            }
-            setNegativeButton("Annuler") { dialog, _ -> dialog.cancel() }
-            show()
+    private fun checkAudioPermission() {
+        if (ContextCompat.checkSelfPermission(this, RECORD_AUDIO) != PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(RECORD_AUDIO, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
+                REQUEST_RECORD
+            )
         }
+    }
+
+    private fun checkLocationConditions() {
+        if (PermissionsManager.areLocationPermissionsGranted(this)) {
+            if (!isGPSEnabled(this))
+                createSettingsDialog().show()
+        } else {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),
+                REQUEST_LOCATION
+            )
+        }
+    }
+
+    private fun showClosestGeoPoint() {
+        trackingExpected = true
+        checkLocationConditions()
+        customLocationProvider.addSingleRequestLocationConsumer {
+            bottomPlayer.displayClosestGeoPoint(
+                Coordinates(this.latitude(), this.longitude())
+            )
+        }
+    }
+
+    private fun record() {
+        trackingExpected = false
+        checkLocationConditions()
+        checkAudioPermission()
+        getLocationAndLaunchRecord()
+    }
+
+    private fun openAbout() {
+        supportFragmentManager.beginTransaction()
+            .add(R.id.containerMap, about, FRAGMENT_TAG + "about")
+            .addToBackStack(null)
+            .commit()
+    }
+
+    private fun createSettingsDialog(): AlertDialog.Builder = AlertDialog.Builder(this).apply {
+        setTitle("Paramètres GPS")
+        setMessage("Le GPS n'est pas actif. Voulez-vous l'activer dans les menus ?")
+        setPositiveButton("Paramètres") { _, _ ->
+            val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+            recordLauncher.launch(intent)
+        }
+        setNegativeButton("Annuler") { dialog, _ -> dialog.cancel() }
     }
 
     private fun enableLocationProvider() {
@@ -371,26 +390,24 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
-            when (requestCode) {
-                REQUEST_RECORD -> {
-                    if (PermissionsManager.areLocationPermissionsGranted(this)) {
-                        getLocationAndLaunchRecord()
-                    } else {
-                        ActivityCompat.requestPermissions(
-                            this,
-                            arrayOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
-                            REQUEST_LOCATION
-                        )
-                    }
-                }
-                REQUEST_LOCATION -> {
-                    if (trackingExpected) trackLocation()
-                    else getLocationAndLaunchRecord()
-                }
-            }
+            dealWithRequest(requestCode)
         } else {
-            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG)
-                .show()
+            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun dealWithRequest(requestCode: Int) {
+        when (requestCode) {
+            REQUEST_RECORD -> {
+                trackingExpected = false
+                checkAudioPermission()
+                getLocationAndLaunchRecord()
+            }
+            REQUEST_LOCATION -> {
+                trackingExpected = true
+                if (trackingExpected) trackLocation()
+                else getLocationAndLaunchRecord()
+            }
         }
     }
 
@@ -411,14 +428,12 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         val previousFragment = supportFragmentManager.findFragmentByTag(FRAGMENT_TAG + "bottomSheet") as? BottomPlayerFragment
         if (previousFragment == null){
             bottomPlayer = BottomPlayerFragment()
-            supportFragmentManager.beginTransaction()
-                .replace(
-                    R.id.containerMap, bottomPlayer,
-                    FRAGMENT_TAG + "bottomSheet"
-                )
+            supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.containerMap, bottomPlayer, "${FRAGMENT_TAG}bottomSheet")
                 .commit()
-        } else
-            bottomPlayer = previousFragment
+        }
+        else bottomPlayer = previousFragment
     }
 
     private fun updateScaleBar(mapboxMap: MapboxMap) {
@@ -432,8 +447,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             bottomPlayer.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
             onBottomSheetClose()
         }
-        else
-            super.onBackPressed()
+        else super.onBackPressed()
     }
 
     override fun onStart() {
@@ -476,7 +490,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     override fun onDestroy() {
         super.onDestroy()
-        willRecordAnimation = null
+        recAnimation = null
         unregisterReceiver(gpsReceiver)
         onCameraTrackingDismissed()
     }
@@ -488,16 +502,11 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onMapClick(point: Point): Boolean {
         val screenCoor = mapboxMap.pixelForCoordinate(point)
         mapboxMap.queryRenderedFeatures(
-            RenderedQueryGeometry(
-                ScreenBox(
-                    ScreenCoordinate(screenCoor.x-10,screenCoor.y-10),
-                    ScreenCoordinate(screenCoor.x+10,screenCoor.y+10)
-                )
-            ),
-            RenderedQueryOptions(listOf("$REMOTE.$LAYER", "$REMOTE.$LAYER.$SELECTED", "$CACHE.$LAYER", "$CACHE.$LAYER.$SELECTED"), literal(true)))
-        { expected ->
-            val features = expected.value
-            val clickedFeature = features?.firstOrNull { it.feature.geometry() is Point }
+            withinScreenBox(screenCoor),
+            insideLayers()
+        ) { expected ->
+            val features = expected.value ?: return@queryRenderedFeatures
+            val clickedFeature = features.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
                 val id = feature.getNumberProperty(PROPERTY_ID).toInt()
                 selectPoint(feature.geometry() as Point, id)
@@ -507,6 +516,23 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
         return false
     }
+
+    private fun insideLayers() = RenderedQueryOptions(
+        listOf(
+            "$REMOTE.$LAYER",
+            "$REMOTE.$LAYER.$SELECTED",
+            "$CACHE.$LAYER",
+            "$CACHE.$LAYER.$SELECTED"
+        ),
+        literal(true)
+    )
+
+    private fun withinScreenBox(screenCoor: ScreenCoordinate, tolerance: Int = 10) = RenderedQueryGeometry(
+        ScreenBox(
+            ScreenCoordinate(screenCoor.x - tolerance, screenCoor.y - tolerance),
+            ScreenCoordinate(screenCoor.x + tolerance, screenCoor.y + tolerance)
+        )
+    )
 
     fun selectPoint(point: Point, id: Int) {
         flyToPoint(point)
