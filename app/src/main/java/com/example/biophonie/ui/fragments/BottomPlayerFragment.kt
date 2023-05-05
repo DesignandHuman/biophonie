@@ -155,7 +155,7 @@ class BottomPlayerFragment : Fragment() {
                     }
                     BottomSheetBehavior.STATE_HIDDEN -> {
                         (activity as? MapActivity)?.onBottomSheetClose()
-                        viewModel.resetClosestPlaylist()
+                        viewModel.stopPlaying()
                     }
                     else -> binding.close.setImageResource(R.drawable.ic_close)
                 }

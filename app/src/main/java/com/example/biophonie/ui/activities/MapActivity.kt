@@ -49,6 +49,7 @@ import com.mapbox.maps.extension.style.StyleContract
 import com.mapbox.maps.extension.style.expressions.dsl.generated.boolean
 import com.mapbox.maps.extension.style.expressions.dsl.generated.eq
 import com.mapbox.maps.extension.style.expressions.dsl.generated.literal
+import com.mapbox.maps.extension.style.expressions.generated.Expression
 import com.mapbox.maps.extension.style.image.image
 import com.mapbox.maps.extension.style.layers.generated.SymbolLayer
 import com.mapbox.maps.extension.style.layers.generated.SymbolLayerDsl
@@ -505,7 +506,11 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
             withinScreenBox(screenCoor),
             insideLayers()
         ) { expected ->
-            val features = expected.value ?: return@queryRenderedFeatures
+            val features = expected.value
+            if (features.isNullOrEmpty()) {
+                unselectGeoPoint()
+                return@queryRenderedFeatures
+            }
             val clickedFeature = features.firstOrNull { it.feature.geometry() is Point }
             clickedFeature?.feature?.let { feature ->
                 val id = feature.getNumberProperty(PROPERTY_ID).toInt()
@@ -551,16 +556,23 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         )
     }
 
-    private fun unselectGeoPoint(id: Int) {
+    private fun unselectGeoPoint(id: Int? = null) {
+        val expression: Expression?
+        if (id == null) {
+            bottomPlayer.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+            expression = eq {
+                get(PROPERTY_ID)
+                literal(false)
+            }
+        } else {
+            expression = eq {
+                get(PROPERTY_ID)
+                literal(id.toLong())
+            }
+        }
         mapboxMap.getStyle()?.apply {
-            getLayerAs<SymbolLayer>("$REMOTE.$LAYER.$SELECTED")?.filter(eq{
-                get(PROPERTY_ID)
-                literal(id.toLong())}
-            )
-            getLayerAs<SymbolLayer>("$CACHE.$LAYER.$SELECTED")?.filter(eq{
-                get(PROPERTY_ID)
-                literal(id.toLong())}
-            )
+            getLayerAs<SymbolLayer>("$REMOTE.$LAYER.$SELECTED")?.filter(expression)
+            getLayerAs<SymbolLayer>("$CACHE.$LAYER.$SELECTED")?.filter(expression)
         }
     }
 
@@ -594,6 +606,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     fun onBottomSheetClose() {
+        unselectGeoPoint()
         mapboxMap.easeTo(
             cameraOptions { padding(EdgeInsets(.0,.0,.0,.0)) },
         )

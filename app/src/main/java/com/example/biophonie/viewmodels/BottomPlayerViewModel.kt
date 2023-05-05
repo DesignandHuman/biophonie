@@ -152,10 +152,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         }
     }
 
-    fun resetClosestPlaylist() {
+    fun stopPlaying() {
         passedIds = arrayOf()
         _rightClickable.value = true
         currentIndex = 0
+        playerController?.pause()
     }
 
     private fun checkClickability(){
