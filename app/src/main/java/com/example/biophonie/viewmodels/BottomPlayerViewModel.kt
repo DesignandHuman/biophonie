@@ -128,6 +128,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         isFetchingClose = true
         lastLocation = coordinates
+        pauseController()
         viewModelScope.launch {
             repository.getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess {
@@ -152,11 +153,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         }
     }
 
-    fun stopPlaying() {
+    fun stopPlaylist() {
         passedIds = arrayOf()
         _rightClickable.value = true
         currentIndex = 0
-        playerController?.pause()
+        pauseController()
     }
 
     private fun checkClickability(){
@@ -191,12 +192,12 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     fun setGeoPointQuery(id: Int, resetPlaylist: Boolean){
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
-        playerController?.pause()
+        pauseController()
         if (geoPoint.value?.remoteId == id && _event.value != Event.FAILURE)
             return
         geoPointId.value = id
         if (resetPlaylist)
-            passedIds = arrayOf()
+            stopPlaylist()
     }
 
     fun pauseController() {

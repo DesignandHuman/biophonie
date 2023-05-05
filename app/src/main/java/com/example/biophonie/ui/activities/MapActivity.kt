@@ -64,6 +64,7 @@ import com.mapbox.maps.plugin.LocationPuck2D
 import com.mapbox.maps.plugin.animation.MapAnimationOptions.Companion.mapAnimationOptions
 import com.mapbox.maps.plugin.animation.camera
 import com.mapbox.maps.plugin.animation.easeTo
+import com.mapbox.maps.plugin.animation.flyTo
 import com.mapbox.maps.plugin.delegates.listeners.OnCameraChangeListener
 import com.mapbox.maps.plugin.delegates.listeners.OnMapLoadErrorListener
 import com.mapbox.maps.plugin.gestures.OnMapClickListener
@@ -446,7 +447,6 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         if (bottomPlayer.bottomSheetBehavior.state != BottomSheetBehavior.STATE_HIDDEN
             && !supportFragmentManager.fragments.contains(about)) {
             bottomPlayer.bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-            onBottomSheetClose()
         }
         else super.onBackPressed()
     }
@@ -607,7 +607,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     fun onBottomSheetClose() {
         unselectGeoPoint()
-        mapboxMap.easeTo(
+        mapboxMap.flyTo(
             cameraOptions { padding(EdgeInsets(.0,.0,.0,.0)) },
         )
     }
