@@ -170,7 +170,7 @@ class BottomPlayerFragment : Fragment() {
     }
 
     fun clickOnGeoPoint(id: Int){
-        viewModel.setGeoPointQuery(id)
+        viewModel.setGeoPointQuery(id, true)
     }
 
     fun displayClosestGeoPoint(coord: Coordinates){
@@ -189,6 +189,10 @@ class BottomPlayerFragment : Fragment() {
         }
         viewModel.event.observe(viewLifecycleOwner) {
             if (it == BottomPlayerViewModel.Event.LOADING) {
+                if (imageDisplayed) {
+                    imageDisplayed = false
+                    binding.soundImage.visibility = View.GONE
+                }
                 binding.progressBar.setImageDrawable(progressBarAnimation)
                 progressBarAnimation?.start()
             } else {

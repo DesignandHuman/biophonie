@@ -19,7 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -116,7 +115,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     }
 
     fun onRightClick(){
-        if (currentIndex == passedIds.size-1)
+        if (currentIndex <= passedIds.size-1)
             displayClosestGeoPoint(geoPoint.value!!.coordinates)
         else {
             currentIndex++
@@ -125,19 +124,18 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     }
 
     fun displayClosestGeoPoint(coordinates: Coordinates) {
+        _event.value = Event.LOADING
+        _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         isFetchingClose = true
         lastLocation = coordinates
-        _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
-        _event.value = Event.LOADING
         viewModelScope.launch {
             repository.getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess {
-                    _event.value = Event.SUCCESS
                     currentIndex++
                     if (!passedIds.contains(it))
                         passedIds += it
                     isFetchingClose = false
-                    geoPointId.value = it
+                    setGeoPointQuery(it, false)
                 }
                 .onFailure {
                     _event.value = Event.FAILURE
@@ -190,12 +188,14 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         }
     }
 
-    fun setGeoPointQuery(id: Int){
+    fun setGeoPointQuery(id: Int, resetPlaylist: Boolean){
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
+        playerController?.pause()
         if (geoPoint.value?.remoteId == id && _event.value != Event.FAILURE)
             return
-        passedIds = arrayOf()
         geoPointId.value = id
+        if (resetPlaylist)
+            passedIds = arrayOf()
     }
 
     fun pauseController() {
