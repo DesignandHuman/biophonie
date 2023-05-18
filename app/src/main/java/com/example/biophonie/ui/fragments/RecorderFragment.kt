@@ -46,7 +46,7 @@ class RecorderFragment : Fragment() {
             if (it) {
                 binding.root.findNavController()
                     .navigate(R.id.action_recordingFragment_to_galleryFragment)
-                viewModel.onFragmentRecordQuit()
+                viewModel.onValidateRecording()
             }
         }
     }

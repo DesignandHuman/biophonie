@@ -234,7 +234,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
         }
     }
 
-    fun onFragmentRecordQuit(){
+    fun onValidateRecording(){
         _recordComplete.value = false
     }
 
