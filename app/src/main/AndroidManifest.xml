@@ -21,7 +21,8 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.activities.RecSoundActivity" android:windowSoftInputMode="adjustResize" />
+        <activity android:name=".ui.activities.RecSoundActivity" android:windowSoftInputMode="adjustResize"
+            android:resizeableActivity="false"/>
         <activity android:name=".ui.activities.TutorialActivity" android:windowSoftInputMode="adjustResize"/>
         <activity android:name=".ui.activities.MapActivity"
             android:theme="@style/SplashTheme"
