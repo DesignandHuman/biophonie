@@ -254,7 +254,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun trackLocation(){
-        checkLocationConditions()
+        if (checkLocationConditions()) return
         enableLocationProvider()
         binding.mapView.run {
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
@@ -312,32 +312,37 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         }
     }
 
-    private fun checkAudioPermission() {
+    private fun checkAudioPermission(): Boolean {
         if (ContextCompat.checkSelfPermission(this, RECORD_AUDIO) != PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(RECORD_AUDIO, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
                 REQUEST_RECORD
             )
+            return false
         }
+        return true
     }
 
-    private fun checkLocationConditions() {
-        if (PermissionsManager.areLocationPermissionsGranted(this)) {
-            if (!isGPSEnabled(this))
-                createSettingsDialog().show()
-        } else {
+    private fun checkLocationConditions(): Boolean {
+        if (!PermissionsManager.areLocationPermissionsGranted(this)) {
             ActivityCompat.requestPermissions(
                 this,
                 arrayOf(ACCESS_FINE_LOCATION,ACCESS_COARSE_LOCATION),
                 REQUEST_LOCATION
             )
+            return false
         }
+        if (!isGPSEnabled(this)) {
+            createSettingsDialog().show()
+            return false
+        }
+        return true
     }
 
     private fun showClosestGeoPoint() {
         trackingExpected = true
-        checkLocationConditions()
+        if (checkLocationConditions()) return
         customLocationProvider.addSingleRequestLocationConsumer {
             bottomPlayer.displayClosestGeoPoint(
                 Coordinates(this.latitude(), this.longitude())
@@ -347,8 +352,8 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun record() {
         trackingExpected = false
-        checkLocationConditions()
-        checkAudioPermission()
+        if (!checkLocationConditions()) return
+        if (!checkAudioPermission()) return
         getLocationAndLaunchRecord()
     }
 
@@ -391,7 +396,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         grantResults: IntArray
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (grantResults.isNotEmpty() && grantResults[0] == PERMISSION_GRANTED) {
+        if (grantResults.isNotEmpty() && grantResults.all { it == PERMISSION_GRANTED }) {
             dealWithRequest(requestCode)
         } else {
             Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG).show()
@@ -402,7 +407,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         when (requestCode) {
             REQUEST_RECORD -> {
                 trackingExpected = false
-                checkAudioPermission()
+                if(!checkAudioPermission()) return
                 getLocationAndLaunchRecord()
             }
             REQUEST_LOCATION -> {
