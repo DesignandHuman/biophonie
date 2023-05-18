@@ -80,7 +80,7 @@ class CustomLocationProvider(
                 options: (ValueAnimator.() -> Unit)?
             ) {
                 updates++
-                if (updates >= UPDATES_NEEDED) {
+                if (updates > UPDATES_NEEDED) {
                     callback(location[0])
                     this@CustomLocationProvider.unRegisterLocationConsumer(this)
                 }
@@ -136,6 +136,6 @@ class CustomLocationProvider(
     private companion object {
         private const val INIT_UPDATE_DELAY = 1000L
         private const val MAX_UPDATE_DELAY = 5000L
-        private const val UPDATES_NEEDED = 3
+        private const val UPDATES_NEEDED = 1
     }
 }
