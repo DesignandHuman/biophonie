@@ -190,6 +190,7 @@ class BottomPlayerFragment : Fragment() {
         viewModel.event.observe(viewLifecycleOwner) {
             if (it == BottomPlayerViewModel.Event.LOADING) {
                 if (imageDisplayed) {
+                    displayWaveForm()
                     imageDisplayed = false
                     binding.soundImage.visibility = View.GONE
                 }
