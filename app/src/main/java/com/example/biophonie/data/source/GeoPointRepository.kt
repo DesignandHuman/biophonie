@@ -14,4 +14,5 @@ interface GeoPointRepository {
 
     suspend fun refreshUnavailableGeoPoints()
     suspend fun saveNewGeoPoint(geoPoint: GeoPoint): Result<GeoPoint>
+    suspend fun cancelNetworkRequest()
 }

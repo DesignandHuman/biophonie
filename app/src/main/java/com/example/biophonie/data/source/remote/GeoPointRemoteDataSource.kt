@@ -6,27 +6,34 @@ import com.example.biophonie.data.source.GeoPointDataSource
 import com.example.biophonie.network.Message
 import com.example.biophonie.network.asDomainModel
 import com.example.biophonie.network.asNewNetworkGeoPoint
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import timber.log.Timber
 import java.io.File
 
 class GeoPointRemoteDataSource(
     private val webService: WebService,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : GeoPointDataSource {
 
-    override suspend fun getGeoPoint(id: Int): Result<GeoPoint> = withContext(ioDispatcher) {
+    private var currentJob: Job? = null
+
+    override suspend fun cancelCurrentJob() {
+        currentJob?.cancel()
+    }
+
+    override suspend fun getGeoPoint(id: Int): Result<GeoPoint> = withContext(dispatcher) {
         webService.getGeoPoint(id).map { it.asDomainModel() }
     }
 
     override suspend fun getClosestGeoPointId(coord: Coordinates, not: Array<Int>): Result<Int> =
-        withContext(ioDispatcher) {
-            webService.getClosestGeoPoint(coord.latitude, coord.longitude, not).map { it.id }
+        with(CoroutineScope(dispatcher).async {
+            return@async webService.getClosestGeoPoint(coord.latitude, coord.longitude, not)
+                .map { it.id }
+        }) {
+            currentJob = this
+            return@with this.await()
         }
 
     override suspend fun getNewGeoPoints(): List<GeoPoint> {
@@ -40,7 +47,7 @@ class GeoPointRemoteDataSource(
     }
 
     override suspend fun addGeoPoint(geoPoint: GeoPoint, fromUser: Boolean): Result<GeoPoint> =
-        withContext(ioDispatcher) {
+        withContext(dispatcher) {
             val soundFile = File(geoPoint.sound.local!!)
             if (!geoPoint.picture.local!!.endsWith(".webp")) {
                 webService.postNewGeoPoint(

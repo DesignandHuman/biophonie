@@ -9,10 +9,15 @@ import timber.log.Timber
 class DefaultGeoPointRepository(
     private val geoPointRemoteDataSource: GeoPointDataSource,
     private val geoPointLocalDataSource: GeoPointDataSource,
-    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
     ) : GeoPointRepository {
+
+    override suspend fun cancelNetworkRequest() {
+        geoPointRemoteDataSource.cancelCurrentJob()
+    }
     
     override suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
+        cancelNetworkRequest()
         return with(geoPointLocalDataSource.getGeoPoint(id)) {
             if (isSuccess)
                 return@with this
@@ -24,6 +29,7 @@ class DefaultGeoPointRepository(
     }
 
     override suspend fun getClosestGeoPointId(coord: Coordinates, not: Array<Int>): Result<Int> {
+        cancelNetworkRequest()
         return geoPointRemoteDataSource.getClosestGeoPointId(coord, not)
     }
 

@@ -21,4 +21,6 @@ interface GeoPointDataSource {
     suspend fun pingRestricted(): Result<Message>
 
     suspend fun makeAvailable(geoPoint: GeoPoint)
+
+    suspend fun cancelCurrentJob()
 }
