@@ -254,7 +254,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     }
 
     private fun trackLocation(){
-        if (checkLocationConditions()) return
+        if (!checkLocationConditions()) return
         enableLocationProvider()
         binding.mapView.run {
             location.addOnIndicatorPositionChangedListener(this@MapActivity)
@@ -342,7 +342,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun showClosestGeoPoint() {
         trackingExpected = true
-        if (checkLocationConditions()) return
+        if (!checkLocationConditions()) return
         customLocationProvider.addSingleRequestLocationConsumer {
             bottomPlayer.displayClosestGeoPoint(
                 Coordinates(this.latitude(), this.longitude())
@@ -376,11 +376,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun enableLocationProvider() {
         initLocationProvider()
-        binding.mapView.location.run {
-            updateSettings {
-                enabled = true
-            }
-        }
+        binding.mapView.location.updateSettings { this.enabled = true }
     }
 
     private fun initLocationProvider() {
@@ -592,11 +588,10 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
     override fun onMoveEnd(detector: MoveGestureDetector) {}
 
     override fun onIndicatorPositionChanged(point: Point) {
-        binding.mapView.camera.flyTo(cameraOptions {
+        binding.mapView.camera.easeTo(cameraOptions {
             center(point)
             zoom(10.0)
         })
-        binding.mapView.gestures.focalPoint = mapboxMap.pixelForCoordinate(point)
         binding.locationFab.setImageResource(R.drawable.ic_trip)
         tracking = true
     }
