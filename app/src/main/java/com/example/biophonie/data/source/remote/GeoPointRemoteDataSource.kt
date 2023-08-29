@@ -60,7 +60,7 @@ class GeoPointRemoteDataSource(
                 webService.postNewGeoPoint(
                     geoPoint.asNewNetworkGeoPoint(),
                     MultipartBody.Part.createFormData("sound","sound.wav",soundFile.asRequestBody("audio/x-wav".toMediaTypeOrNull())),
-                    MultipartBody.Part.createFormData("picture","picture.jpg",pictureFile.asRequestBody("image/jpeg".toMediaTypeOrNull()))
+                    MultipartBody.Part.createFormData("picture","picture.webp",pictureFile.asRequestBody("image/webp".toMediaTypeOrNull()))
                 )
             }.map { it.asDomainModel() }
         }

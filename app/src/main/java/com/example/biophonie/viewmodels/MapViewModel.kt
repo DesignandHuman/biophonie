@@ -20,7 +20,7 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
         }
     }
 
-    fun requestAddGeoPoint(extras: Bundle?) {
+    fun requestAddGeoPoint(extras: Bundle?, dataPath: String) {
         extras?.let {
             val date = extras.getString("date")
             val soundPath = extras.getString("soundPath")
@@ -41,7 +41,8 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
                         sound = Resource(local = soundPath!!),
                         remoteId = 0,
                         id = 0
-                    )
+                    ),
+                    dataPath
                 )
                 _newGeoPoints.postValue(repository.getUnavailableGeoPoints())
             }
@@ -64,7 +65,7 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
 
     class ViewModelFactory(private val geoPointRepository: GeoPointRepository) : ViewModelProvider.Factory {
 
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return MapViewModel(geoPointRepository) as T

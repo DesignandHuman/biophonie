@@ -50,7 +50,7 @@ class TutorialViewModel(
 
     class ViewModelFactory(private val tutorialRepository: TutorialRepository) : ViewModelProvider.Factory {
 
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(TutorialViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return TutorialViewModel(tutorialRepository) as T

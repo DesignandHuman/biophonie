@@ -17,7 +17,9 @@ import com.example.biophonie.templates
 import com.mapbox.geojson.Point
 import fr.haran.soundwave.controller.AacRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
@@ -138,9 +140,12 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             _fromDefault.value = fromDefault
     }
 
+    @OptIn(DelicateCoroutinesApi::class) // WebP conversion should not be cancelled
     private fun convertToWebp(fileDescriptor: FileDescriptor): String {
         val file = createImageFile(".webp")
-        viewModelScope.launch { compressPicture(fileDescriptor, file) }
+        GlobalScope.launch {
+            compressPicture(fileDescriptor, file)
+        }
         return file.absolutePath
     }
 
@@ -158,7 +163,7 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
 
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
 
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(RecViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return RecViewModel(application) as T
@@ -198,7 +203,11 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             recorderController?.prepareRecorder()
             return false
         } else {
-            recorderController!!.recPlayerView = recPlayerView.apply { toggleValidate(true) }
+            recorderController!!.recPlayerView = recPlayerView.apply {
+                if (_recordComplete.value != true)
+                    _adviceText.value = "L’enregistrement doit durer 2 minutes."
+                toggleValidate(_recordComplete.value == true)
+            }
             recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
             return true
@@ -248,6 +257,10 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
         super.onCleared()
         recorderController?.destroyController()
         recorderController = null
+    }
+
+    fun stopRecording() {
+        recorderController?.stopRecording(false,false)
     }
 
     fun startRecording() {

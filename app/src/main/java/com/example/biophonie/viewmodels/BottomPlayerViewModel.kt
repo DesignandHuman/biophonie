@@ -211,7 +211,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     class ViewModelFactory(private val application: BiophonieApplication) : ViewModelProvider.Factory {
 
-        override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
                 @Suppress("UNCHECKED_CAST")
                 return BottomPlayerViewModel(application.geoPointRepository, application) as T

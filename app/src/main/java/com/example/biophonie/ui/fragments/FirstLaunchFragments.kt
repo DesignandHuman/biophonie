@@ -47,7 +47,7 @@ class TutoDetailsFragment : Fragment(), FirstLaunchFragments {
         ObjectAnimator.ofInt(clipDrawable,"level",0,10000).apply {
             duration = 2000
             addListener(object: AnimatorListenerAdapter(){
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     fab?.fadeIn()
                 }
             })

@@ -114,7 +114,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
         if (result.resultCode == Activity.RESULT_OK) {
             val data: Intent? = result.data
             if (data?.extras != null) {
-                viewModel.requestAddGeoPoint(data.extras)
+                viewModel.requestAddGeoPoint(data.extras, applicationContext.filesDir.absolutePath)
             }
         }
     }

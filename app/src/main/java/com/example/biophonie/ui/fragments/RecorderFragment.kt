@@ -72,6 +72,7 @@ class RecorderFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        viewModel.stopRecording()
         binding.recPlayerView.destroyCountdown()
         _binding = null
     }

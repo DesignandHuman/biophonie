@@ -9,7 +9,7 @@ const val PROPERTY_NAME: String = "name"
 const val PROPERTY_ID: String = "id"
 
 // adjust with res/values/templates.xml
-val templates = mapOf<String, @DrawableRes Int>(
+val templates = mapOf<String, @receiver:DrawableRes Int>(
     "clearing" to R.drawable.clearing,
     "desert" to R.drawable.desert,
     "fields" to R.drawable.fields,

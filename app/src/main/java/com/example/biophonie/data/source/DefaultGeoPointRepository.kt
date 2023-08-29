@@ -2,9 +2,16 @@ package com.example.biophonie.data.source
 
 import com.example.biophonie.data.Coordinates
 import com.example.biophonie.data.GeoPoint
+import com.example.biophonie.templates
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.io.File
+import java.nio.file.Files
+import kotlin.io.path.Path
+import kotlin.io.path.absolutePathString
+import kotlin.io.path.moveTo
 
 class DefaultGeoPointRepository(
     private val geoPointRemoteDataSource: GeoPointDataSource,
@@ -15,7 +22,27 @@ class DefaultGeoPointRepository(
     override suspend fun cancelNetworkRequest() {
         geoPointRemoteDataSource.cancelCurrentJob()
     }
-    
+
+    override suspend fun saveAssetsInStorage(geoPoint: GeoPoint, dataPath: String) {
+        val soundPath = Path(geoPoint.sound.local!!)
+        val targetSound = Path(dataPath).resolve(soundPath.fileName)
+        withContext(Dispatchers.IO) { soundPath.moveTo(targetSound) }
+        geoPoint.sound.local = targetSound.absolutePathString()
+
+        if (geoPoint.picture.local != null) {
+            val picturePath = Path(geoPoint.picture.local!!)
+            Timber.d("filesize of ${geoPoint.title} before: ${Files.size(picturePath)}")
+            if (!templates.contains(picturePath.fileName.toString())) {
+                val targetPicture = Path(dataPath).resolve(picturePath.fileName)
+                withContext(Dispatchers.IO) {
+                    picturePath.moveTo(targetPicture)
+                    Timber.d("filesize of ${geoPoint.title} after: ${Files.size(targetPicture)}")
+                }
+                geoPoint.picture.local = targetPicture.absolutePathString()
+            }
+        }
+    }
+
     override suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
         cancelNetworkRequest()
         return with(geoPointLocalDataSource.getGeoPoint(id)) {
@@ -36,8 +63,10 @@ class DefaultGeoPointRepository(
     override suspend fun getUnavailableGeoPoints(): List<GeoPoint> =
         geoPointLocalDataSource.getUnavailableGeoPoints()
 
-    override suspend fun saveNewGeoPoint(geoPoint: GeoPoint) =
-        geoPointLocalDataSource.addGeoPoint(geoPoint, true)
+    override suspend fun saveNewGeoPoint(geoPoint: GeoPoint, dataPath: String): Result<GeoPoint> {
+        saveAssetsInStorage(geoPoint, dataPath)
+        return geoPointLocalDataSource.addGeoPoint(geoPoint, true)
+    }
 
     override suspend fun addNewGeoPoints(): Boolean {
         var success = true
