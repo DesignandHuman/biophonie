@@ -2,6 +2,7 @@ package com.example.biophonie.ui.activities
 
 import android.content.Intent
 import android.graphics.Rect
+import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
@@ -17,12 +18,21 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.biophonie.BiophonieApplication
 import com.example.biophonie.R
 import com.example.biophonie.databinding.ActivityTutorialBinding
 import com.example.biophonie.ui.fragments.*
 import com.example.biophonie.viewmodels.TutorialViewModel
+import com.example.biophonie.work.ClearCacheWorker
 import com.google.android.material.tabs.TabLayoutMediator
+import java.time.Duration
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.util.concurrent.TimeUnit
 
 
 private const val NUM_PAGES = 5
@@ -43,6 +53,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         setUpViewPager()
         setUpListeners()
         setUpDataObservers()
+        setUpClearCacheWorker()
     }
 
     private fun setUpListeners() {
@@ -97,6 +108,23 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         TabLayoutMediator(binding.tabLayout, binding.pager) { _, _ ->
             //tab.view.isClickable = false
         }.attach()
+    }
+
+    private fun setUpClearCacheWorker() {
+        val requestBuilder = PeriodicWorkRequestBuilder<ClearCacheWorker>(
+            14, TimeUnit.DAYS,
+            3, TimeUnit.HOURS
+        )
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val now = LocalDate.now()
+            val tonight = LocalDateTime.of(now, LocalTime.MIDNIGHT)
+            requestBuilder.setInitialDelay(Duration.between(now, tonight.plusDays(14)))
+        }
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            ClearCacheWorker.WORK_NAME,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            requestBuilder.build()
+        )
     }
 
     override fun onBackPressed() {
