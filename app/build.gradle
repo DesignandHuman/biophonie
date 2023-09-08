@@ -2,7 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
 android {
-    namespace "com.example.biophonie"
+    namespace "fr.labomg.biophonie"
 
     signingConfigs {
         debug {
@@ -61,7 +61,6 @@ android {
             includeAndroidResources = true
         }
     }
-    namespace 'com.example.biophonie'
     lint {
         checkReleaseBuilds false
     }

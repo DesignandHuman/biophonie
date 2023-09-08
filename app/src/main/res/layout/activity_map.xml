@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.biophonie.viewmodels.MapViewModel" />
+            type="fr.labomg.biophonie.viewmodels.MapViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

@@ -5,7 +5,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.biophonie.viewmodels.TutorialViewModel" />
+            type="fr.labomg.biophonie.viewmodels.TutorialViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout

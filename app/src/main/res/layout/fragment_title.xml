@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.biophonie.viewmodels.RecViewModel" />
+            type="fr.labomg.biophonie.viewmodels.RecViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
