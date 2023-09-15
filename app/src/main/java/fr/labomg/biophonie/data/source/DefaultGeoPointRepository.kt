@@ -30,12 +30,10 @@ class DefaultGeoPointRepository(
 
         if (geoPoint.picture.local != null) {
             val picturePath = Path(geoPoint.picture.local!!)
-            Timber.d("filesize of ${geoPoint.title} before: ${Files.size(picturePath)}")
             if (!templates.contains(picturePath.fileName.toString())) {
                 val targetPicture = Path(dataPath).resolve(picturePath.fileName)
                 withContext(Dispatchers.IO) {
                     picturePath.moveTo(targetPicture)
-                    Timber.d("filesize of ${geoPoint.title} after: ${Files.size(targetPicture)}")
                 }
                 geoPoint.picture.local = targetPicture.absolutePathString()
             }
