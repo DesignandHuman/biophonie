@@ -140,27 +140,6 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             _fromDefault.value = fromDefault
     }
 
-    @OptIn(DelicateCoroutinesApi::class) // WebP conversion should not be cancelled
-    private fun convertToWebp(fileDescriptor: FileDescriptor): String {
-        val file = createImageFile(".webp")
-        GlobalScope.launch {
-            compressPicture(fileDescriptor, file)
-        }
-        return file.absolutePath
-    }
-
-    private suspend fun compressPicture(imageFd: FileDescriptor, compressedImage: File) {
-        withContext(Dispatchers.IO) {
-            val picture = BitmapFactory.decodeFileDescriptor(imageFd)
-            val out = FileOutputStream(compressedImage)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                picture.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75,out)
-            else
-                picture.compress(Bitmap.CompressFormat.WEBP,75,out)
-            out.close()
-        }
-    }
-
     class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -196,17 +175,19 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
                         else
                             _adviceText.value = "L’enregistrement doit durer 2 minutes."
                            },
-                    complete = { _adviceText.value = "C'est tout bon !" },
+                    complete = { _adviceText.value = "C’est tout bon !" },
                     validate = { _recordComplete.value = true },
                 )}
             }
             recorderController?.prepareRecorder()
             return false
         } else {
+            if (_recordComplete.value == true)
+                _adviceText.value = "L’enregistrement doit durer 2 minutes."
+            else
+                _adviceText.value = "C’est tout bon !"
             recorderController!!.recPlayerView = recPlayerView.apply {
-                if (_recordComplete.value != true)
-                    _adviceText.value = "L’enregistrement doit durer 2 minutes."
-                toggleValidate(_recordComplete.value == true)
+                toggleValidate(_recordComplete.value != true)
             }
             recorderController!!.restoreStateOnNewRecView()
             recorderController!!.prepareRecorder()
@@ -223,18 +204,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
             else {
                 var landscapePath = ""
                 var templatePath = ""
-
                 if (_fromDefault.value == false) {
-                    val inputPFD = try {
-                        getApplication<Application>().applicationContext.contentResolver.openFileDescriptor(
-                            _landscapeUri.value!!,
-                            "r"
-                        )
-                    } catch (exception: FileNotFoundException) {
-                        Timber.e(exception)
-                        return
-                    }
-                    landscapePath = convertToWebp(inputPFD!!.fileDescriptor)
+                    landscapePath = getApplication<Application>().applicationContext.externalCacheDir?.absolutePath + File.separator + "images" + File.separator + _landscapeUri.value!!.path!!.substringAfterLast(File.separator)
                 }
                 else templatePath = templates.keys.elementAt(currentId)
                 _result.value =

@@ -1,5 +1,8 @@
 package fr.labomg.biophonie.data.source
 
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.os.Build
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.templates
@@ -7,7 +10,11 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import java.nio.file.Files
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.moveTo
@@ -31,12 +38,40 @@ class DefaultGeoPointRepository(
         if (geoPoint.picture.local != null) {
             val picturePath = Path(geoPoint.picture.local!!)
             if (!templates.contains(picturePath.fileName.toString())) {
-                val targetPicture = Path(dataPath).resolve(picturePath.fileName)
-                withContext(Dispatchers.IO) {
-                    picturePath.moveTo(targetPicture)
-                }
-                geoPoint.picture.local = targetPicture.absolutePathString()
+                geoPoint.picture.local = convertToWebp(picturePath,dataPath)
             }
+        }
+    }
+
+    private suspend fun convertToWebp(imagePath: Path, dataPath: String): String {
+        val compressedImage = File(dataPath, imagePath.fileName.toString().replaceAfter('.',"webp"))
+        withContext(Dispatchers.IO) {
+            try {
+                compressedImage.createNewFile()
+            } catch (e: IOException) {
+                Timber.e("could not create file for compressed image: $e")
+            }
+            compressPicture(imagePath.toAbsolutePath().toString(), compressedImage)
+        }
+        return compressedImage.absolutePath
+    }
+
+    private suspend fun compressPicture(input: String, output: File) {
+        withContext(Dispatchers.IO) {
+            val picture: Bitmap
+            val out: FileOutputStream
+            try {
+                picture = BitmapFactory.decodeFile(input)
+                out = FileOutputStream(output)
+            } catch (e: Exception) {
+                Timber.e("file do not exist: $e")
+                return@withContext
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
+                picture.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75,out)
+            else
+                picture.compress(Bitmap.CompressFormat.WEBP,75,out)
+            out.close()
         }
     }
 
