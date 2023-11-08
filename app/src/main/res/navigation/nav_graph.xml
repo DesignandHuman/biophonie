@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/recordingFragment"
-        android:name="com.example.biophonie.ui.fragments.RecorderFragment"
+        android:name="fr.labomg.biophonie.ui.fragments.RecorderFragment"
         android:label="fragment_recording"
         tools:layout="@layout/fragment_recording" >
         <action
@@ -18,7 +18,7 @@
     </fragment>
     <fragment
         android:id="@+id/galleryFragment"
-        android:name="com.example.biophonie.ui.fragments.GalleryFragment"
+        android:name="fr.labomg.biophonie.ui.fragments.GalleryFragment"
         android:label="fragment_gallery"
         tools:layout="@layout/fragment_gallery" >
         <action
@@ -29,7 +29,7 @@
     </fragment>
     <fragment
         android:id="@+id/titleFragment"
-        android:name="com.example.biophonie.ui.fragments.TitleFragment"
+        android:name="fr.labomg.biophonie.ui.fragments.TitleFragment"
         android:label="fragment_title"
         tools:layout="@layout/fragment_title" />
 </navigation>

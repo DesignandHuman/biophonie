@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.biophonie.viewmodels.MapViewModel" />
+            type="fr.labomg.biophonie.viewmodels.MapViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -55,20 +55,19 @@
             app:maxImageSize="22dp"
             app:fabCustomSize="40dp"
             app:shapeAppearanceOverlay="@style/FabSquare"
-            style="@style/ButtonStyle"/>
+            style="@style/ButtonStyle"
+            android:contentDescription="@string/about" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/location_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:backgroundTint="@android:color/white"
             android:src="@drawable/ic_baseline_location_searching"
             android:layout_gravity="bottom|end"
             android:layout_marginVertical="50dp"
             android:layout_marginHorizontal="15dp"
-            android:focusable="true"
-            android:clickable="true"
-            app:borderWidth="1dp"/>
+            style="@style/FloatingActionButton"
+            android:contentDescription="@string/locate" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/rec"
@@ -76,19 +75,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|center"
             android:layout_marginBottom="15dp"
-            android:src="@drawable/button_rec"
-            android:tint="@color/buttons_darker"
+            android:src="@drawable/ic_microphone"
             app:backgroundTint="@color/buttons"
-            style="@style/FloatingActionButton.Big"/>
-
-        <androidx.appcompat.widget.AppCompatTextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center"
-            android:layout_marginBottom="36dp"
-            android:text="Rec."
-            android:textColor="@color/design_default_color_background"
-            android:elevation="14dp"/>
+            style="@style/FloatingActionButton.Big"
+            android:contentDescription="@string/record" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

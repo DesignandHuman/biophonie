@@ -28,7 +28,7 @@
                 android:layout_height="50dp"
                 android:gravity="center|start"
                 android:background="@drawable/border_bottom"
-                android:text="À propos de Biophonie"
+                android:text="@string/about_biophonie"
                 app:layout_constraintHorizontal_weight="6"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -82,19 +82,19 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="LICENCE"
+                    android:text="@string/licence"
                     android:layout_gravity="center"/>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="GNU GPL v3.0"
+                    android:text="@string/gnu_gpl_v3_0"
                     android:layout_gravity="center"/>
 
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="réalisé ici : 121°E 33°N"
+                    android:text="@string/developped_location"
                     android:layout_gravity="center"/>
 
                 <androidx.appcompat.widget.AppCompatButton
@@ -103,7 +103,7 @@
                     android:layout_height="wrap_content"
                     android:paddingHorizontal="10dp"
                     android:textAllCaps="false"
-                    android:text="Retrouvez Labo.mg"
+                    android:text="@string/go_to_labo_mg"
                     android:layout_gravity="center"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="20dp"

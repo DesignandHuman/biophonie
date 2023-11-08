@@ -7,13 +7,14 @@
     <data>
         <variable
             name="viewModel"
-            type="com.example.biophonie.viewmodels.BottomPlayerViewModel" />
+            type="fr.labomg.biophonie.viewmodels.BottomPlayerViewModel" />
+        <import type="android.view.View" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:focusable="true"
         android:clickable="true"
-        android:id="@+id/container"
+        android:id="@+id/bottom_player"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/design_default_color_background"
@@ -25,17 +26,15 @@
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/progress_bar"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:padding="35dp"
-            android:visibility="invisible"
-            android:scaleType="centerInside"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="fitCenter"
+            android:visibility="@{viewModel.event == viewModel.Event.LOADING ? View.VISIBLE : View.GONE}"
             app:srcCompat="@drawable/loader"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.12" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
             style="@style/BottomPlayerTextView"
@@ -49,23 +48,38 @@
             android:textStyle="bold"
             android:text="@{viewModel.geoPoint.title}"
             android:background="@drawable/border_bottom_top"
-            app:layout_constraintEnd_toStartOf="@id/coordinates"
+            app:layout_constraintEnd_toStartOf="@id/close"
             app:layout_constraintHorizontal_weight="6"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.appcompat.widget.AppCompatTextView
-            style="@style/BottomPlayerTextView"
-            android:id="@+id/coordinates"
-            android:layout_height="0dp"
-            android:text="@{viewModel.geoPoint.coordinates.toString()}"
+            android:id="@+id/error_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:gravity="center"
-            android:background="@drawable/border_bottom_top"
-            app:layout_constraintEnd_toEndOf="@+id/close"
-            app:layout_constraintHorizontal_weight="4"
-            app:layout_constraintStart_toEndOf="@id/location"
-            app:layout_constraintTop_toTopOf="@id/location"
-            app:layout_constraintBottom_toBottomOf="@id/location"/>
+            android:text="@{viewModel.eventNetworkError}"
+            android:background="@color/design_default_color_background"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/retry_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/design_default_color_background"
+            android:src="@drawable/ic_reload"
+            android:focusable="true"
+            android:clickable="true"
+            android:onClick="@{() -> viewModel.onRetry()}"
+            android:layout_marginBottom="15dp"
+            app:layout_constraintBottom_toTopOf="@id/error_message"
+            app:layout_constraintStart_toStartOf="@id/error_message"
+            app:layout_constraintEnd_toEndOf="@id/error_message"
+            app:borderWidth="1dp"
+            android:contentDescription="@string/retry" />
 
         <androidx.appcompat.widget.AppCompatImageButton
             android:id="@+id/close"
@@ -81,7 +95,7 @@
             android:theme="@style/ClickableButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_weight="1"
-            app:layout_constraintStart_toEndOf="@id/coordinates"
+            app:layout_constraintStart_toEndOf="@id/location"
             app:layout_constraintBottom_toBottomOf="@id/location"
             app:layout_constraintTop_toTopOf="@id/location"
             style="@style/ButtonStyle"/>
@@ -104,7 +118,6 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:scaleType="centerCrop"
-            android:src="@drawable/forest"
             android:visibility="gone"
             app:resource="@{viewModel.geoPoint.picture}"
             app:layout_constraintBottom_toTopOf="@id/pin"
@@ -131,19 +144,22 @@
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/date_picker"
+                app:layout_constraintEnd_toStartOf="@id/coordinates"
                 style="@style/ButtonStyle.BottomPlayer"/>
 
             <androidx.appcompat.widget.AppCompatTextView
                 style="@style/BottomPlayerTextView"
-                android:id="@+id/date_picker"
+                android:id="@+id/coordinates"
+                android:layout_height="0dp"
+                android:text="@{viewModel.geoPoint.coordinates.toString()}"
+                android:gravity="center"
                 android:background="@drawable/border_top"
-                tools:text="janv. 1970"
-                app:date="@{viewModel.geoPoint.date}"
+                android:textSize="11sp"
+                app:layout_constraintEnd_toStartOf="@id/right"
+                app:layout_constraintStart_toEndOf="@id/left"
                 app:layout_constraintHorizontal_weight="4"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@id/left"
-                app:layout_constraintEnd_toStartOf="@id/right"/>
+                app:layout_constraintTop_toTopOf="@id/right"/>
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/right"
@@ -156,22 +172,36 @@
                 android:theme="@style/ClickableButton"
                 app:layout_constraintHorizontal_weight="1"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/date_picker"
+                app:layout_constraintStart_toEndOf="@+id/coordinates"
                 app:layout_constraintEnd_toStartOf="@id/expand"
                 style="@style/ButtonStyle.BottomPlayer"/>
 
             <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/expand"
                 android:background="@drawable/border_top_left"
-                android:text="Voir la photo"
+                android:text="@string/see_picture"
                 android:theme="@style/ClickableButton"
-                app:layout_constraintHorizontal_weight="5"
+                app:layout_constraintHorizontal_weight="3"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/right"
                 style="@style/ButtonStyle.BottomPlayer"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/content"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.event == viewModel.Event.SUCCESS ? View.VISIBLE : View.INVISIBLE}"
+            app:constraint_referenced_ids="location,player_view,pin,close"/>
+
+        <androidx.constraintlayout.widget.Group
+            android:id="@+id/error"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:visibility="@{viewModel.event == viewModel.Event.FAILURE ? View.VISIBLE : View.GONE}"
+            app:constraint_referenced_ids="retry_fab,error_message"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

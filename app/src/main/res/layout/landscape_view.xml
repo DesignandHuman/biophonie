@@ -4,12 +4,13 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:padding="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="150dp">
+        android:layout_marginHorizontal="10dp"
+        android:layout_width="150dp"
+        android:layout_height="match_parent">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/landscape_image"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_gravity="center_horizontal"
             android:scaleType="centerCrop"
