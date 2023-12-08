@@ -9,6 +9,7 @@ val roomVersion = "2.5.2"
 
 android {
     namespace = "fr.labomg.biophonie"
+    compileSdk = 33
 
     signingConfigs {
         getByName("debug") {
@@ -16,9 +17,13 @@ android {
         }
     }
 
+    // needed to compile with JDK 17
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 
     buildFeatures{
@@ -26,12 +31,12 @@ android {
         viewBinding = true
     }
 
-    android.ndkVersion = "21.0.6113669"
+    // use ndk to keep debug symbols in AAB
+    android.ndkVersion = "26.1.10909125"
 
     defaultConfig {
-        compileSdk = 33
-        minSdkVersion(23)
-        targetSdkVersion(33)
+        minSdk = 23
+        targetSdk = 33
         versionCode = 3
         versionName = "0.2.0"
         vectorDrawables.useSupportLibrary = true
@@ -41,29 +46,22 @@ android {
 
     buildTypes {
         getByName("debug") {
-            //manifestPlaceholders = mapOf("usesCleartextTraffic" to "true")
+            // allows debugging with a proxy
+            manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
         getByName("release") {
-            //manifestPlaceholders = mapOf("usesCleartextTraffic" to "false")
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles (
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // keeps debug symbols in AAB
             ndk {
                 debugSymbolLevel = "FULL"
             }
         }
-    }
-
-
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "17"
     }
 
     //test with Roboelectric
@@ -73,6 +71,7 @@ android {
         }
     }
     lint {
+        // neeeded because errors with res references in fragment_gallery.xml
         checkReleaseBuilds = false
     }
 }
@@ -82,6 +81,7 @@ dependencies {
     androidTestImplementation("androidx.test:rules:1.5.0")
     val navVersion = "2.3.5"
 
+    // allows support of new java classes such as Instant for older Android versions
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs_nio:2.0.3")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 
