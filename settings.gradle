@@ -1,3 +1,13 @@
+pluginManagement {
+    repositories {
+        google()
+        jcenter()
+        mavenCentral()
+        gradlePluginPortal()
+        maven { url "https://www.jitpack.io" }
+        maven { url 'https://maven.google.com' }
+    }
+}
 include ':soundwave'
 project(':soundwave').projectDir = new File('../WaveFormPlayer/soundwave')
 include ':app'
