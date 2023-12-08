@@ -1,7 +1,9 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    // kapt still needed to use databinding
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.devtools.ksp")
 }
 
 val kotlinVersion = "1.8.0"
@@ -99,7 +101,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 
     implementation("androidx.room:room-runtime:${roomVersion}")
-    kapt("androidx.room:room-compiler:${roomVersion}")
+    ksp("androidx.room:room-compiler:${roomVersion}")
     implementation("androidx.room:room-ktx:${roomVersion}")
 
     // implementation("com.github.Haransis:WaveFormPlayer:1.3.0")
@@ -109,7 +111,8 @@ dependencies {
     implementation("com.squareup.moshi:moshi:1.15.0")
     implementation("com.squareup.moshi:moshi-kotlin:1.15.0")
     implementation("com.squareup.retrofit2:converter-moshi:2.9.0")
-    kapt("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+    ksp("com.squareup.moshi:moshi-kotlin-codegen:1.15.0")
+
     implementation("com.jakewharton.timber:timber:5.0.1")
 
     testImplementation("junit:junit:4.13.2")
