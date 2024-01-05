@@ -1,8 +1,7 @@
 plugins {
-    id ("com.android.application") version "8.2.0" apply false
-    id ("com.github.dcendents.android-maven") version "2.1" apply false
-    // TODO version of kotlin should be used in ksp version
-    id("com.google.devtools.ksp") version "1.8.0-1.0.9" apply false
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.kapt) apply false
+    alias(libs.plugins.ksp) apply false
 }
 
 allprojects {

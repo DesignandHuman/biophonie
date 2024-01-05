@@ -1,5 +1,7 @@
 [versions]
 kotlin = "1.8.0"
+ksp = "1.8.0-1.0.9"
+androidGradlePlugin = "8.2.0"
 
 desugar = "2.0.3"
 coroutines = "1.6.4"
@@ -100,4 +102,8 @@ lifecycle = ["lifecycle-viewmodel", "lifecycle-livedata"]
 remote = ["retrofit", "moshi", "moshi-kotlin", "converter-moshi", "logging-interceptor"]
 local = ["androidx-roomRuntime", "androidx-roomKtx"]
 map = ["mapbox","mapscaleview"]
+
 [plugins]
+android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
+kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

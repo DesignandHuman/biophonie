@@ -6,8 +6,6 @@ plugins {
     id("com.google.devtools.ksp")
 }
 
-val kotlinVersion = "1.8.0"
-
 android {
     namespace = "fr.labomg.biophonie"
     compileSdk = 33
