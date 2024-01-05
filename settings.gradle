@@ -7,7 +7,12 @@ pluginManagement {
         maven { url 'https://maven.google.com' }
     }
 }
+
+// integrate local soundwave dependency
+// requires soundwave to be accessible
+// TODO: consider moving WaveFormPlayer into this project
 include ':soundwave'
-project(':soundwave').projectDir = new File('../WaveFormPlayer/soundwave')
+project(':soundwave').projectDir = new File(getProperty("SOUNDWAVE_DIR"))
+
 include ':app'
 rootProject.name = "Biophonie"
