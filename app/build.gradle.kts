@@ -64,9 +64,9 @@ android {
         }
     }
 
-    //test with Roboelectric
     testOptions {
         unitTests {
+            // keep manifest to get rid of Robolectric warning
             isIncludeAndroidResources = true
         }
     }
