@@ -66,10 +66,6 @@ android {
             isIncludeAndroidResources = true
         }
     }
-    lint {
-        // avoid errors with res references in fragment_gallery.xml
-        checkReleaseBuilds = false
-    }
 }
 
 dependencies {
