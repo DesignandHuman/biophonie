@@ -18,8 +18,8 @@ android {
     }
 
     // set a specific Java version
-    java.toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+    kotlin {
+        jvmToolchain(17)
     }
 
     buildFeatures{
