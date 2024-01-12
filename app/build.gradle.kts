@@ -17,7 +17,7 @@ android {
         }
     }
 
-    // Java
+    // set a specific Java version
     java.toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
     }
@@ -42,7 +42,7 @@ android {
 
     buildTypes {
         getByName("debug") {
-            // allows debugging with a proxy
+            // allow debugging with a proxy
             manifestPlaceholders["usesCleartextTraffic"] = "true"
         }
         getByName("release") {
@@ -53,7 +53,7 @@ android {
                 "proguard-rules.pro"
             )
 
-            // keeps debug symbols in AAB
+            // keep debug symbols in AAB
             ndk {
                 debugSymbolLevel = "FULL"
             }
@@ -82,8 +82,8 @@ dependencies {
     debugImplementation(libs.androidx.fragmentKtx)
     implementation(libs.androidx.securityCrypto) // encrypted shared preferences
     implementation(libs.androidx.workRuntime)
-    // support of new java classes such as Instant for older Android versions
-    coreLibraryDesugaring(libs.bundles.desugar)
+    coreLibraryDesugaring(libs.bundles.desugar) // support of new java classes such as
+    // java.time.Instant for Android versions < 26
 
     // ---data layer--- //
     ksp(libs.androidx.roomCompiler)
@@ -97,9 +97,9 @@ dependencies {
     implementation(libs.androidx.constraintLayout)
     implementation(libs.bundles.map)
     implementation(libs.bundles.navigation)
-    implementation(libs.glide) // display picture
-    implementation(libs.material) // bottomsheetplayer implementation
-    implementation(project(":soundwave")) // display sound
+    implementation(libs.glide) // picture display
+    implementation(libs.material) // BottomSheetPlayer implementation
+    implementation(project(":soundwave")) // sound reading and display
 
     // ---development utils--- //
     debugImplementation(libs.leakCanary)
