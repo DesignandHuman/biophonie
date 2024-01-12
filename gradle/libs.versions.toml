@@ -1,6 +1,6 @@
 [versions]
 androidGradlePlugin = "8.2.1"
-androidxjUnit = "4.13.2"
+androidxjUnit = "1.1.5"
 appCompat = "1.6.1"
 constraintLayout = "2.1.4"
 coreKtx = "1.10.1"
@@ -28,7 +28,7 @@ securityCryptoKtx = "1.1.0-alpha06"
 test = "1.5.0"
 timber = "5.0.1"
 workRuntime = "2.4.0"
-harmcrest = "2.2"
+hamcrest = "2.2"
 robolectric = "4.3.1"
 
 [libraries]
@@ -82,7 +82,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakCanary" }
 
 jUnit = { module = "junit:junit", version.ref = "jUnit" }
-harmcrest = { module = "org.harmcrest:harmcrest", version.ref = "harmcrest" }
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 
 [bundles]

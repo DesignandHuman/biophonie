@@ -108,7 +108,7 @@ dependencies {
     androidTestImplementation(libs.androidx.testEspresso)
     androidTestImplementation(libs.androidx.testJUnit)
     androidTestImplementation(libs.androidx.testRules)
-    testImplementation(libs.harmcrest)
+    testImplementation(libs.hamcrest)
     testImplementation(libs.jUnit)
     testImplementation(libs.navigation.testing)
     testImplementation(libs.robolectric)
