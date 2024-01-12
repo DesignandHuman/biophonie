@@ -73,47 +73,47 @@ android {
 }
 
 dependencies {
-    // kotlin
+    // ---kotlin--- //
     implementation(libs.kotlin.reflect)
 
-    // android
-    implementation(libs.androidx.coreKtx)
+    // ---android--- //
     implementation(libs.androidx.appCompat)
-    implementation(libs.androidx.workRuntime)
+    implementation(libs.androidx.coreKtx)
     debugImplementation(libs.androidx.fragmentKtx)
     implementation(libs.androidx.securityCrypto) // encrypted shared preferences
+    implementation(libs.androidx.workRuntime)
     // support of new java classes such as Instant for older Android versions
     coreLibraryDesugaring(libs.bundles.desugar)
 
-    // data layer
-    implementation(libs.bundles.lifecycle)
+    // ---data layer--- //
+    ksp(libs.androidx.roomCompiler)
     implementation(libs.bundles.coroutines)
+    implementation(libs.bundles.lifecycle)
+    implementation(libs.bundles.local)
     implementation(libs.bundles.remote)
     ksp(libs.moshi.codegen)
-    implementation(libs.bundles.local)
-    ksp(libs.androidx.roomCompiler)
 
-    // ui layer
+    // ---ui layer--- //
     implementation(libs.androidx.constraintLayout)
-    implementation(libs.bundles.navigation)
     implementation(libs.bundles.map)
-    implementation(libs.material) // bottomsheetplayer implementation
+    implementation(libs.bundles.navigation)
     implementation(libs.glide) // display picture
+    implementation(libs.material) // bottomsheetplayer implementation
     implementation(project(":soundwave")) // display sound
 
-    // development utils
-    implementation(libs.timber)
+    // ---development utils--- //
     debugImplementation(libs.leakCanary)
+    implementation(libs.timber)
 
-    // testing dependencies
-    testImplementation(libs.navigation.testing)
-    testImplementation(libs.jUnit)
-    testImplementation(libs.harmcrest)
-    testImplementation(libs.robolectric)
+    // ---testing dependencies--- //
     testImplementation(libs.androidx.coreTesting)
-    androidTestImplementation(libs.androidx.testCore)
-    androidTestImplementation(libs.androidx.testRules)
-    androidTestImplementation(libs.androidx.testJUnit)
-    androidTestImplementation(libs.androidx.testEspresso)
     debugImplementation(libs.androidx.fragmentTesting)
+    androidTestImplementation(libs.androidx.testCore)
+    androidTestImplementation(libs.androidx.testEspresso)
+    androidTestImplementation(libs.androidx.testJUnit)
+    androidTestImplementation(libs.androidx.testRules)
+    testImplementation(libs.harmcrest)
+    testImplementation(libs.jUnit)
+    testImplementation(libs.navigation.testing)
+    testImplementation(libs.robolectric)
 }
