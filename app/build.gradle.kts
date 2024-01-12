@@ -2,7 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     // kapt still needed to use databinding
-    // (see https://developer.android.com/build/migrate-to-ksp#check-libraries)
+    // (see https://issuetracker.google.com/issues/173030256#comment10)
     id("org.jetbrains.kotlin.kapt")
     id("com.google.devtools.ksp")
 }
