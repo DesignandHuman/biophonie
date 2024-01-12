@@ -1,10 +1,10 @@
 plugins {
-    id("com.android.application")
-    id("org.jetbrains.kotlin.android")
+    alias(libs.plugins.android.application)
     // kapt still needed to use databinding
     // (see https://issuetracker.google.com/issues/173030256#comment10)
-    id("org.jetbrains.kotlin.kapt")
-    id("com.google.devtools.ksp")
+    alias(libs.plugins.kapt)
+    alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -28,7 +28,7 @@ android {
     }
 
     // use ndk to keep debug symbols in AAB
-    android.ndkVersion = "26.1.10909125"
+    android.ndkVersion = "25.1.8937393"
 
     defaultConfig {
         minSdk = 23
