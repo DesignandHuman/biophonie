@@ -42,8 +42,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     val event: LiveData<Event>
         get() = _event
 
-    private val _eventNetworkError = MutableLiveData<String>()
-    val eventNetworkError: LiveData<String>
+    private val _eventNetworkError = MutableLiveData<String?>()
+    val eventNetworkError: LiveData<String?>
         get() = _eventNetworkError
 
     private val _leftClickable = MutableLiveData<Boolean>()

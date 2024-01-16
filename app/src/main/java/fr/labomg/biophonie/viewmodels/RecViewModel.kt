@@ -47,8 +47,8 @@ class RecViewModel(application: Application) : AndroidViewModel(application), Aa
     val landscapeThumbnail: LiveData<Uri>
         get() = _landscapeThumbnail
 
-    private val _toast = MutableLiveData<ToastModel>()
-    val toast: LiveData<ToastModel>
+    private val _toast = MutableLiveData<ToastModel?>()
+    val toast: LiveData<ToastModel?>
         get() = _toast
 
     private val _fromDefault = MutableLiveData(true)

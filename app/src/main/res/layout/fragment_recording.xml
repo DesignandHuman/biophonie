@@ -15,18 +15,23 @@
         android:layout_height="match_parent"
         tools:context=".ui.fragments.RecorderFragment">
 
-        <include layout="@layout/back_and_close" android:id="@+id/top_panel"/>
+        <include layout="@layout/back_and_close"
+            android:id="@+id/top_panel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/advice"
+            />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/advice"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@{viewModel.adviceText}"
-            app:layout_constraintTop_toBottomOf="@+id/close"
+            app:layout_constraintTop_toBottomOf="@+id/top_panel"
             app:layout_constraintBottom_toTopOf="@id/rec_player_view"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:ignore="UnknownIdInLayout" />
+            app:layout_constraintStart_toStartOf="parent"/>
 
         <fr.haran.soundwave.ui.RecPlayerView
             android:id="@+id/rec_player_view"

@@ -1,6 +1,6 @@
 # Add project specific ProGuard rules here.
 # You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
+# proguardFiles setting in build.gradle.kts.
 #
 # For more details, see
 #   http://developer.android.com/guide/developing/tools/proguard.html
@@ -13,7 +13,9 @@
 #}
 
 -keepattributes SourceFile,LineNumberTable
--printmapping outputfile.txt
+# Uncomment te generate mapping file
+#-printmapping outputfile.txt
+
 # Uncomment this to preserve the line number information for
 # debugging stack traces.
 #-keepattributes SourceFile,LineNumberTable
@@ -26,3 +28,18 @@
   @com.squareup.moshi.FromJson *;
   @com.squareup.moshi.ToJson *;
 }
+
+-keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.data.source.ResultCall {*;}
+-keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.data.source.ResultCallAdapterFactory {*;}
+-keep,allowobfuscation,allowshrinking public class kotlin.Result {*;}
+
+# solves issue with xml inflation with `app:` parameters
+-dontwarn org.xmlpull.v1.**
+-dontwarn org.kxml2.io.**
+-dontwarn android.content.res.**
+-keep class org.xmlpull.** { *; }
+-keepclassmembers class org.xmlpull.** { *; }
+
+# solves issue with xml inflation with navigator (TODO: update might fix)
+-keepattributes RuntimeVisibleAnnotations
+-keep class * extends androidx.navigation.Navigator

@@ -5,6 +5,7 @@ import fr.labomg.biophonie.data.source.ResultCallAdapterFactory
 import fr.labomg.biophonie.util.AppPrefs
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import fr.labomg.biophonie.BuildConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -73,7 +74,8 @@ class WebClient {
     val webService: WebService by lazy {
         val client = OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BASIC
+                level = if (BuildConfig.BUILD_TYPE == "debug") HttpLoggingInterceptor.Level.BASIC
+                    else HttpLoggingInterceptor.Level.NONE
             })
             .addInterceptor(AuthenticationInterceptor())
             .authenticator(AccessTokenAuthenticator())
