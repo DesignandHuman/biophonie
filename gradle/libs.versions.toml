@@ -86,6 +86,7 @@ lifecycle-livedata = { module = "androidx.lifecycle:lifecycle-livedata-ktx", ver
 lifecycle-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 logging-interceptor = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
 
+material = { module = "com.google.android.material:material", version.ref = "material" }
 mapbox = { module = "com.mapbox.maps:android", version.ref = "mapbox" }
 mapscaleview = { module = "com.github.pengrad:mapscaleview", version.ref = "mapscaleview" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
