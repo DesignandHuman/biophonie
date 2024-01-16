@@ -7,6 +7,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// set a specific Java version
+kotlin {
+    jvmToolchain(17)
+}
+
 android {
     namespace = "fr.labomg.biophonie"
     compileSdk = 33
@@ -15,11 +20,6 @@ android {
         getByName("debug") {
             keyPassword = "android"
         }
-    }
-
-    // set a specific Java version
-    kotlin {
-        jvmToolchain(17)
     }
 
     buildFeatures{
