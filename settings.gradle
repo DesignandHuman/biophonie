@@ -1,4 +1,0 @@
-include ':soundwave'
-project(':soundwave').projectDir = new File('../WaveFormPlayer/soundwave')
-include ':app'
-rootProject.name = "Biophonie"
