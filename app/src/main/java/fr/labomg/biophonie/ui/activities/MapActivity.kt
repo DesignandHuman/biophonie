@@ -73,6 +73,7 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
+import fr.labomg.biophonie.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -162,7 +163,7 @@ class MapActivity : FragmentActivity(), OnMapClickListener, OnCameraChangeListen
 
     private fun createStyle(longDimension: Int, shortDimension: Int): StyleContract.StyleExtension = style(styleUri = getString(R.string.style_url)) {
         +geoJsonSource(id = "$REMOTE.$SOURCE") {
-            url("$BASE_URL/${getString(R.string.geojson_url)}")
+            url("${BuildConfig.BASE_URL}/${getString(R.string.geojson_url)}")
             cluster(false)
         }
         +geoJsonSource("$CACHE.$SOURCE")

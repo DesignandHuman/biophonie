@@ -25,6 +25,7 @@ android {
     buildFeatures{
         dataBinding = true
         viewBinding = true
+        buildConfig = true
     }
 
     // use ndk to keep debug symbols in AAB
@@ -38,12 +39,19 @@ android {
         vectorDrawables.useSupportLibrary = true
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         signingConfig = signingConfigs.getByName("debug")
+
+        resValue("string", "mapbox_access_token", (extra["MAPBOX_ACCESS_TOKEN"] ?: "") as String)
+        resValue("string", "style_url", (extra["BIOPHONIE_STYLE_URL"] ?: "") as String)
     }
 
     buildTypes {
         getByName("debug") {
             // allow debugging with a proxy
             manifestPlaceholders["usesCleartextTraffic"] = "true"
+
+            buildConfigField("String", "BASE_URL",
+                "\"${(rootProject.property("BIOPHONIE_PREPROD_API_URL") ?: "") as String}\""
+            )
         }
         getByName("release") {
             isMinifyEnabled = true
@@ -57,6 +65,8 @@ android {
             ndk {
                 debugSymbolLevel = "FULL"
             }
+
+            buildConfigField("String", "BASE_URL", "\"https://biophonie.fr\"")
         }
     }
 

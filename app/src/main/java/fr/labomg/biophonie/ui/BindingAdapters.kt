@@ -9,11 +9,11 @@ import androidx.core.text.bold
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import fr.labomg.biophonie.BASE_URL
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.data.Resource
 import fr.labomg.biophonie.templates
 import fr.haran.soundwave.ui.PlayerView
+import fr.labomg.biophonie.BuildConfig
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -34,7 +34,7 @@ fun setImageUri(view: AppCompatImageView, imageUri: Uri?){
 fun setImageResource(view: AppCompatImageView, picture: Resource?){
     picture?.let {
         val uri = if (it.local == null) {
-            "$BASE_URL/api/v1/assets/picture/${picture.remote}"
+            "${BuildConfig.BASE_URL}/api/v1/assets/picture/${picture.remote}"
         } else {
             if (templates.containsKey(picture.local)) {
                 view.setImageResource(templates[picture.local]!!)

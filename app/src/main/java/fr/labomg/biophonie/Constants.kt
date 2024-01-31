@@ -22,5 +22,3 @@ val templates = mapOf<String, @receiver:DrawableRes Int>(
     "rainforest" to R.drawable.rainforest,
     "temperateforest" to R.drawable.temperateforest
 )
-
-val BASE_URL = if (BuildConfig.BUILD_TYPE == "debug") "http://10.0.2.2:8080" else "https://biophonie.fr"

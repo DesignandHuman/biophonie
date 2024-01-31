@@ -114,8 +114,5 @@ fabric.properties
 ### Deployment targets ###
 .idea/deploymentTargetDropDown.xml
 
-### Secret values ###
-**/*/res/values/secrets.xml
-
 ### Build results ###
 app/release

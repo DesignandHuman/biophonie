@@ -4,7 +4,6 @@ import android.app.Application
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.*
-import fr.labomg.biophonie.BASE_URL
 import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
@@ -15,6 +14,7 @@ import fr.labomg.biophonie.data.source.GeoPointRepository
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
+import fr.labomg.biophonie.BuildConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -180,7 +180,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         }
 
         if (geoPoint.value!!.sound.remote != null) {
-            val url = "$BASE_URL/api/v1/assets/sound/${geoPoint.value!!.sound.remote}"
+            val url = "${BuildConfig.BASE_URL}/api/v1/assets/sound/${geoPoint.value!!.sound.remote}"
             try {
                 playerController?.addAudioUrl(url)
                 return
