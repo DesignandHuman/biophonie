@@ -1,3 +1,10 @@
+<a href="https://gitmoji.dev">
+  <img
+    src="https://img.shields.io/badge/gitmoji-%20😜%20😍-FFDD67.svg?style=flat-square"
+    alt="Gitmoji"
+  />
+</a>
+
 # Biophonie
 
 ## What is it ?
@@ -20,11 +27,17 @@ This application aims to allow people of all horizons to record and share with e
   </tr>
 </table>
 
-(Note that you are able to compile and test it by yourself.
-Every action performed is "emulated" locally.)
+## Install the application
+The application will be released soon on the [Google PlayStore](https://play.google.com/store/apps/details?id=fr.labomg.biophonie).
+If you prefer to build it locally, follow the instructions in the [`CONTRIBUTING.md`](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md#build-locally).
 
-## What's next ?
-The application needs a remote API to be fully functional. It will store and communicate with Biophonie's users.
+## Reporting issues / Need help?
+
+### Report a bug :beetle:
+Please use our [bug template](https://github.com/DesignandHuman/biophonie/issues/new?assignees=Haransis&labels=%3Abug%3A++bug&projects=&template=bug_report.md&title=) to report any issues.
+
+### Request a new feature or enhancement :sparkles:
+Please use our [feature template](https://github.com/DesignandHuman/biophonie/issues/new?assignees=Haransis&labels=%3Asparkles%3A+enhancement&projects=&template=feature_request.md&title=) to request new features or enhancements.
 
 ## Contributing
-Any ideas to improve the app ? Want to contribute ? Feel free to open issues !
+Any ideas to improve the app ? Want to contribute ? Find more information in [this guide](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md).

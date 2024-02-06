@@ -50,7 +50,7 @@ android {
             manifestPlaceholders["usesCleartextTraffic"] = "true"
 
             buildConfigField("String", "BASE_URL",
-                "\"${(rootProject.property("BIOPHONIE_PREPROD_API_URL") ?: "") as String}\""
+                "\"${(rootProject.property("BIOPHONIE_DEBUG_API_URL") ?: "") as String}\""
             )
         }
         getByName("release") {
