@@ -17,13 +17,14 @@ object AppPrefs {
 
     fun setup(context: Context) {
         sharedPrefs = context.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-        encryptedSharedPrefs = EncryptedSharedPreferences(context,
-            ENCRYPTED_PREFS_NAME,
-            MasterKey.Builder(context)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        encryptedSharedPrefs =
+            EncryptedSharedPreferences(
+                context,
+                ENCRYPTED_PREFS_NAME,
+                MasterKey.Builder(context).setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
     }
 
     var userId: Int?
@@ -43,24 +44,35 @@ object AppPrefs {
         set(value) = EncryptedKey.TOKEN.setString(value)
 
     private enum class EncryptedKey {
-        TOKEN, PASSWORD;
-        
+        TOKEN,
+        PASSWORD;
+
         fun getString(): String? = if (exists()) encryptedSharedPrefs.getString(name, "") else null
-        fun setString(value: String?) = value?.let { encryptedSharedPrefs.edit { putString(name, value) } } ?: remove()
+
+        fun setString(value: String?) =
+            value?.let { encryptedSharedPrefs.edit { putString(name, value) } } ?: remove()
 
         fun exists(): Boolean = encryptedSharedPrefs.contains(name)
+
         fun remove() = encryptedSharedPrefs.edit { remove(name) }
     }
-    
+
     private enum class Key {
-        USERNAME, USERID;
-        
+        USERNAME,
+        USERID;
+
         fun getInt(): Int? = if (exists()) sharedPrefs.getInt(name, 0) else null
-        fun setInt(value: Int?) = value?.let { sharedPrefs.edit { putInt(name, value) } } ?: remove()
+
+        fun setInt(value: Int?) =
+            value?.let { sharedPrefs.edit { putInt(name, value) } } ?: remove()
+
         fun getString(): String? = if (exists()) sharedPrefs.getString(name, "") else null
-        fun setString(value: String?) = value?.let { sharedPrefs.edit { putString(name, value) } } ?: remove()
+
+        fun setString(value: String?) =
+            value?.let { sharedPrefs.edit { putString(name, value) } } ?: remove()
 
         fun exists(): Boolean = sharedPrefs.contains(name)
+
         fun remove() = sharedPrefs.edit { remove(name) }
     }
 }

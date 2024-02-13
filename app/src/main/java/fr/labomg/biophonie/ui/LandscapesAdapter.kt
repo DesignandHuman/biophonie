@@ -7,17 +7,16 @@ import androidx.recyclerview.widget.RecyclerView
 import fr.labomg.biophonie.data.Landscape
 import fr.labomg.biophonie.databinding.LandscapeViewBinding
 
-class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLandscapeListener: OnLandscapeListener) :
-    RecyclerView.Adapter<LandscapesAdapter.LandscapeViewHolder>(){
+class LandscapesAdapter(
+    private val dataset: List<Landscape>,
+    private val mOnLandscapeListener: OnLandscapeListener
+) : RecyclerView.Adapter<LandscapesAdapter.LandscapeViewHolder>() {
 
     var selectedPosition = 0
 
-    override fun onCreateViewHolder(
-        parent: ViewGroup,
-        viewType: Int
-    ): LandscapeViewHolder {
-        val binding = LandscapeViewBinding
-            .inflate(LayoutInflater.from(parent.context), parent, false)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): LandscapeViewHolder {
+        val binding =
+            LandscapeViewBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return LandscapeViewHolder(binding, mOnLandscapeListener)
     }
 
@@ -30,7 +29,10 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
         holder.itemView.isSelected = selectedPosition == position
     }
 
-    inner class LandscapeViewHolder(val binding: LandscapeViewBinding, private val onLandscapeListener: OnLandscapeListener): RecyclerView.ViewHolder(binding.root), View.OnClickListener  {
+    inner class LandscapeViewHolder(
+        val binding: LandscapeViewBinding,
+        private val onLandscapeListener: OnLandscapeListener
+    ) : RecyclerView.ViewHolder(binding.root), View.OnClickListener {
         init {
             binding.root.setOnClickListener(this)
         }
@@ -43,7 +45,7 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
             onLandscapeListener.onLandscapeClick(adapterPosition)
         }
 
-        fun bind(landscape: Landscape){
+        fun bind(landscape: Landscape) {
             binding.title.text = landscape.titre
             binding.landscapeImage.setImageResource(landscape.image)
         }
@@ -52,5 +54,4 @@ class LandscapesAdapter(private val dataset: List<Landscape>, private val mOnLan
     interface OnLandscapeListener {
         fun onLandscapeClick(position: Int)
     }
-
 }

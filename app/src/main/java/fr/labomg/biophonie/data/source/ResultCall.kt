@@ -1,16 +1,29 @@
 package fr.labomg.biophonie.data.source
 
-import fr.labomg.biophonie.data.domain.*
-import okhttp3.Request
-import okio.Timeout
-import retrofit2.*
+import fr.labomg.biophonie.data.BadRequestThrowable
+import fr.labomg.biophonie.data.ConflictThrowable
+import fr.labomg.biophonie.data.InternalErrorThrowable
+import fr.labomg.biophonie.data.NoConnectionThrowable
+import fr.labomg.biophonie.data.NotFoundThrowable
+import fr.labomg.biophonie.data.UnauthorizedThrowable
+import fr.labomg.biophonie.data.UnexpectedThrowable
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
-import java.net.HttpURLConnection.*
+import java.net.HttpURLConnection.HTTP_BAD_REQUEST
+import java.net.HttpURLConnection.HTTP_CONFLICT
+import java.net.HttpURLConnection.HTTP_INTERNAL_ERROR
+import java.net.HttpURLConnection.HTTP_NOT_FOUND
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
+import okhttp3.Request
+import okio.Timeout
+import retrofit2.Call
+import retrofit2.CallAdapter
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
 
-class ResultCall<T>(private val delegate: Call<T>) :
-    Call<Result<T>> {
+class ResultCall<T>(private val delegate: Call<T>) : Call<Result<T>> {
 
     override fun enqueue(callback: Callback<Result<T>>) {
         delegate.enqueue(
@@ -19,31 +32,28 @@ class ResultCall<T>(private val delegate: Call<T>) :
                     if (response.isSuccessful) {
                         callback.onResponse(
                             this@ResultCall,
-                            Response.success(
-                                response.code(),
-                                Result.success(response.body()!!)
-                            )
+                            Response.success(response.code(), Result.success(response.body()!!))
                         )
                     } else {
-                        val throwable: Throwable = when (response.code()) { //TODO get error message
-                            HTTP_BAD_REQUEST -> BadRequestThrowable(response.message())
-                            HTTP_CONFLICT -> ConflictThrowable(response.message())
-                            HTTP_NOT_FOUND -> NotFoundThrowable(response.message())
-                            HTTP_UNAUTHORIZED -> UnauthorizedThrowable(response.message())
-                            HTTP_INTERNAL_ERROR -> InternalErrorThrowable(response.message())
-                            else -> UnexpectedThrowable()
-                        }
+                        val throwable: Throwable =
+                            when (response.code()) {
+                                HTTP_BAD_REQUEST -> BadRequestThrowable(response.message())
+                                HTTP_CONFLICT -> ConflictThrowable(response.message())
+                                HTTP_NOT_FOUND -> NotFoundThrowable(response.message())
+                                HTTP_UNAUTHORIZED -> UnauthorizedThrowable(response.message())
+                                HTTP_INTERNAL_ERROR -> InternalErrorThrowable(response.message())
+                                else -> UnexpectedThrowable()
+                            }
                         callback.onResponse(
                             this@ResultCall,
-                            Response.success(
-                                Result.failure(throwable)
-                            )
+                            Response.success(Result.failure(throwable))
                         )
                     }
                 }
 
                 override fun onFailure(call: Call<T>, t: Throwable) {
-                    val throwable = if (t is IOException) NoConnectionThrowable() else UnexpectedThrowable()
+                    val throwable =
+                        if (t is IOException) NoConnectionThrowable() else UnexpectedThrowable()
                     callback.onResponse(
                         this@ResultCall,
                         Response.success(Result.failure(throwable))

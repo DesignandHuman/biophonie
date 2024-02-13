@@ -15,26 +15,27 @@ import kotlinx.coroutines.withContext
 class GeoPointLocalDataSource(
     private val geoPointDao: GeoPointDao,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-): GeoPointDataSource {
+) : GeoPointDataSource {
 
-    override suspend fun getGeoPoint(id: Int): Result<GeoPoint> = withContext(dispatcher) {
-        val geoPoint = if (id > 0) geoPointDao.getGeoPoint(id) else geoPointDao.getNewGeoPoint(-id)
-        if (geoPoint != null)
-            Result.success(geoPoint.asDomainModel())
-        else
-            Result.failure(Exception("geoPoint not found"))
-    }
+    override suspend fun getGeoPoint(id: Int): Result<GeoPoint> =
+        withContext(dispatcher) {
+            val geoPoint =
+                if (id > 0) geoPointDao.getGeoPoint(id) else geoPointDao.getNewGeoPoint(-id)
+            if (geoPoint != null) Result.success(geoPoint.asDomainModel())
+            else Result.failure(Exception("geoPoint not found"))
+        }
 
-    override suspend fun refreshGeoPoint(geoPoint: GeoPoint) = withContext(dispatcher) {
-        geoPointDao.syncGeoPoint(
-            GeoPointSync(
-                id = geoPoint.id,
-                remoteId = geoPoint.remoteId,
-                remoteSound = geoPoint.sound.remote,
-                remotePicture = geoPoint.picture.remote
+    override suspend fun refreshGeoPoint(geoPoint: GeoPoint) =
+        withContext(dispatcher) {
+            geoPointDao.syncGeoPoint(
+                GeoPointSync(
+                    id = geoPoint.id,
+                    remoteId = geoPoint.remoteId,
+                    remoteSound = geoPoint.sound.remote,
+                    remotePicture = geoPoint.picture.remote
+                )
             )
-        )
-    }
+        }
 
     override suspend fun pingRestricted(): Result<Message> {
         // NO-OP
@@ -50,17 +51,15 @@ class GeoPointLocalDataSource(
     }
 
     override suspend fun getClosestGeoPointId(coord: Coordinates, not: Array<Int>): Result<Int> {
-        //NO-OP
+        // NO-OP
         return Result.failure(Exception(""))
     }
 
-    override suspend fun getNewGeoPoints(): List<GeoPoint> = withContext(dispatcher) {
-        geoPointDao.getNewGeoPoints().map { it.asDomainModel() }
-    }
+    override suspend fun getNewGeoPoints(): List<GeoPoint> =
+        withContext(dispatcher) { geoPointDao.getNewGeoPoints().map { it.asDomainModel() } }
 
-    override suspend fun getUnavailableGeoPoints(): List<GeoPoint> = withContext(dispatcher) {
-        geoPointDao.getUnavailableGeoPoints().map { it.asDomainModel() }
-    }
+    override suspend fun getUnavailableGeoPoints(): List<GeoPoint> =
+        withContext(dispatcher) { geoPointDao.getUnavailableGeoPoints().map { it.asDomainModel() } }
 
     override suspend fun addGeoPoint(geoPoint: GeoPoint, fromUser: Boolean): Result<GeoPoint> =
         withContext(dispatcher) {

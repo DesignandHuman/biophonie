@@ -34,39 +34,36 @@ import fr.labomg.biophonie.ui.LandscapesAdapter
 import fr.labomg.biophonie.viewmodels.RecViewModel
 import timber.log.Timber
 
-class GalleryFragment : Fragment(),
-    LandscapesAdapter.OnLandscapeListener,
-    ChooseMeanDialog.ChooseMeanListener {
+class GalleryFragment :
+    Fragment(), LandscapesAdapter.OnLandscapeListener, ChooseMeanDialog.ChooseMeanListener {
 
-    private val viewModel: RecViewModel by activityViewModels{
+    private val viewModel: RecViewModel by activityViewModels {
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
 
-    private val takePicture = registerForActivityResult(ActivityResultContracts.TakePicture()) {
-        if (it)
-            viewModel.pictureResult()
-        else
-            Timber.i("onChoiceClick: could not take picture")
-    }
-    private val fetchGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
-        viewModel.pictureResult(it)
-    }
+    private val takePicture =
+        registerForActivityResult(ActivityResultContracts.TakePicture()) {
+            if (it) viewModel.pictureResult() else Timber.i("onChoiceClick: could not take picture")
+        }
+    private val fetchGallery =
+        registerForActivityResult(ActivityResultContracts.GetContent()) {
+            viewModel.pictureResult(it)
+        }
 
     private var _binding: FragmentGalleryBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
+
     private var viewManager: LinearLayoutManager? = null
     private var viewAdapter: LandscapesAdapter? = null
     private lateinit var defaultLandscapes: List<Landscape>
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_gallery,
-            container,
-            false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_gallery, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
@@ -101,11 +98,12 @@ class GalleryFragment : Fragment(),
         }
     }
 
-    private fun setUpRecyclerView(){
+    private fun setUpRecyclerView() {
         val templateNames = resources.getStringArray(R.array.template_names)
-        defaultLandscapes = templateNames.mapIndexed { index, id ->
-            Landscape(templates.values.elementAt(index), id)
-        }
+        defaultLandscapes =
+            templateNames.mapIndexed { index, id ->
+                Landscape(templates.values.elementAt(index), id)
+            }
         viewManager = LinearLayoutManager(context, RecyclerView.HORIZONTAL, false)
         viewAdapter = LandscapesAdapter(defaultLandscapes, this)
 
@@ -129,27 +127,25 @@ class GalleryFragment : Fragment(),
     }
 
     private fun getOriginOfLandscape() {
-        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)){
+        if (!requireActivity().packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)) {
             getPicture(REQUEST_GALLERY)
         } else {
-            val items = arrayOf(
-                DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
-                DialogAdapterItem("Galerie", R.drawable.ic_library)
-            )
-            activity?.supportFragmentManager?.let { ChooseMeanDialog(
-                requireContext(),
-                items,
-                this
-            ).show(it, "dialog") }
+            val items =
+                arrayOf(
+                    DialogAdapterItem("Appareil photo", R.drawable.ic_camera),
+                    DialogAdapterItem("Galerie", R.drawable.ic_library)
+                )
+            activity?.supportFragmentManager?.let {
+                ChooseMeanDialog(requireContext(), items, this).show(it, "dialog")
+            }
         }
     }
 
     private fun getPicture(choice: Int) {
-        when(choice) {
+        when (choice) {
             REQUEST_CAMERA -> {
                 val uri = viewModel.getCaptureUri()
-                if (uri != null)
-                    takePicture.launch(uri)
+                if (uri != null) takePicture.launch(uri)
             }
             REQUEST_GALLERY -> {
                 fetchGallery.launch("image/*")
@@ -173,47 +169,57 @@ class GalleryFragment : Fragment(),
     }
 }
 
-class ChooseMeanDialog(context: Context, items: Array<DialogAdapterItem>, private var listener: ChooseMeanListener) : DialogFragment() {
+class ChooseMeanDialog(
+    context: Context,
+    items: Array<DialogAdapterItem>,
+    private var listener: ChooseMeanListener
+) : DialogFragment() {
 
     interface ChooseMeanListener {
         fun onChoiceClick(choice: Int)
     }
 
     private val adapter: ListAdapter =
-        DialogListAdapter(
-            context,
-            android.R.layout.select_dialog_item,
-            android.R.id.text1,
-            items
-        )
+        DialogListAdapter(context, android.R.layout.select_dialog_item, android.R.id.text1, items)
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        return activity?.let { it ->
+        return activity?.let {
             val builder = AlertDialog.Builder(it, R.style.AlertDialogIBM)
             builder.setTitle("Importer depuis")
-            builder.setAdapter(adapter){ _: DialogInterface, choice: Int ->
+            builder.setAdapter(adapter) { _: DialogInterface, choice: Int ->
                 listener.onChoiceClick(choice)
             }
             builder.create()
-        } ?: throw IllegalStateException("Activity cannot be null")
+        } ?: error("Activity cannot be null")
     }
-
 }
 
-class DialogListAdapter(private val adapterContext: Context,
-                        dialogLayout: Int,
-                        private val textLayout: Int,
-                        private val items: Array<DialogAdapterItem>) :
-    ArrayAdapter<DialogAdapterItem>(adapterContext, dialogLayout, textLayout, items) {
+class DialogListAdapter(
+    private val adapterContext: Context,
+    dialogLayout: Int,
+    private val textLayout: Int,
+    private val items: Array<DialogAdapterItem>
+) : ArrayAdapter<DialogAdapterItem>(adapterContext, dialogLayout, textLayout, items) {
 
     override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
         val v = super.getView(position, convertView, parent)
-        v.findViewById<TextView>(textLayout).apply{
+        v.findViewById<TextView>(textLayout).apply {
             setCompoundDrawablesWithIntrinsicBounds(items[position].icon, 0, 0, 0)
-            compoundDrawablePadding = (10 * adapterContext.resources.displayMetrics.density + 0.5f).toInt()
+            compoundDrawablePadding =
+                (DENSITY_MULTIPLIER * adapterContext.resources.displayMetrics.density +
+                        DENSITY_OFFSET)
+                    .toInt()
             setTextAppearance(R.style.MyTextAppearance)
-            setTextSize(TypedValue.COMPLEX_UNIT_PX, adapterContext.resources.getDimension(R.dimen.button_font_size))
+            setTextSize(
+                TypedValue.COMPLEX_UNIT_PX,
+                adapterContext.resources.getDimension(R.dimen.button_font_size)
+            )
         }
         return v
+    }
+
+    companion object {
+        private const val DENSITY_MULTIPLIER = 10
+        private const val DENSITY_OFFSET = 0.5f
     }
 }

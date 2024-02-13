@@ -18,8 +18,7 @@ object ServiceLocator {
 
     private var webClient: WebClient? = null
     private var database: GeoPointDatabase? = null
-    @Volatile
-    private var geoPointRepository: GeoPointRepository? = null
+    @Volatile private var geoPointRepository: GeoPointRepository? = null
     private var tutorialRepository: TutorialRepository? = null
 
     fun provideGeoPointRepository(context: Context): GeoPointRepository {
@@ -35,18 +34,17 @@ object ServiceLocator {
     }
 
     private fun createGeoPointRepository(context: Context): GeoPointRepository {
-        val newRepo = DefaultGeoPointRepository(
-            createGeoPointRemoteDataSource(),
-            createGeoPointLocalDataSource(context)
-        )
+        val newRepo =
+            DefaultGeoPointRepository(
+                createGeoPointRemoteDataSource(),
+                createGeoPointLocalDataSource(context)
+            )
         geoPointRepository = newRepo
         return newRepo
     }
 
     private fun createTutorialRepository(): TutorialRepository {
-        val newRepo = TutorialRepository(
-            (webClient ?: createWebClient()).webService
-        )
+        val newRepo = TutorialRepository((webClient ?: createWebClient()).webService)
         tutorialRepository = newRepo
         return newRepo
     }
@@ -68,13 +66,14 @@ object ServiceLocator {
     }
 
     private fun createDataBase(context: Context): GeoPointDatabase {
-        val result = Room.databaseBuilder(
-            context.applicationContext,
-            GeoPointDatabase::class.java,
-            "new_geopoint_database"
-        )
-            .fallbackToDestructiveMigration()
-            .build()
+        val result =
+            Room.databaseBuilder(
+                    context.applicationContext,
+                    GeoPointDatabase::class.java,
+                    "new_geopoint_database"
+                )
+                .fallbackToDestructiveMigration()
+                .build()
         database = result
         return result
     }
@@ -83,7 +82,7 @@ object ServiceLocator {
     fun resetGeoPointRepository() {
         synchronized(lock) {
             runBlocking {
-                //GeoPointRemoteDataSource.deleteAllGeoPoints()
+                // GeoPointRemoteDataSource.deleteAllGeoPoints()
             }
             database?.apply {
                 clearAllTables()

@@ -15,6 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.mapbox.geojson.Point
 import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.data.Coordinates
@@ -22,12 +24,9 @@ import fr.labomg.biophonie.databinding.FragmentBottomPlayerBinding
 import fr.labomg.biophonie.ui.activities.MapActivity
 import fr.labomg.biophonie.util.ScreenMetricsCompat
 import fr.labomg.biophonie.viewmodels.BottomPlayerViewModel
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.geojson.Point
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 class BottomPlayerFragment : Fragment() {
 
@@ -36,12 +35,18 @@ class BottomPlayerFragment : Fragment() {
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(this, BottomPlayerViewModel.ViewModelFactory(requireContext().applicationContext as BiophonieApplication)).get(
-            BottomPlayerViewModel::class.java
-        )
+        ViewModelProvider(
+                this,
+                BottomPlayerViewModel.ViewModelFactory(
+                    requireContext().applicationContext as BiophonieApplication
+                )
+            )
+            .get(BottomPlayerViewModel::class.java)
     }
     private var _binding: FragmentBottomPlayerBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
+
     lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private var progressBarAnimation: AnimatedVectorDrawableCompat? = null
 
@@ -50,15 +55,13 @@ class BottomPlayerFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_bottom_player,
-            container,
-            false
-        )
-        binding.viewModel = viewModel.apply {
-            //TODO(run that somehow on another thread or not ?)
-            setPlayerController(binding.playerView) }
+        _binding =
+            DataBindingUtil.inflate(inflater, R.layout.fragment_bottom_player, container, false)
+        binding.viewModel =
+            viewModel.apply {
+                // TODO(run that somehow on another thread or not ?)
+                setPlayerController(binding.playerView)
+            }
         binding.lifecycleOwner = viewLifecycleOwner
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
@@ -71,20 +74,25 @@ class BottomPlayerFragment : Fragment() {
 
         bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
         animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
-        progressBarAnimation = AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
-            this?.registerAnimationCallback(object : Animatable2Compat.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    _binding?.progressBar?.post { this@apply.start() }
-                }
-            })
-        }
+        progressBarAnimation =
+            AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
+                this?.registerAnimationCallback(
+                    object : Animatable2Compat.AnimationCallback() {
+                        override fun onAnimationEnd(drawable: Drawable?) {
+                            _binding?.progressBar?.post { this@apply.start() }
+                        }
+                    }
+                )
+            }
         return binding.root
     }
 
     private fun setProgressBarPosition() {
-        if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+        if (
+            activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE
+        ) {
             val params = binding.progressBar.layoutParams as ConstraintLayout.LayoutParams
-            params.verticalBias = 0.2f
+            params.verticalBias = VERTICAL_CONSTRAINT_BIAS
             binding.progressBar.layoutParams = params
         }
     }
@@ -93,21 +101,21 @@ class BottomPlayerFragment : Fragment() {
         val screenHeight = context?.let { ScreenMetricsCompat.getScreenSize(it) }?.height
         if (screenHeight != null) {
             bottomSheetBehavior.peekHeight =
-                if (activity?.resources?.configuration?.orientation == Configuration.ORIENTATION_LANDSCAPE) screenHeight / 2
-                else screenHeight / 3
+                if (
+                    activity?.resources?.configuration?.orientation ==
+                        Configuration.ORIENTATION_LANDSCAPE
+                )
+                    screenHeight / HALF_SCREEN_RATIO
+                else screenHeight / THIRD_SCREEN_RATIO
         }
         binding.apply {
-            CoroutineScope(Dispatchers.Main).launch { //TODO: superflu ?
-                withContext(Dispatchers.Main){
-                    pin.translationY = - root.top.toFloat()
-                    errorMessage.translationY = - root.top.toFloat() / 2.5f
-                    retryFab.translationY = - root.top.toFloat() / 2.5f
-                    progressBar.translationY = - root.top.toFloat() / 2f
-                    if (imageDisplayed)
-                        updateViewMargins(soundImage, root.top)
-                    else
-                        updateViewMargins(playerView, root.top)
-                }
+            CoroutineScope(Dispatchers.Main).launch {
+                pin.translationY = -root.top.toFloat()
+                errorMessage.translationY = -root.top.toFloat() / HALF_THIRD_SCREEN_RATIO
+                retryFab.translationY = -root.top.toFloat() / HALF_THIRD_SCREEN_RATIO
+                progressBar.translationY = -root.top.toFloat() / HALF_SCREEN_RATIO
+                if (imageDisplayed) updateViewMargins(soundImage, root.top)
+                else updateViewMargins(playerView, root.top)
             }
         }
     }
@@ -127,40 +135,39 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun addCallbackOnBottomSheet() {
-        bottomSheetBehavior.addBottomSheetCallback(object :
-            BottomSheetBehavior.BottomSheetCallback() {
-            // No other solution was found to pin a view to the bottom of the BottomSheet
-            override fun onSlide(bottomSheet: View, slideOffset: Float) {
-                binding.pin.translationY = -bottomSheet.top.toFloat()
-                binding.errorMessage.translationY = -bottomSheet.top.toFloat() / 2.5f
-                binding.retryFab.translationY = -bottomSheet.top.toFloat() / 2.5f
-                binding.progressBar.translationY = -bottomSheet.top.toFloat() / 2f
-                if (imageDisplayed)
-                    updateViewMargins(binding.soundImage, bottomSheet.top)
-                else
-                    updateViewMargins(binding.playerView, bottomSheet.top)
-            }
+        bottomSheetBehavior.addBottomSheetCallback(
+            object : BottomSheetBehavior.BottomSheetCallback() {
+                // No other solution was found to pin a view to the bottom of the BottomSheet
+                override fun onSlide(bottomSheet: View, slideOffset: Float) {
+                    binding.pin.translationY = -bottomSheet.top.toFloat()
+                    binding.errorMessage.translationY =
+                        -bottomSheet.top.toFloat() / HALF_SCREEN_RATIO
+                    binding.retryFab.translationY = -bottomSheet.top.toFloat() / HALF_SCREEN_RATIO
+                    binding.progressBar.translationY = -bottomSheet.top.toFloat() / 2f
+                    if (imageDisplayed) updateViewMargins(binding.soundImage, bottomSheet.top)
+                    else updateViewMargins(binding.playerView, bottomSheet.top)
+                }
 
-            override fun onStateChanged(bottomSheet: View, newState: Int) {
-                when (newState) {
-                    // Maybe try with a collapsing toolbar ? or a motion layout ?
-                    BottomSheetBehavior.STATE_COLLAPSED -> {
-                        binding.close.setImageResource(R.drawable.ic_close)
-                        if (imageDisplayed)
-                            displayWaveForm()
+                override fun onStateChanged(bottomSheet: View, newState: Int) {
+                    when (newState) {
+                        // Maybe try with a collapsing toolbar ? or a motion layout ?
+                        BottomSheetBehavior.STATE_COLLAPSED -> {
+                            binding.close.setImageResource(R.drawable.ic_close)
+                            if (imageDisplayed) displayWaveForm()
+                        }
+                        BottomSheetBehavior.STATE_EXPANDED -> {
+                            binding.close.setImageResource(R.drawable.ic_stripe_down)
+                            binding.playerView.apply { requestLayout() }.layoutParams.height = 0
+                        }
+                        BottomSheetBehavior.STATE_HIDDEN -> {
+                            (activity as? MapActivity)?.onBottomSheetClose()
+                            viewModel.stopPlaylist()
+                        }
+                        else -> binding.close.setImageResource(R.drawable.ic_close)
                     }
-                    BottomSheetBehavior.STATE_EXPANDED -> {
-                        binding.close.setImageResource(R.drawable.ic_stripe_down)
-                        binding.playerView.apply { requestLayout() }.layoutParams.height = 0
-                    }
-                    BottomSheetBehavior.STATE_HIDDEN -> {
-                        (activity as? MapActivity)?.onBottomSheetClose()
-                        viewModel.stopPlaylist()
-                    }
-                    else -> binding.close.setImageResource(R.drawable.ic_close)
                 }
             }
-        })
+        )
     }
 
     private fun updateViewMargins(view: View, margin: Int) {
@@ -169,24 +176,18 @@ class BottomPlayerFragment : Fragment() {
         view.layoutParams = params
     }
 
-    fun clickOnGeoPoint(id: Int){
+    fun clickOnGeoPoint(id: Int) {
         viewModel.setGeoPointQuery(id, true)
     }
 
-    fun displayClosestGeoPoint(coord: Coordinates){
+    fun displayClosestGeoPoint(coord: Coordinates) {
         viewModel.displayClosestGeoPoint(coord)
     }
 
     private fun setUpObservers() {
-        viewModel.leftClickable.observe(viewLifecycleOwner) {
-            binding.left.isEnabled = it
-        }
-        viewModel.rightClickable.observe(viewLifecycleOwner) {
-            binding.right.isEnabled = it
-        }
-        viewModel.bottomSheetState.observe(viewLifecycleOwner) {
-            bottomSheetBehavior.state = it
-        }
+        viewModel.leftClickable.observe(viewLifecycleOwner) { binding.left.isEnabled = it }
+        viewModel.rightClickable.observe(viewLifecycleOwner) { binding.right.isEnabled = it }
+        viewModel.bottomSheetState.observe(viewLifecycleOwner) { bottomSheetBehavior.state = it }
         viewModel.event.observe(viewLifecycleOwner) {
             if (it == BottomPlayerViewModel.Event.LOADING) {
                 if (imageDisplayed) {
@@ -203,7 +204,7 @@ class BottomPlayerFragment : Fragment() {
         viewModel.geoPoint.observe(viewLifecycleOwner) {
             it?.let {
                 (activity as? MapActivity)?.selectPoint(
-                    Point.fromLngLat(it.coordinates.longitude,it.coordinates.latitude),
+                    Point.fromLngLat(it.coordinates.longitude, it.coordinates.latitude),
                     viewModel.geoPointId.value!!
                 )
             }
@@ -223,30 +224,30 @@ class BottomPlayerFragment : Fragment() {
             alpha = 0f
             visibility = View.VISIBLE
 
-            animate()
-                .alpha(1f)
-                .setDuration(animationDuration.toLong())
-                .setListener(null)
+            animate().alpha(1f).setDuration(animationDuration.toLong()).setListener(null)
         }
-        fadeOut.animate()
+        fadeOut
+            .animate()
             .alpha(0f)
             .setDuration(animationDuration.toLong())
-            .setListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator) {
-                    changePinBottomConstraint(fadeIn)
-                    updateViewMargins(fadeIn, binding.root.top)
-                    fadeOut.visibility = View.GONE
+            .setListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        changePinBottomConstraint(fadeIn)
+                        updateViewMargins(fadeIn, binding.root.top)
+                        fadeOut.visibility = View.GONE
+                    }
                 }
-            })
+            )
     }
 
-    private fun changePinBottomConstraint(destination: View){
+    private fun changePinBottomConstraint(destination: View) {
         val params = binding.pin.layoutParams as ConstraintLayout.LayoutParams
         params.topToBottom = destination.id
         binding.pin.layoutParams = params
     }
 
-    private fun displayImage(){
+    private fun displayImage() {
         binding.apply {
             crossFade(soundImage, playerView)
             expand.text = getString(R.string.expand_player)
@@ -254,7 +255,7 @@ class BottomPlayerFragment : Fragment() {
         imageDisplayed = true
     }
 
-    private fun displayWaveForm(){
+    private fun displayWaveForm() {
         binding.apply {
             crossFade(playerView, soundImage)
             playerView.layoutParams.height = 0
@@ -274,5 +275,12 @@ class BottomPlayerFragment : Fragment() {
         progressBarAnimation = null
         _binding = null
         viewModel.destroyController()
+    }
+
+    companion object {
+        private const val VERTICAL_CONSTRAINT_BIAS = 0.2f
+        private const val HALF_SCREEN_RATIO = 2
+        private const val HALF_THIRD_SCREEN_RATIO = 2.5f
+        private const val THIRD_SCREEN_RATIO = 3
     }
 }

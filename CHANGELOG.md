@@ -2,6 +2,20 @@
 
 We welcome participation and contributions from everyone (see [CONTRIBUTING.md](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md)).
 
+# February 12, 2024
+
+## Features ✨ and improvements 🏁
+* add ktfmt
+* add detekt
+* add git precommit hook to check respect of ktfmt and detekt standard rules
+* format code to meet ktfmt standards
+* refactor code to respect detekt rules
+* add baseline file to temporarily exclude `TooManyFunctions` from detekt
+* add mentions to linters in `CONTRIBUTING.md`
+
+## Dependencies
+* gradle (8.2 -> 8.3)
+
 # Draft - January 25, 2024
 ## Breaking changes ⚠️
 * Delete section if empty

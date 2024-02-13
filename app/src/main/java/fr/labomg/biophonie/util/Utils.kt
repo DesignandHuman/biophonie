@@ -1,5 +1,3 @@
-@file:Suppress("NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-
 package fr.labomg.biophonie.util
 
 import android.content.BroadcastReceiver
@@ -12,29 +10,14 @@ import android.view.View
 import android.widget.EditText
 import java.util.regex.Pattern
 
-class GPSCheck(private val locationCallBack: LocationCallBack) :
-    BroadcastReceiver() {
-    interface LocationCallBack {
-        fun turnedOn()
-        fun turnedOff()
-    }
-
-    override fun onReceive(context: Context, intent: Intent) {
-        if (isGPSEnabled(context))
-            locationCallBack.turnedOn()
-        else locationCallBack.turnedOff()
-    }
-}
-
-fun isGPSEnabled(context: Context): Boolean{
-    val locationManager =
-        context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)||
-            locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+fun isGPSEnabled(context: Context): Boolean {
+    val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+    return locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+        locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 }
 
 fun dpToPx(context: Context, dp: Int): Int {
-    return dp*(context.resources.displayMetrics.density).toInt()
+    return dp * (context.resources.displayMetrics.density).toInt()
 }
 
 fun EditText.setFiltersOnEditText(strict: Boolean = false) {
@@ -64,8 +47,22 @@ fun EditText.setFiltersOnEditText(strict: Boolean = false) {
 
 private fun Char.isAllowed(ps: Pattern): Boolean = ps.matcher(this.toString()).matches()
 
+private const val FADE_IN_DURATION = 500L
+
 fun View.fadeIn() {
     visibility = View.VISIBLE
     alpha = 0f
-    animate().alpha(1f).setDuration(500)
+    animate().alpha(1f).setDuration(FADE_IN_DURATION)
+}
+
+class GPSCheck(private val locationCallBack: LocationCallBack) : BroadcastReceiver() {
+    interface LocationCallBack {
+        fun turnedOn()
+
+        fun turnedOff()
+    }
+
+    override fun onReceive(context: Context, intent: Intent) {
+        if (isGPSEnabled(context)) locationCallBack.turnedOn() else locationCallBack.turnedOff()
+    }
 }

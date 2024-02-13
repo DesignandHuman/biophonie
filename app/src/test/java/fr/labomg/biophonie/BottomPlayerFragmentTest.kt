@@ -2,14 +2,13 @@ package fr.labomg.biophonie
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.fragment.app.testing.launchFragment
-import fr.labomg.biophonie.ui.fragments.BottomPlayerFragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import fr.labomg.biophonie.ui.fragments.BottomPlayerFragment
 import org.junit.Rule
 import org.junit.Test
 
 class BottomPlayerFragmentTest {
-    @get:Rule
-    var instantExecutorRule = InstantTaskExecutorRule()
+    @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
 
     @Test
     fun changingViewModelId_ShouldExpandFragment() {

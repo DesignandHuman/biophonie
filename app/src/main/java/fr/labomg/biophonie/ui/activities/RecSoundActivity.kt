@@ -8,7 +8,7 @@ import fr.labomg.biophonie.viewmodels.RecViewModel
 
 class RecSoundActivity : AppCompatActivity() {
 
-    private val viewModel: RecViewModel by viewModels{
+    private val viewModel: RecViewModel by viewModels {
         RecViewModel.ViewModelFactory(this.application)
     }
 

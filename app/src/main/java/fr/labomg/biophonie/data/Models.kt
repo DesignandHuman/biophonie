@@ -16,20 +16,17 @@ data class GeoPoint(
     var sound: Resource
 )
 
-data class Resource(
-    var remote: String? = null,
-    var local: String? = null
-)
+data class Resource(var remote: String? = null, var local: String? = null)
 
 data class Coordinates(val latitude: Double, val longitude: Double) {
-    override fun toString() = LocationConverter.latitudeAsDMS(latitude, 2) +
+    override fun toString() =
+        LocationConverter.latitudeAsDMS(latitude, 2) +
             LocationConverter.longitudeAsDMS(longitude, 2)
 }
 
-data class Landscape(@DrawableRes var image: Int,
-                     var titre: String)
+data class Landscape(@DrawableRes var image: Int, var titre: String)
 
-data class DialogAdapterItem(var text: String, var icon: Int){
+data class DialogAdapterItem(var text: String, var icon: Int) {
     override fun toString(): String = text
 }
 

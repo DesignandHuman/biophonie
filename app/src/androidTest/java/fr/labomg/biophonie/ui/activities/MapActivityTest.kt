@@ -2,6 +2,7 @@ package fr.labomg.biophonie.ui.activities
 
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.view.InputDevice
 import android.view.MotionEvent
 import android.view.View
@@ -16,18 +17,18 @@ import androidx.test.espresso.action.Press
 import androidx.test.espresso.action.Tap
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.*
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import fr.labomg.biophonie.R
 import org.hamcrest.Matcher
-
-import org.junit.Test
-import org.junit.runner.RunWith
-
 import org.junit.Rule
+import org.junit.Test
 import org.junit.internal.matchers.TypeSafeMatcher
+import org.junit.runner.RunWith
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -39,16 +40,14 @@ import org.junit.internal.matchers.TypeSafeMatcher
 class MapActivityTest {
 
     @get:Rule
-    var activityRule: ActivityScenarioRule<MapActivity>
-            = ActivityScenarioRule(MapActivity::class.java)
+    var activityRule: ActivityScenarioRule<MapActivity> =
+        ActivityScenarioRule(MapActivity::class.java)
 
     @Test
     fun deploy_bottom_player() {
         onView(withId(R.id.location_fab)).check(matches(isDisplayed()))
         Thread.sleep(200)
-        onView(withId(R.id.containerMap)).perform(
-            clickPercent(0.355f, 0.438f)
-        )
+        onView(withId(R.id.containerMap)).perform(clickPercent(0.355f, 0.438f))
         Thread.sleep(200)
         // todo move to bottomplayerfragmenttest
         // and to test source set
@@ -63,7 +62,8 @@ class MapActivityTest {
 
     @Test
     fun get_location() {
-        onView(withId(R.id.location_fab)).check(matches(withDrawableVector(R.drawable.ic_baseline_location_searching)))
+        onView(withId(R.id.location_fab))
+            .check(matches(withDrawableVector(R.drawable.ic_baseline_location_searching)))
         onView(withId(R.id.location_fab)).perform(click())
         Thread.sleep(10000)
         onView(withId(R.id.location_fab)).check(matches(withDrawableVector(R.drawable.ic_trip)))
@@ -86,7 +86,8 @@ class MapActivityTest {
                 },
                 Press.FINGER,
                 InputDevice.SOURCE_MOUSE,
-                MotionEvent.BUTTON_PRIMARY)
+                MotionEvent.BUTTON_PRIMARY
+            )
         }
 
         fun clickPercent(pctX: Float, pctY: Float): ViewAction {
@@ -109,7 +110,8 @@ class MapActivityTest {
                 },
                 Press.FINGER,
                 InputDevice.SOURCE_MOUSE,
-                MotionEvent.BUTTON_PRIMARY)
+                MotionEvent.BUTTON_PRIMARY
+            )
         }
     }
 }
@@ -122,47 +124,53 @@ fun drawableIsCorrect(@DrawableRes drawableResId: Int): Matcher<View> {
         }
 
         override fun matchesSafely(target: View?): Boolean {
-            if (target !is ImageView) {
-                return false
+            return when {
+                (target !is ImageView) -> false
+                (drawableResId < 0) -> target.drawable == null
+                (ContextCompat.getDrawable(target.context, drawableResId) == null) -> false
+                else -> {
+                    val expectedDrawable =
+                        ContextCompat.getDrawable(target.context, drawableResId) as BitmapDrawable
+                    val bitmap = (target.drawable as BitmapDrawable).bitmap
+                    val otherBitmap = expectedDrawable.bitmap
+                    bitmap.sameAs(otherBitmap)
+                }
             }
-            if (drawableResId < 0) {
-                return target.drawable == null
-            }
-            val expectedDrawable = ContextCompat.getDrawable(target.context, drawableResId)
-                ?: return false
-
-            val bitmap = (target.drawable as BitmapDrawable).bitmap
-            val otherBitmap = (expectedDrawable as BitmapDrawable).bitmap
-            return bitmap.sameAs(otherBitmap)
         }
     }
 }
 
+@Suppress("DEPRECATION")
 fun withDrawableVector(@DrawableRes drawableResId: Int): Matcher<View> {
     return object : TypeSafeMatcher<View>() {
         override fun describeTo(description: org.hamcrest.Description?) {
             description?.appendText("with drawable from resource id: ")
             description?.appendValue(drawableResId)
         }
-        override fun matchesSafely(target: View?): Boolean {
-            if (target !is ImageView) {
-                return false
-            }
-            if (drawableResId < 0) {
-                return target.drawable == null
-            }
-            val expectedDrawable = ContextCompat.getDrawable(target.context, drawableResId)
-                ?: return false
 
-            val bitmap = Bitmap.createBitmap(
-                target.drawable.intrinsicWidth,
-                target.drawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-            )
-            val newExpectedDrawable = Bitmap.createBitmap(
-                expectedDrawable.intrinsicWidth,
-                expectedDrawable.intrinsicHeight, Bitmap.Config.ARGB_8888
-            )
-            return bitmap.sameAs(newExpectedDrawable)
+        override fun matchesSafely(target: View?): Boolean {
+            return when {
+                (target !is ImageView) -> false
+                (drawableResId < 0) -> target.drawable == null
+                (ContextCompat.getDrawable(target.context, drawableResId) == null) -> false
+                else -> {
+                    val expectedDrawable =
+                        ContextCompat.getDrawable(target.context, drawableResId) as Drawable
+                    val bitmap =
+                        Bitmap.createBitmap(
+                            target.drawable.intrinsicWidth,
+                            target.drawable.intrinsicHeight,
+                            Bitmap.Config.ARGB_8888
+                        )
+                    val newExpectedDrawable =
+                        Bitmap.createBitmap(
+                            expectedDrawable.intrinsicWidth,
+                            expectedDrawable.intrinsicHeight,
+                            Bitmap.Config.ARGB_8888
+                        )
+                    return bitmap.sameAs(newExpectedDrawable)
+                }
+            }
         }
     }
 }

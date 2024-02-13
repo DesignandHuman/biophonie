@@ -14,24 +14,21 @@ import fr.labomg.biophonie.R
 import fr.labomg.biophonie.databinding.FragmentRecordingBinding
 import fr.labomg.biophonie.viewmodels.RecViewModel
 
-private const val MINIMUM_DURATION = 120000
 class RecorderFragment : Fragment() {
 
-    private val viewModel: RecViewModel by activityViewModels{
+    private val viewModel: RecViewModel by activityViewModels {
         RecViewModel.ViewModelFactory(requireActivity().application!!)
     }
     private var _binding: FragmentRecordingBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_recording,
-            container,
-            false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_recording, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LOCKED
@@ -44,7 +41,8 @@ class RecorderFragment : Fragment() {
     private fun setDataObserver() {
         viewModel.recordComplete.observe(viewLifecycleOwner) {
             if (it) {
-                binding.root.findNavController()
+                binding.root
+                    .findNavController()
                     .navigate(R.id.action_recordingFragment_to_galleryFragment)
                 viewModel.onValidateRecording()
             }
@@ -55,14 +53,15 @@ class RecorderFragment : Fragment() {
     // The separation of concerns is not respected because of this. But I do not see another way
     // of using compound views in MVVM architecture.
     private fun setRecorderController() {
-        binding.root.viewTreeObserver.addOnGlobalLayoutListener(object :
-            ViewTreeObserver.OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val recordedPreviously = viewModel.setRecorderController(binding.recPlayerView)
-                if (!recordedPreviously) viewModel.startRecording()
-                binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
+        binding.root.viewTreeObserver.addOnGlobalLayoutListener(
+            object : ViewTreeObserver.OnGlobalLayoutListener {
+                override fun onGlobalLayout() {
+                    val recordedPreviously = viewModel.setRecorderController(binding.recPlayerView)
+                    if (!recordedPreviously) viewModel.startRecording()
+                    binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
+                }
             }
-        })
+        )
     }
 
     private fun setClickListeners() {

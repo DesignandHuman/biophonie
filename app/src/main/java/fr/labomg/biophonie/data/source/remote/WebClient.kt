@@ -1,21 +1,26 @@
 package fr.labomg.biophonie.data.source.remote
 
-import fr.labomg.biophonie.data.source.ResultCallAdapterFactory
-import fr.labomg.biophonie.util.AppPrefs
 import com.squareup.moshi.Moshi
 import fr.labomg.biophonie.BuildConfig
+import fr.labomg.biophonie.data.source.ResultCallAdapterFactory
+import fr.labomg.biophonie.util.AppPrefs
 import fr.labomg.biophonie.util.HttpLoggingInterceptorLevel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import okhttp3.*
+import okhttp3.Authenticator
+import okhttp3.Interceptor
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.Route
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class WebClient {
 
-    inner class AuthenticationInterceptor: Interceptor {
+    inner class AuthenticationInterceptor : Interceptor {
         override fun intercept(chain: Interceptor.Chain): Response {
             return if (chain.request().url.toString().contains("/restricted/")) {
                 val token = AppPrefs.token
@@ -31,10 +36,9 @@ class WebClient {
         }
     }
 
-    inner class AccessTokenAuthenticator: Authenticator {
+    inner class AccessTokenAuthenticator : Authenticator {
         override fun authenticate(route: Route?, response: Response): Request? {
-            return if (response.retryCount > 2) null
-            else response.createSignedRequest()
+            return if (response.retryCount > 2) null else response.createSignedRequest()
         }
 
         private fun Response.createSignedRequest(): Request? {
@@ -47,13 +51,13 @@ class WebClient {
             return signedRequest
         }
 
-
         private suspend fun fetchAccessToken(): Result<AccessToken> {
             val user = buildAuthUser()
             return if (user != null) {
                 withContext(Dispatchers.IO) {
-                    this@WebClient.webService.refreshToken(user)
-                        .onSuccess { AppPrefs.token = it.token }
+                    this@WebClient.webService.refreshToken(user).onSuccess {
+                        AppPrefs.token = it.token
+                    }
                 }
             } else {
                 Result.failure(RuntimeException("user not in shared pref"))
@@ -63,39 +67,35 @@ class WebClient {
         private fun buildAuthUser(): NetworkAuthUser? {
             val username = AppPrefs.userName
             val password = AppPrefs.password
-            return if (username != null && password != null)
-                NetworkAuthUser(username,password)
+            return if (username != null && password != null) NetworkAuthUser(username, password)
             else null
         }
     }
 
-
     val webService: WebService by lazy {
-        val client = OkHttpClient.Builder()
-            .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptorLevel
-            })
-            .addInterceptor(AuthenticationInterceptor())
-            .authenticator(AccessTokenAuthenticator())
-            .build()
+        val client =
+            OkHttpClient.Builder()
+                .addInterceptor(
+                    HttpLoggingInterceptor().apply { level = HttpLoggingInterceptorLevel }
+                )
+                .addInterceptor(AuthenticationInterceptor())
+                .authenticator(AccessTokenAuthenticator())
+                .build()
 
-        val moshi = Moshi.Builder()
-            .build()
+        val moshi = Moshi.Builder().build()
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(BuildConfig.BASE_URL)
-            .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
-            .addCallAdapterFactory(ResultCallAdapterFactory())
-            .client(client)
-            .build()
+        val retrofit =
+            Retrofit.Builder()
+                .baseUrl(BuildConfig.BASE_URL)
+                .addConverterFactory(MoshiConverterFactory.create(moshi).asLenient())
+                .addCallAdapterFactory(ResultCallAdapterFactory())
+                .client(client)
+                .build()
 
         retrofit.create(WebService::class.java)
     }
 
-    fun Request.signWithToken(token: String) =
-        newBuilder()
-            .header("Authorization", token)
-            .build()
+    fun Request.signWithToken(token: String) = newBuilder().header("Authorization", token).build()
 
     private val Response.retryCount: Int
         get() {
