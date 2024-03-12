@@ -82,6 +82,7 @@ The preproduction API will be soon available (track progress [here](https://gith
 To do your own testing, please clone the [biophonie-api repository](https://github.com/Haransis/biophonie-api) and launch your own instance of it using docker.
 
 ## Checks
+
 A precommit hook checks for the respect of [`ktfmt`](https://github.com/facebook/ktfmt) and [`detekt`](https://github.com/detekt/detekt).
 Automatic formatting is done using the command:
 ```
