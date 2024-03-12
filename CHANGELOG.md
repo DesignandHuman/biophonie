@@ -2,6 +2,11 @@
 
 We welcome participation and contributions from everyone (see [CONTRIBUTING.md](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md)).
 
+# March 8, 2024
+
+## Features ✨ and improvements 🏁
+* harmonize `GalleryFragment` margins
+
 # February 12, 2024
 
 ## Features ✨ and improvements 🏁

@@ -4,6 +4,7 @@
     <dimen name="close_button">30dp</dimen>
     <dimen name="top_panel">50dp</dimen>
     <dimen name="pinnable">30dp</dimen>
+    <dimen name="gallery_simple_margin">10dp</dimen>
     <dimen name="default_font_size">14sp</dimen>
     <dimen name="title_size">25sp</dimen>
     <dimen name="button_font_size">17sp</dimen>

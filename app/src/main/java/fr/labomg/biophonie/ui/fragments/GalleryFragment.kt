@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.graphics.Rect
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -31,6 +32,7 @@ import fr.labomg.biophonie.data.Landscape
 import fr.labomg.biophonie.databinding.FragmentGalleryBinding
 import fr.labomg.biophonie.templates
 import fr.labomg.biophonie.ui.LandscapesAdapter
+import fr.labomg.biophonie.ui.MarginItemDecoration
 import fr.labomg.biophonie.viewmodels.RecViewModel
 import timber.log.Timber
 
@@ -111,6 +113,9 @@ class GalleryFragment :
             setHasFixedSize(true)
             layoutManager = viewManager
             adapter = viewAdapter
+            addItemDecoration(
+                MarginItemDecoration(resources.getDimensionPixelOffset(R.dimen.gallery_simple_margin))
+            )
         }
     }
 
