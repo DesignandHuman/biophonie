@@ -16,6 +16,11 @@ kotlin {
     jvmToolchain(17)
 }
 
+// set a specific Java version
+kotlin {
+    jvmToolchain(17)
+}
+
 android {
     namespace = "fr.labomg.biophonie"
     compileSdk = 33
