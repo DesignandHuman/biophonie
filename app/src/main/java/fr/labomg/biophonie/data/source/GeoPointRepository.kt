@@ -13,7 +13,10 @@ interface GeoPointRepository {
     suspend fun addNewGeoPoints(): Boolean
 
     suspend fun refreshUnavailableGeoPoints()
+
     suspend fun saveNewGeoPoint(geoPoint: GeoPoint, dataPath: String): Result<GeoPoint>
+
     suspend fun cancelNetworkRequest()
+
     suspend fun saveAssetsInStorage(geoPoint: GeoPoint, dataPath: String)
 }

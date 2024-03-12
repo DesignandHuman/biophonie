@@ -9,6 +9,7 @@ coreTesting = "2.2.0"
 coroutines = "1.6.4"
 
 desugar = "2.0.3"
+detekt = "1.23.5"
 
 espresso = "3.5.1"
 
@@ -23,6 +24,7 @@ jUnit = "4.13.2"
 
 kotlin = "1.8.0"
 ksp = "1.8.0-1.0.9"
+ktfmt = "0.17.0"
 
 leakCanary = "2.10"
 lifecycle = "2.6.2"
@@ -113,6 +115,8 @@ remote = ["retrofit", "moshi", "moshi-kotlin", "converter-moshi", "logging-inter
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }

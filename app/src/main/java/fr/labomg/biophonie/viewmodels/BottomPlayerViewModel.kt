@@ -3,29 +3,35 @@ package fr.labomg.biophonie.viewmodels
 import android.app.Application
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
-import androidx.lifecycle.*
-import fr.labomg.biophonie.BiophonieApplication
-import fr.labomg.biophonie.data.Coordinates
-import fr.labomg.biophonie.data.GeoPoint
-import fr.labomg.biophonie.data.domain.InternalErrorThrowable
-import fr.labomg.biophonie.data.domain.NoConnectionThrowable
-import fr.labomg.biophonie.data.domain.NotFoundThrowable
-import fr.labomg.biophonie.data.source.GeoPointRepository
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.liveData
+import androidx.lifecycle.switchMap
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
+import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.BuildConfig
+import fr.labomg.biophonie.data.Coordinates
+import fr.labomg.biophonie.data.GeoPoint
+import fr.labomg.biophonie.data.InternalErrorThrowable
+import fr.labomg.biophonie.data.NoConnectionThrowable
+import fr.labomg.biophonie.data.NotFoundThrowable
+import fr.labomg.biophonie.data.source.GeoPointRepository
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.IOException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
-import java.io.File
-import java.io.FileNotFoundException
-import java.io.IOException
+import timber.log.Timber
 
-class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) : AndroidViewModel(
-    application
-) {
+class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) :
+    AndroidViewModel(application) {
     private var currentIndex = 0
     private var lastLocation: Coordinates? = null
     private var isFetchingClose = false
@@ -56,67 +62,72 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
 
     private val viewModelJob = SupervisorJob()
     private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-    val geoPoint: LiveData<GeoPoint?> = geoPointId.switchMap { id -> liveData {
-        _event.value = Event.LOADING
-        isFetchingClose = false
-        lastLocation = null
-        repository.fetchGeoPoint(id)
-            .onSuccess {
-                _event.value = Event.SUCCESS
-                emit(it)
-                displayGeoPoint()
-                if (passedIds.isEmpty())
-                    passedIds += id
-                _eventNetworkError.value?.run { _eventNetworkError.value = null }
+    val geoPoint: LiveData<GeoPoint?> =
+        geoPointId.switchMap { id ->
+            liveData {
+                _event.value = Event.LOADING
+                isFetchingClose = false
+                lastLocation = null
+                repository
+                    .fetchGeoPoint(id)
+                    .onSuccess {
+                        _event.value = Event.SUCCESS
+                        emit(it)
+                        displayGeoPoint()
+                        if (passedIds.isEmpty()) passedIds += id
+                        _eventNetworkError.value?.run { _eventNetworkError.value = null }
+                    }
+                    .onFailure {
+                        _event.value = Event.FAILURE
+                        _eventNetworkError.value =
+                            when (it) {
+                                is NotFoundThrowable -> "Ce son n’est plus disponible"
+                                is InternalErrorThrowable -> "Oups, notre serveur a des soucis"
+                                is NoConnectionThrowable -> "Connexion au serveur impossible"
+                                else -> "Oups, une erreur s’est produite"
+                            }
+                        emit(null)
+                    }
             }
-            .onFailure {
-                _event.value = Event.FAILURE
-                _eventNetworkError.value = when(it){
-                    is NotFoundThrowable -> "Ce son n’est plus disponible"
-                    is InternalErrorThrowable -> "Oups, notre serveur a des soucis"
-                    is NoConnectionThrowable -> "Connexion au serveur impossible"
-                    else -> "Oups, une erreur s’est produite"
-                }
-                emit(null)
-            }
-    } }
+        }
 
-    var passedIds: Array<Int> = arrayOf()
+    private var passedIds: Array<Int> = arrayOf()
 
-    fun setPlayerController(view: PlayerView){
-        playerController = DefaultPlayerController(view, getApplication<Application>().cacheDir.absolutePath).apply { setPlayerListener(
-            error = {
-                _eventNetworkError.value = when(it) {
-                    is RuntimeException -> "Le son est corrompu, désolé"
-                    is IOException -> "Impossible de trouver le son"
-                    else -> "Le cache est corrompu"
+    fun setPlayerController(view: PlayerView) {
+        playerController =
+            DefaultPlayerController(view, getApplication<Application>().cacheDir.absolutePath)
+                .apply {
+                    setPlayerListener(
+                        error = {
+                            _eventNetworkError.value =
+                                when (it) {
+                                    is RuntimeException -> "Le son est corrompu, désolé"
+                                    is IOException -> "Impossible de trouver le son"
+                                    else -> "Le cache est corrompu"
+                                }
+                            Timber.e("could not play audio: $it")
+                        }
+                    )
                 }
-                it.printStackTrace()
-            }
-        ) }
     }
 
     fun onRetry() {
         _eventNetworkError.value = null
         _event.value = Event.LOADING
-        if (isFetchingClose && lastLocation != null)
-            displayClosestGeoPoint(lastLocation!!)
+        if (isFetchingClose && lastLocation != null) displayClosestGeoPoint(lastLocation!!)
         else {
-            geoPointId.value?.let {
-                geoPointId.value = it
-            }
+            geoPointId.value?.let { geoPointId.value = it }
         }
     }
 
-    fun onLeftClick(){
+    fun onLeftClick() {
         currentIndex--
         geoPointId.value = passedIds[currentIndex]
         _rightClickable.value = true
     }
 
-    fun onRightClick(){
-        if (currentIndex <= passedIds.size-1)
-            displayClosestGeoPoint(geoPoint.value!!.coordinates)
+    fun onRightClick() {
+        if (currentIndex <= passedIds.size - 1) displayClosestGeoPoint(geoPoint.value!!.coordinates)
         else {
             currentIndex++
             geoPointId.value = passedIds[currentIndex]
@@ -130,11 +141,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         lastLocation = coordinates
         pauseController()
         viewModelScope.launch {
-            repository.getClosestGeoPointId(coordinates, passedIds)
+            repository
+                .getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess {
                     currentIndex++
-                    if (!passedIds.contains(it))
-                        passedIds += it
+                    if (!passedIds.contains(it)) passedIds += it
                     isFetchingClose = false
                     setGeoPointQuery(it, false)
                 }
@@ -142,11 +153,14 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                     _event.value = Event.FAILURE
                     when (it) {
                         is NotFoundThrowable -> {
-                            _eventNetworkError.value = "Vous avez écouté tous les points disponibles"
+                            _eventNetworkError.value =
+                                "Vous avez écouté tous les points disponibles"
                             _rightClickable.value = false
                         }
-                        is InternalErrorThrowable -> _eventNetworkError.value = "Oups, notre serveur a des soucis"
-                        is NoConnectionThrowable -> _eventNetworkError.value = "Connexion au serveur impossible"
+                        is InternalErrorThrowable ->
+                            _eventNetworkError.value = "Oups, notre serveur a des soucis"
+                        is NoConnectionThrowable ->
+                            _eventNetworkError.value = "Connexion au serveur impossible"
                         else -> _eventNetworkError.value = "Oups, une erreur s’est produite"
                     }
                 }
@@ -160,7 +174,7 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         pauseController()
     }
 
-    private fun checkClickability(){
+    private fun checkClickability() {
         _leftClickable.value = currentIndex - 1 >= 0
     }
 
@@ -172,10 +186,13 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     private fun addSoundToPlayer() {
         if (geoPoint.value!!.sound.local != null) {
             try {
-                playerController?.addAudioFileUri(getApplication(), Uri.fromFile(File(geoPoint.value!!.sound.local!!)))
+                playerController?.addAudioFileUri(
+                    getApplication(),
+                    Uri.fromFile(File(geoPoint.value!!.sound.local!!))
+                )
                 return
             } catch (e: IOException) {
-                e.printStackTrace()
+                Timber.e("could not add local sound to player: $e")
             }
         }
 
@@ -185,19 +202,19 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
                 playerController?.addAudioUrl(url)
                 return
             } catch (e: FileNotFoundException) {
-                _eventNetworkError.value = "Nous n’avons pas pu trouver le son. Réessayez plus tard."
+                _eventNetworkError.value =
+                    "Nous n’avons pas pu trouver le son. Réessayez plus tard."
+                Timber.e("could not add remote sound to player: $e")
             }
         }
     }
 
-    fun setGeoPointQuery(id: Int, resetPlaylist: Boolean){
+    fun setGeoPointQuery(id: Int, resetPlaylist: Boolean) {
         _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         pauseController()
-        if (geoPoint.value?.remoteId == id && _event.value != Event.FAILURE)
-            return
+        if (geoPoint.value?.remoteId == id && _event.value != Event.FAILURE) return
         geoPointId.value = id
-        if (resetPlaylist)
-            stopPlaylist()
+        if (resetPlaylist) stopPlaylist()
     }
 
     fun pauseController() {
@@ -209,7 +226,8 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
         playerController = null
     }
 
-    class ViewModelFactory(private val application: BiophonieApplication) : ViewModelProvider.Factory {
+    class ViewModelFactory(private val application: BiophonieApplication) :
+        ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
@@ -218,10 +236,11 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
             }
             throw IllegalArgumentException("Unknown class name")
         }
-
     }
 
     enum class Event {
-        LOADING, FAILURE, SUCCESS
+        LOADING,
+        FAILURE,
+        SUCCESS
     }
 }

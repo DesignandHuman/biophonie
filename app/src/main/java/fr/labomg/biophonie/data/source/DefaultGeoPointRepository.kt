@@ -1,34 +1,36 @@
 package fr.labomg.biophonie.data.source
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.templates
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import timber.log.Timber
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Path
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.moveTo
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import timber.log.Timber
+
+private const val COMPRESSION_PERCENTAGE = 75
 
 class DefaultGeoPointRepository(
     private val geoPointRemoteDataSource: GeoPointDataSource,
-    private val geoPointLocalDataSource: GeoPointDataSource,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
-    ) : GeoPointRepository {
+    private val geoPointLocalDataSource: GeoPointDataSource
+) : GeoPointRepository {
 
     override suspend fun cancelNetworkRequest() {
         geoPointRemoteDataSource.cancelCurrentJob()
     }
 
+    // solved by lib desugaring
+    @SuppressLint("NewApi")
     override suspend fun saveAssetsInStorage(geoPoint: GeoPoint, dataPath: String) {
         val soundPath = Path(geoPoint.sound.local!!)
         val targetSound = Path(dataPath).resolve(soundPath.fileName)
@@ -38,13 +40,16 @@ class DefaultGeoPointRepository(
         if (geoPoint.picture.local != null) {
             val picturePath = Path(geoPoint.picture.local!!)
             if (!templates.contains(picturePath.fileName.toString())) {
-                geoPoint.picture.local = convertToWebp(picturePath,dataPath)
+                geoPoint.picture.local = convertToWebp(picturePath, dataPath)
             }
         }
     }
 
+    // solved by lib desugaring
+    @SuppressLint("NewApi")
     private suspend fun convertToWebp(imagePath: Path, dataPath: String): String {
-        val compressedImage = File(dataPath, imagePath.fileName.toString().replaceAfter('.',"webp"))
+        val compressedImage =
+            File(dataPath, imagePath.fileName.toString().replaceAfter('.', "webp"))
         withContext(Dispatchers.IO) {
             try {
                 compressedImage.createNewFile()
@@ -63,14 +68,13 @@ class DefaultGeoPointRepository(
             try {
                 picture = BitmapFactory.decodeFile(input)
                 out = FileOutputStream(output)
-            } catch (e: Exception) {
+            } catch (e: IOException) {
                 Timber.e("file do not exist: $e")
                 return@withContext
             }
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R)
-                picture.compress(Bitmap.CompressFormat.WEBP_LOSSY, 75,out)
-            else
-                picture.compress(Bitmap.CompressFormat.WEBP,75,out)
+                picture.compress(Bitmap.CompressFormat.WEBP_LOSSY, COMPRESSION_PERCENTAGE, out)
+            else picture.compress(Bitmap.CompressFormat.WEBP, COMPRESSION_PERCENTAGE, out)
             out.close()
         }
     }
@@ -78,8 +82,7 @@ class DefaultGeoPointRepository(
     override suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
         cancelNetworkRequest()
         return with(geoPointLocalDataSource.getGeoPoint(id)) {
-            if (isSuccess)
-                return@with this
+            if (isSuccess) return@with this
             else
                 return@with geoPointRemoteDataSource.getGeoPoint(id).onSuccess {
                     geoPointLocalDataSource.addGeoPoint(it)
@@ -107,7 +110,8 @@ class DefaultGeoPointRepository(
             success = geoPointRemoteDataSource.pingRestricted().isSuccess
             if (success) {
                 newGeoPoints.forEach { geoPoint ->
-                    geoPointRemoteDataSource.addGeoPoint(geoPoint)
+                    geoPointRemoteDataSource
+                        .addGeoPoint(geoPoint)
                         .onSuccess {
                             it.apply { id = geoPoint.id }
                             geoPointLocalDataSource.refreshGeoPoint(it)
@@ -126,15 +130,11 @@ class DefaultGeoPointRepository(
     override suspend fun refreshUnavailableGeoPoints() {
         getUnavailableGeoPoints().forEach { geoPoint ->
             if (geoPoint.remoteId != 0)
-                geoPointRemoteDataSource.getGeoPoint(geoPoint.remoteId)
-                    .onSuccess {
-                        geoPointLocalDataSource.makeAvailable(it)
-                    }
-                    .onFailure {
-                        Timber.w("${geoPoint.title} was not enabled yet")
-                    }
-            else
-                Timber.w("${geoPoint.title} not posted yet")
+                geoPointRemoteDataSource
+                    .getGeoPoint(geoPoint.remoteId)
+                    .onSuccess { geoPointLocalDataSource.makeAvailable(it) }
+                    .onFailure { Timber.w("${geoPoint.title} was not enabled yet") }
+            else Timber.w("${geoPoint.title} not posted yet")
         }
     }
 }

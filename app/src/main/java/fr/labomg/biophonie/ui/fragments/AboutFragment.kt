@@ -11,22 +11,18 @@ import androidx.fragment.app.Fragment
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.databinding.FragmentAboutBinding
 
-
 class AboutFragment : Fragment() {
 
     private var _binding: FragmentAboutBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_about,
-            container,
-            false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_about, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         setUpClickListeners()
         return binding.root
@@ -39,8 +35,11 @@ class AboutFragment : Fragment() {
             startActivity(launchBrowser)
         }
         binding.close.setOnClickListener {
-            activity?.supportFragmentManager?.beginTransaction()
-                ?.remove(this)?.commitAllowingStateLoss()
+            activity
+                ?.supportFragmentManager
+                ?.beginTransaction()
+                ?.remove(this)
+                ?.commitAllowingStateLoss()
         }
     }
 

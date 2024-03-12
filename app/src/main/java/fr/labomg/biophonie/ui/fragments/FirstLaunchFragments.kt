@@ -14,12 +14,12 @@ import androidx.appcompat.widget.AppCompatImageView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.databinding.FragmentTutoNameBinding
 import fr.labomg.biophonie.util.fadeIn
 import fr.labomg.biophonie.util.setFiltersOnEditText
 import fr.labomg.biophonie.viewmodels.TutorialViewModel
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class TutoMapFragment : Fragment(), FirstLaunchFragments {
     override fun onCreateView(
@@ -29,7 +29,8 @@ class TutoMapFragment : Fragment(), FirstLaunchFragments {
     ): View = inflater.inflate(R.layout.fragment_tuto_map, container, false)
 
     override fun animate() {
-        (view?.findViewById<AppCompatImageView>(R.id.map_image)?.drawable as AnimatedVectorDrawable).start()
+        (view?.findViewById<AppCompatImageView>(R.id.map_image)?.drawable as AnimatedVectorDrawable)
+            .start()
     }
 }
 
@@ -44,15 +45,22 @@ class TutoDetailsFragment : Fragment(), FirstLaunchFragments {
         val fab = view?.findViewById<FloatingActionButton>(R.id.play)
         fab?.visibility = View.INVISIBLE
         val clipDrawable = view?.findViewById<AppCompatImageView>(R.id.details_image)?.drawable
-        ObjectAnimator.ofInt(clipDrawable,"level",0,10000).apply {
-            duration = 2000
-            addListener(object: AnimatorListenerAdapter(){
-                override fun onAnimationEnd(animation: Animator) {
-                    fab?.fadeIn()
+        ObjectAnimator.ofInt(clipDrawable, "level", 0, ANIMATION_DURATION).apply {
+            duration = FADE_IN_DURATION
+            addListener(
+                object : AnimatorListenerAdapter() {
+                    override fun onAnimationEnd(animation: Animator) {
+                        fab?.fadeIn()
+                    }
                 }
-            })
+            )
             start()
         }
+    }
+
+    companion object {
+        private const val ANIMATION_DURATION = 10000
+        private const val FADE_IN_DURATION = 2000L
     }
 }
 
@@ -65,21 +73,26 @@ class TutoLocationFragment : Fragment(), FirstLaunchFragments {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        (view.findViewById<AppCompatImageView>(R.id.background_location)?.background as AnimatedVectorDrawable)
-            .registerAnimationCallback(object : Animatable2.AnimationCallback() {
-                override fun onAnimationEnd(drawable: Drawable?) {
-                    view.findViewById<View>(R.id.separator)?.fadeIn()
-                    view.findViewById<View>(R.id.trip)?.fadeIn()
-                    view.findViewById<View>(R.id.location)?.fadeIn()
+        (view.findViewById<AppCompatImageView>(R.id.background_location)?.background
+                as AnimatedVectorDrawable)
+            .registerAnimationCallback(
+                object : Animatable2.AnimationCallback() {
+                    override fun onAnimationEnd(drawable: Drawable?) {
+                        view.findViewById<View>(R.id.separator)?.fadeIn()
+                        view.findViewById<View>(R.id.trip)?.fadeIn()
+                        view.findViewById<View>(R.id.location)?.fadeIn()
+                    }
                 }
-            })
+            )
     }
 
     override fun animate() {
         (view?.findViewById<View>(R.id.separator))?.visibility = View.INVISIBLE
         (view?.findViewById<View>(R.id.trip))?.visibility = View.INVISIBLE
         (view?.findViewById<View>(R.id.location))?.visibility = View.INVISIBLE
-        (view?.findViewById<AppCompatImageView>(R.id.background_location)?.background as AnimatedVectorDrawable).start()
+        (view?.findViewById<AppCompatImageView>(R.id.background_location)?.background
+                as AnimatedVectorDrawable)
+            .start()
     }
 }
 
@@ -95,24 +108,25 @@ class TutoRecordFragment : Fragment(), FirstLaunchFragments {
     ): View = inflater.inflate(R.layout.fragment_tuto_record, container, false)
 
     override fun animate() {
-        (view?.findViewById<AppCompatImageView>(R.id.background_rec)?.drawable as AnimatedVectorDrawable).start()
+        (view?.findViewById<AppCompatImageView>(R.id.background_rec)?.drawable
+                as AnimatedVectorDrawable)
+            .start()
     }
 }
 
-class TutoNameFragment: Fragment(){
+class TutoNameFragment : Fragment() {
     private var _binding: FragmentTutoNameBinding? = null
-    private val binding get() = _binding!!
+    private val binding
+        get() = _binding!!
+
     private val viewModel: TutorialViewModel by activityViewModels()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = DataBindingUtil.inflate(
-            inflater,
-            R.layout.fragment_tuto_name,
-            container,
-            false)
+        _binding = DataBindingUtil.inflate(inflater, R.layout.fragment_tuto_name, container, false)
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         binding.nameEditText.setFiltersOnEditText(strict = true)

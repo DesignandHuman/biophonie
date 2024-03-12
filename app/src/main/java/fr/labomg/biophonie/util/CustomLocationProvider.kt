@@ -14,17 +14,19 @@ import com.mapbox.geojson.Point
 import com.mapbox.maps.plugin.locationcomponent.LocationComponentConstants
 import com.mapbox.maps.plugin.locationcomponent.LocationConsumer
 import com.mapbox.maps.plugin.locationcomponent.LocationProvider
-import kotlinx.coroutines.*
-import timber.log.Timber
 import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArraySet
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import timber.log.Timber
 
-/**
- * Custom Location Provider implementation adapted from mapbox DefaultLocationProvider
- */
-class CustomLocationProvider(
-    context: Context
-) : LocationProvider {
+/** Custom Location Provider implementation adapted from mapbox DefaultLocationProvider */
+class CustomLocationProvider(context: Context) : LocationProvider {
 
     private val applicationContext = context.applicationContext
     private val locationEngine = LocationEngineProvider.getBestLocationEngine(applicationContext)
@@ -36,10 +38,11 @@ class CustomLocationProvider(
 
     private val locationConsumers = CopyOnWriteArraySet<LocationConsumer>()
     private var updateDelay = INIT_UPDATE_DELAY
-    private val job = CoroutineScope(Dispatchers.IO).launch (start = CoroutineStart.LAZY) {
-        delay(updateDelay)
-        requestLocationUpdates()
-    }
+    private val job =
+        CoroutineScope(Dispatchers.IO).launch(start = CoroutineStart.LAZY) {
+            delay(updateDelay)
+            requestLocationUpdates()
+        }
 
     private val locationEngineCallback: LocationEngineCallback<LocationEngineResult> =
         CurrentLocationEngineCallback(this)
@@ -48,7 +51,9 @@ class CustomLocationProvider(
     private fun requestLocationUpdates() {
         if (PermissionsManager.areLocationPermissionsGranted(applicationContext)) {
             locationEngine.requestLocationUpdates(
-                locationEngineRequest, locationEngineCallback, Looper.getMainLooper()
+                locationEngineRequest,
+                locationEngineCallback,
+                Looper.getMainLooper()
             )
         } else {
             if (updateDelay * 2 < MAX_UPDATE_DELAY) {
@@ -57,7 +62,10 @@ class CustomLocationProvider(
                 updateDelay = MAX_UPDATE_DELAY
             }
             job.start()
-            Timber.w("Missing location permission, location component will not take effect before location permission is granted.")
+            Timber.w(
+                "Missing location permission, location component will not take" +
+                    " effect before location permission is granted."
+            )
         }
     }
 
@@ -68,30 +76,35 @@ class CustomLocationProvider(
     }
 
     fun addSingleRequestLocationConsumer(callback: (Point.() -> Unit)) {
-        this.registerLocationConsumer(object : LocationConsumer {
-            private var updates = 0
-            override fun onBearingUpdated(
-                vararg bearing: Double,
-                options: (ValueAnimator.() -> Unit)?
-            ) {}
+        this.registerLocationConsumer(
+            object : LocationConsumer {
+                private var updates = 0
 
-            override fun onLocationUpdated(
-                vararg location: Point,
-                options: (ValueAnimator.() -> Unit)?
-            ) {
-                updates++
-                if (updates > UPDATES_NEEDED) {
-                    callback(location[0])
-                    this@CustomLocationProvider.unRegisterLocationConsumer(this)
+                override fun onBearingUpdated(
+                    vararg bearing: Double,
+                    options: (ValueAnimator.() -> Unit)?
+                ) = Unit
+
+                override fun onLocationUpdated(
+                    vararg location: Point,
+                    options: (ValueAnimator.() -> Unit)?
+                ) {
+                    updates++
+                    if (updates > UPDATES_NEEDED) {
+                        callback(location[0])
+                        this@CustomLocationProvider.unRegisterLocationConsumer(this)
+                    }
                 }
-            }
 
-            override fun onPuckBearingAnimatorDefaultOptionsUpdated(options: ValueAnimator.() -> Unit) {
-            }
+                override fun onPuckBearingAnimatorDefaultOptionsUpdated(
+                    options: ValueAnimator.() -> Unit
+                ) = Unit
 
-            override fun onPuckLocationAnimatorDefaultOptionsUpdated(options: ValueAnimator.() -> Unit) {
+                override fun onPuckLocationAnimatorDefaultOptionsUpdated(
+                    options: ValueAnimator.() -> Unit
+                ) = Unit
             }
-        })
+        )
     }
 
     @SuppressLint("MissingPermission")
@@ -103,7 +116,10 @@ class CustomLocationProvider(
         if (PermissionsManager.areLocationPermissionsGranted(applicationContext)) {
             locationEngine.getLastLocation(locationEngineCallback)
         } else {
-            Timber.w("Missing location permission, location component will not take effect before location permission is granted.")
+            Timber.w(
+                "Missing location permission, location component will not take " +
+                    "effect before location permission is granted."
+            )
         }
     }
 
@@ -111,7 +127,8 @@ class CustomLocationProvider(
         locationConsumers.remove(locationConsumer)
         if (locationConsumers.isEmpty()) {
             locationEngine.removeLocationUpdates(locationEngineCallback)
-            GlobalScope.launch { job.cancel() }
+            // The job should get cancelled no matter the state of the lifecycle owner
+            @OptIn(DelicateCoroutinesApi::class) GlobalScope.launch { job.cancel() }
         }
     }
 

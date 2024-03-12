@@ -7,7 +7,11 @@ import fr.labomg.biophonie.BuildConfig
 import fr.labomg.biophonie.data.source.Converters
 import fr.labomg.biophonie.data.source.DatabaseGeoPoint
 
-@Database(entities = [DatabaseGeoPoint::class], version = 6, exportSchema = BuildConfig.BUILD_TYPE != "debug")
+@Database(
+    entities = [DatabaseGeoPoint::class],
+    version = 6,
+    exportSchema = BuildConfig.BUILD_TYPE != "debug"
+)
 @TypeConverters(Converters::class)
 abstract class GeoPointDatabase : RoomDatabase() {
 

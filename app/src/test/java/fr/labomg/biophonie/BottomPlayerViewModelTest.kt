@@ -2,7 +2,7 @@ package fr.labomg.biophonie
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
-import fr.labomg.biophonie.repositories.GeoPointRepository
+import fr.labomg.biophonie.data.source.GeoPointRepository
 import fr.labomg.biophonie.viewmodels.BottomPlayerViewModel
 import org.junit.Before
 import org.junit.Rule
@@ -10,8 +10,7 @@ import org.junit.Test
 
 class BottomPlayerViewModelTest {
 
-    @get:Rule
-    var instantExecutorRule = InstantTaskExecutorRule()
+    @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var viewModel: BottomPlayerViewModel
 

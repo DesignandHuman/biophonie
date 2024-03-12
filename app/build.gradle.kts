@@ -1,3 +1,5 @@
+import com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask
+
 plugins {
     alias(libs.plugins.android.application)
     // kapt still needed to use databinding
@@ -5,6 +7,8 @@ plugins {
     alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.ktfmt)
+    alias(libs.plugins.detekt)
 }
 
 // set a specific Java version
@@ -122,4 +126,32 @@ dependencies {
     testImplementation(libs.jUnit)
     testImplementation(libs.navigation.testing)
     testImplementation(libs.robolectric)
+}
+
+ktfmt {
+    kotlinLangStyle()
+}
+
+tasks.register<Copy>("installGitHooks") {
+    description = "Copies the git hooks from /pre-commit to the .git folder."
+    group = "git hooks"
+    from("$rootDir/scripts/pre-commit")
+    into("$rootDir/.git/hooks/")
+    filePermissions {
+        user {
+            read = true
+            execute = true
+        }
+        other.execute = false
+    }
+}
+
+tasks.register<KtfmtCheckTask>("ktfmtPreCommit") {
+    source = project.fileTree(rootDir)
+    include("**/*.kt")
+    include("**/*.kts")
+}
+
+afterEvaluate {
+    tasks.getByPath(":app:preBuild").dependsOn("installGitHooks")
 }

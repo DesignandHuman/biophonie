@@ -1,30 +1,35 @@
 package fr.labomg.biophonie.viewmodels
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.lifecycle.*
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.data.Resource
 import fr.labomg.biophonie.data.source.GeoPointRepository
-import kotlinx.coroutines.launch
 import java.time.Instant
+import kotlinx.coroutines.launch
 
-class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
+class MapViewModel(private val repository: GeoPointRepository) : ViewModel() {
 
     private val _newGeoPoints = MutableLiveData<List<GeoPoint>>()
     val newGeoPoints = _newGeoPoints
 
     init {
-        viewModelScope.launch {
-            _newGeoPoints.value = repository.getUnavailableGeoPoints()
-        }
+        viewModelScope.launch { _newGeoPoints.value = repository.getUnavailableGeoPoints() }
     }
 
+    // solved by lib desugaring
+    @SuppressLint("NewApi")
     fun requestAddGeoPoint(extras: Bundle?, dataPath: String) {
         extras?.let {
             val date = extras.getString("date")
             val soundPath = extras.getString("soundPath")
-            val templatePath = extras.getString("templatePath")?.apply { removePrefix("/drawable/") }
+            val templatePath =
+                extras.getString("templatePath")?.apply { removePrefix("/drawable/") }
             val landscapePath = extras.getString("landscapePath")
             val amplitudes = extras.getFloatArray("amplitudes")
             val latitude = extras.getDouble("latitude")
@@ -37,7 +42,12 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
                         date = Instant.parse(date),
                         amplitudes = amplitudes!!.toList(),
                         coordinates = Coordinates(latitude, longitude),
-                        picture = Resource(local = if (!templatePath.isNullOrEmpty()) templatePath else landscapePath),
+                        picture =
+                            Resource(
+                                local =
+                                    if (!templatePath.isNullOrEmpty()) templatePath
+                                    else landscapePath
+                            ),
                         sound = Resource(local = soundPath!!),
                         remoteId = 0,
                         id = 0
@@ -63,12 +73,12 @@ class MapViewModel(private val repository: GeoPointRepository): ViewModel() {
         }
     }*/
 
-    class ViewModelFactory(private val geoPointRepository: GeoPointRepository) : ViewModelProvider.Factory {
+    class ViewModelFactory(private val geoPointRepository: GeoPointRepository) :
+        ViewModelProvider.Factory {
 
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return MapViewModel(geoPointRepository) as T
+                @Suppress("UNCHECKED_CAST") return MapViewModel(geoPointRepository) as T
             }
             throw IllegalArgumentException("Unknown class name")
         }

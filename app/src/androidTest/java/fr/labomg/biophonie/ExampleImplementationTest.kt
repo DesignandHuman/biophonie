@@ -1,4 +1,3 @@
 package fr.labomg.biophonie
 
-class ExampleImplementationTest {
-}
+class ExampleImplementationTest

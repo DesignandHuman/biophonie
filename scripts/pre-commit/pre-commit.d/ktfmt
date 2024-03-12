@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+echo "Running ktfmt check on staged files..."
+CHANGED_FILES="$(git diff --staged --name-only | tr '\n' ':' )"
+OUTPUT="/tmp/ktfmt-$(date +%s)"
+./gradlew --quiet ktfmtPreCommit --include-only="$CHANGED_FILES" > "$OUTPUT"
+EXIT_CODE=$?
+if [ $EXIT_CODE -ne 0 ]; then
+  cat "$OUTPUT"
+  rm "$OUTPUT"
+  echo "*******************************************************"
+  echo "|                    ktfmt failed                     |"
+  echo "| Please fix the above issues before committing       |"
+  echo "| Tip: run the formatter with './gradlew ktfmtFormat' |"
+  echo "*******************************************************"
+  exit $EXIT_CODE
+fi
+rm "$OUTPUT"

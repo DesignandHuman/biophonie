@@ -5,7 +5,7 @@ If you would like to suggest a [new feature](https://github.com/DesignandHuman/b
 
 If you would like to contribute code:
 1. Please note that any contribution should follow the [code of conduct](https://github.com/DesignandHuman/biophonie/blob/master/CODE_OF_CONDUCT.md)
-2. Please familiarize yourself with the install process, the development process and the deployment at the bottom of this document. All contributions to the project must reflect its development standards.
+2. Please familiarize yourself with the install process, the development process and the deployment at the bottom of this document. All contributions to the project must reflect its development standards. As such, respect of `ktfmt` and `detekt` is required.
 3. Ensure that existing pull requests and issues don’t already cover your contribution or question. If your planned contribution involves significant changes to the application, consider opening a new issue to discuss your design before beginning work.
 4. Pull requests are gladly accepted. If your PR makes changes that developers should be aware of, please be sure to update the [CHANGELOG](https://github.com/DesignandHuman/biophonie/blob/master/CHANGELOG.md)
 5. When contributing to this project, you must agree that you have authored 100% of the content, that you have the necessary rights to the content and that the content you contribute may be provided under the project license.
@@ -82,7 +82,16 @@ The preproduction API will be soon available (track progress [here](https://gith
 To do your own testing, please clone the [biophonie-api repository](https://github.com/Haransis/biophonie-api) and launch your own instance of it using docker.
 
 ## Checks
-The project do not have any testing implemented yet (track progress [here](https://github.com/DesignandHuman/biophonie/issues/34)).
+
+A precommit hook checks for the respect of [`ktfmt`](https://github.com/facebook/ktfmt) and [`detekt`](https://github.com/detekt/detekt).
+Automatic formatting is done using the command:
+```
+$ ./gradlew ktfmtFormat
+```
+You can add exceptions to `detekt` with: `app/detekt-baseline.xml` or with `@SupressWarnings("RULENAME")`.
+:warning: Beware, changes that do not justify any exception to linters will be automatically rejected.
+
+Other than that, the project do not have any testing implemented yet (track progress [here](https://github.com/DesignandHuman/biophonie/issues/34)).
 In the meantime, you should test your modifications by hand.
 
 ## Commit

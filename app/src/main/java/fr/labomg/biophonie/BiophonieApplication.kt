@@ -9,8 +9,7 @@ import fr.labomg.biophonie.util.MyDebugTree
 import fr.labomg.biophonie.util.ReleaseTree
 import timber.log.Timber.Forest.plant
 
-
-class BiophonieApplication: Application() {
+class BiophonieApplication : Application() {
     val geoPointRepository: GeoPointRepository
         get() = ServiceLocator.provideGeoPointRepository(this)
 
@@ -19,10 +18,7 @@ class BiophonieApplication: Application() {
 
     override fun onCreate() {
         super.onCreate()
-        if (BuildConfig.DEBUG)
-            plant(MyDebugTree())
-        else
-            plant(ReleaseTree())
+        if (BuildConfig.DEBUG) plant(MyDebugTree()) else plant(ReleaseTree())
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         AppPrefs.setup(this)
     }

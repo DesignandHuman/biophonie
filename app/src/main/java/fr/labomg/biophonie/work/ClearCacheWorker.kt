@@ -19,10 +19,7 @@ class ClearCacheWorker(appContext: Context, params: WorkerParameters) :
                 result = Result.failure()
             }
         }
-        return if (applicationContext.cacheDir.deleteRecursively())
-            result
-        else
-            Result.failure()
+        return if (applicationContext.cacheDir.deleteRecursively()) result else Result.failure()
     }
 
     companion object {
