@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -114,7 +113,9 @@ class GalleryFragment :
             layoutManager = viewManager
             adapter = viewAdapter
             addItemDecoration(
-                MarginItemDecoration(resources.getDimensionPixelOffset(R.dimen.gallery_simple_margin))
+                MarginItemDecoration(
+                    resources.getDimensionPixelOffset(R.dimen.gallery_simple_margin)
+                )
             )
         }
     }
