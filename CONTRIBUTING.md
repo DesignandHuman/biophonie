@@ -66,7 +66,6 @@ This `BIOPHONIE_DEBUG_API_URL` is a URL pointing to the external API you want to
 The API is needed to find geolocated sounds, record and upload them. You can find the code of the api [here](https://github.com/Haransis/biophonie-api).
 
 #### example global `gradle.properties`
-
 ```properties
 MAPBOX_DOWNLOAD_TOKEN=sk.eyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 MAPBOX_ACCESS_TOKEN=pk.eyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
