@@ -183,10 +183,10 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         }
 
         companion object {
-            private const val FIRST_PAGE = NUM_PAGES - 1
-            private const val SECOND_PAGE = FIRST_PAGE - 1
-            private const val THIRD_PAGE = SECOND_PAGE - 1
-            private const val FOURTH_PAGE = THIRD_PAGE - 1
+            private const val FIRST_PAGE = 0
+            private const val SECOND_PAGE = FIRST_PAGE + 1
+            private const val THIRD_PAGE = SECOND_PAGE + 1
+            private const val FOURTH_PAGE = THIRD_PAGE + 1
         }
     }
 
