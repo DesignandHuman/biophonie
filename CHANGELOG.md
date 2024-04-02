@@ -2,6 +2,11 @@
 
 We welcome participation and contributions from everyone (see [CONTRIBUTING.md](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md)).
 
+# April 2, 2024
+
+## Bug fixes 🐞
+* fix wrong order on first launch fragments
+
 # March 8, 2024
 
 ## Features ✨ and improvements 🏁
