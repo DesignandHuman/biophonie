@@ -3,6 +3,7 @@ package fr.labomg.biophonie.data.source.remote
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.data.source.GeoPointDataSource
+import fr.labomg.biophonie.di.IoDispatcher
 import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -13,10 +14,13 @@ import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class GeoPointRemoteDataSource(
+@Singleton
+class GeoPointRemoteDataSource @Inject constructor(
     private val webService: WebService,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : GeoPointDataSource {
 
     private var currentJob: Job? = null

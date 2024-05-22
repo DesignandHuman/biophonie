@@ -14,6 +14,7 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.ActivityCompat
@@ -74,6 +75,7 @@ import com.mapbox.maps.plugin.gestures.gestures
 import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListener
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
+import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.BuildConfig
 import fr.labomg.biophonie.PROPERTY_ID
@@ -97,6 +99,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
+@AndroidEntryPoint
 class MapActivity :
     FragmentActivity(),
     OnMapClickListener,
@@ -105,15 +108,7 @@ class MapActivity :
     OnMoveListener {
 
     private var isRecAnimating: Boolean = false
-    private val viewModel: MapViewModel by lazy {
-        ViewModelProvider(
-                this,
-                MapViewModel.ViewModelFactory(
-                    (application as BiophonieApplication).geoPointRepository
-                )
-            )
-            .get(MapViewModel::class.java)
-    }
+    private val viewModel: MapViewModel by viewModels()
     private var recAnimation: AnimatedVectorDrawableCompat? = null
     private lateinit var binding: ActivityMapBinding
     private lateinit var mapboxMap: MapboxMap

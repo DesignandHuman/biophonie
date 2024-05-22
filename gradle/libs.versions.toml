@@ -19,6 +19,8 @@ fragmentKtx = "1.6.1"
 glide = "4.11.0"
 
 hamcrest = "2.2"
+hilt = "2.44"
+hiltWork = "1.0.0"
 
 jUnit = "4.13.2"
 
@@ -56,6 +58,8 @@ androidx-coreKtx = { module = "androidx.core:core-ktx", version.ref = "coreKtx" 
 androidx-coreTesting = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
 androidx-fragmentKtx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragmentKtx" }
 androidx-fragmentTesting = { module = "androidx.fragment:fragment-testing", version.ref = "fragmentTesting" }
+androidx-hiltCompiler = { module = "androidx.hilt:hilt-compiler", version.ref = "hiltWork" }
+androidx-hiltWork = { module = "androidx.hilt:hilt-work", version.ref = "hiltWork" }
 androidx-roomCompiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 androidx-roomKtx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-roomRuntime = { module = "androidx.room:room-runtime", version.ref = "room" }
@@ -76,6 +80,8 @@ desugar-jdk-nio = { module = "com.android.tools:desugar_jdk_libs_nio", version.r
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide"}
 
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 
 jUnit = { module = "junit:junit", version.ref = "jUnit" }
 
@@ -116,6 +122,7 @@ remote = ["retrofit", "moshi", "moshi-kotlin", "converter-moshi", "logging-inter
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }

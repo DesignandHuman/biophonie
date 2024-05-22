@@ -1,14 +1,24 @@
 package fr.labomg.biophonie.work
 
 import android.content.Context
+import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import androidx.work.impl.model.Dependency
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import fr.labomg.biophonie.BiophonieApplication
+import fr.labomg.biophonie.data.source.GeoPointRepository
 
-class SyncSoundsWorker(appContext: Context, params: WorkerParameters) :
+@HiltWorker
+class SyncSoundsWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted params: WorkerParameters,
+    private val repository: GeoPointRepository
+) :
     CoroutineWorker(appContext, params) {
     override suspend fun doWork(): Result {
-        with((applicationContext as BiophonieApplication).geoPointRepository) {
+        with(repository) {
             refreshUnavailableGeoPoints()
             return if (addNewGeoPoints()) Result.success() else Result.failure()
         }

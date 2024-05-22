@@ -2,6 +2,11 @@
 
 We welcome participation and contributions from everyone (see [CONTRIBUTING.md](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md)).
 
+# May 1, 2024
+
+## Features ✨ and improvements 🏁
+* use Hilt for dependency injection
+
 # April 2, 2024
 
 ## Bug fixes 🐞

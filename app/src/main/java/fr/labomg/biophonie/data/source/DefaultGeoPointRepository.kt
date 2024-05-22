@@ -6,6 +6,8 @@ import android.graphics.BitmapFactory
 import android.os.Build
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
+import fr.labomg.biophonie.di.LocalDataSource
+import fr.labomg.biophonie.di.RemoteDataSource
 import fr.labomg.biophonie.templates
 import java.io.File
 import java.io.FileOutputStream
@@ -17,12 +19,13 @@ import kotlin.io.path.moveTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import javax.inject.Inject
 
 private const val COMPRESSION_PERCENTAGE = 75
 
-class DefaultGeoPointRepository(
-    private val geoPointRemoteDataSource: GeoPointDataSource,
-    private val geoPointLocalDataSource: GeoPointDataSource
+class DefaultGeoPointRepository @Inject constructor(
+    @RemoteDataSource private val geoPointRemoteDataSource: GeoPointDataSource,
+    @LocalDataSource private val geoPointLocalDataSource: GeoPointDataSource
 ) : GeoPointRepository {
 
     override suspend fun cancelNetworkRequest() {
