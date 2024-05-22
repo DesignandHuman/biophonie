@@ -1,19 +1,19 @@
 package fr.labomg.biophonie.viewmodels
 
 import android.app.Application
+import android.content.Context
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
-import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.BuildConfig
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
@@ -29,9 +29,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class BottomPlayerViewModel(private val repository: GeoPointRepository, application: Application) :
-    AndroidViewModel(application) {
+@HiltViewModel
+class BottomPlayerViewModel @Inject constructor (
+    private val repository: GeoPointRepository,
+    @ApplicationContext appContext: Context
+) : AndroidViewModel(appContext as Application) {
     private var currentIndex = 0
     private var lastLocation: Coordinates? = null
     private var isFetchingClose = false
@@ -224,18 +228,6 @@ class BottomPlayerViewModel(private val repository: GeoPointRepository, applicat
     fun destroyController() {
         playerController?.destroyPlayer()
         playerController = null
-    }
-
-    class ViewModelFactory(private val application: BiophonieApplication) :
-        ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(BottomPlayerViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST")
-                return BottomPlayerViewModel(application.geoPointRepository, application) as T
-            }
-            throw IllegalArgumentException("Unknown class name")
-        }
     }
 
     enum class Event {

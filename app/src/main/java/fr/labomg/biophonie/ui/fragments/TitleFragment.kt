@@ -22,9 +22,7 @@ class TitleFragment : Fragment() {
     private val binding
         get() = _binding!!
 
-    private val viewModel: RecViewModel by activityViewModels {
-        RecViewModel.ViewModelFactory(requireActivity().application!!)
-    }
+    private val viewModel: RecViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,

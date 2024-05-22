@@ -2,46 +2,30 @@ import com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask
 
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.hilt)
     // kapt still needed to use databinding
     // (see https://issuetracker.google.com/issues/173030256#comment10)
     alias(libs.plugins.kapt)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktfmt)
-    alias(libs.plugins.detekt)
 }
 
 // set a specific Java version
-kotlin {
-    jvmToolchain(17)
-}
-
-// set a specific Java version
-kotlin {
-    jvmToolchain(17)
-}
-
-// set a specific Java version
-kotlin {
-    jvmToolchain(17)
-}
-
-// set a specific Java version
-kotlin {
-    jvmToolchain(17)
-}
+kotlin { jvmToolchain(17) }
 
 android {
     namespace = "fr.labomg.biophonie"
     compileSdk = 33
 
-    signingConfigs {
-        getByName("debug") {
+    signingConfigs { // force br
+        getByName("debug") { // force br
             keyPassword = "android"
         }
     }
 
-    buildFeatures{
+    buildFeatures {
         dataBinding = true
         viewBinding = true
         buildConfig = true
@@ -68,22 +52,22 @@ android {
             // allow debugging with a proxy
             manifestPlaceholders["usesCleartextTraffic"] = "true"
 
-            buildConfigField("String", "BASE_URL",
+            buildConfigField(
+                "String",
+                "BASE_URL",
                 "\"${(rootProject.property("BIOPHONIE_DEBUG_API_URL") ?: "") as String}\""
             )
         }
         getByName("release") {
             isMinifyEnabled = true
             isShrinkResources = true
-            proguardFiles (
+            proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
 
             // keep debug symbols in AAB
-            ndk {
-                debugSymbolLevel = "FULL"
-            }
+            ndk { debugSymbolLevel = "FULL" }
 
             buildConfigField("String", "BASE_URL", "\"https://biophonie.fr\"")
         }
@@ -105,10 +89,15 @@ dependencies {
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.coreKtx)
     debugImplementation(libs.androidx.fragmentKtx)
+    kapt(libs.androidx.hiltCompiler)
+    annotationProcessor(libs.androidx.hiltCompiler)
+    implementation(libs.androidx.hiltWork)
     implementation(libs.androidx.securityCrypto) // encrypted shared preferences
     implementation(libs.androidx.workRuntime)
     coreLibraryDesugaring(libs.bundles.desugar) // support of new java classes such as
     // java.time.Instant for Android versions < 26
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
 
     // ---data layer--- //
     ksp(libs.androidx.roomCompiler)
@@ -143,9 +132,7 @@ dependencies {
     testImplementation(libs.robolectric)
 }
 
-ktfmt {
-    kotlinLangStyle()
-}
+ktfmt { kotlinLangStyle() }
 
 tasks.register<Copy>("installGitHooks") {
     description = "Copies the git hooks from /pre-commit to the .git folder."
@@ -167,6 +154,4 @@ tasks.register<KtfmtCheckTask>("ktfmtPreCommit") {
     include("**/*.kts")
 }
 
-afterEvaluate {
-    tasks.getByPath(":app:preBuild").dependsOn("installGitHooks")
-}
+afterEvaluate { tasks.getByPath(":app:preBuild").dependsOn("installGitHooks") }

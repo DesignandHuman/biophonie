@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
-import android.graphics.Rect
 import android.os.Bundle
 import android.util.TypedValue
 import android.view.LayoutInflater
@@ -39,9 +38,7 @@ import timber.log.Timber
 class GalleryFragment :
     Fragment(), LandscapesAdapter.OnLandscapeListener, ChooseMeanDialog.ChooseMeanListener {
 
-    private val viewModel: RecViewModel by activityViewModels {
-        RecViewModel.ViewModelFactory(requireActivity().application!!)
-    }
+    private val viewModel: RecViewModel by activityViewModels()
 
     private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {

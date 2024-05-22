@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.labomg.biophonie.data.BadRequestThrowable
 import fr.labomg.biophonie.data.ConflictThrowable
 import fr.labomg.biophonie.data.InternalErrorThrowable
@@ -13,8 +14,10 @@ import fr.labomg.biophonie.data.NoConnectionThrowable
 import fr.labomg.biophonie.data.source.TutorialRepository
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
-class TutorialViewModel(private val tutorialRepository: TutorialRepository) : ViewModel() {
+@HiltViewModel
+class TutorialViewModel @Inject constructor(private val tutorialRepository: TutorialRepository) : ViewModel() {
 
     private val _warning = MutableLiveData<String>()
     val warning: LiveData<String>
@@ -50,17 +53,6 @@ class TutorialViewModel(private val tutorialRepository: TutorialRepository) : Vi
                             }
                         }
                 }
-        }
-    }
-
-    class ViewModelFactory(private val tutorialRepository: TutorialRepository) :
-        ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(TutorialViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST") return TutorialViewModel(tutorialRepository) as T
-            }
-            throw IllegalArgumentException("Unknown class name")
         }
     }
 

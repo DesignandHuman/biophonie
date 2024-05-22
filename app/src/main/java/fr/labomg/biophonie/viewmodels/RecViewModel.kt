@@ -3,6 +3,7 @@ package fr.labomg.biophonie.viewmodels
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ContentResolver
+import android.content.Context
 import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
@@ -15,6 +16,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.mapbox.geojson.Point
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.haran.soundwave.controller.AacRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 import fr.labomg.biophonie.BuildConfig
@@ -25,9 +28,13 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import timber.log.Timber
+import javax.inject.Inject
 
-class RecViewModel(application: Application) :
-    AndroidViewModel(application), AacRecorderController.InformationRetriever {
+@HiltViewModel
+class RecViewModel @Inject constructor(
+    @ApplicationContext appContext: Context
+) :
+    AndroidViewModel(appContext as Application), AacRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null
     val mTitle = ObservableField<String>()
@@ -150,16 +157,6 @@ class RecViewModel(application: Application) :
 
     private fun updateFromDefault(fromDefault: Boolean) {
         if (fromDefault != _fromDefault.value) _fromDefault.value = fromDefault
-    }
-
-    class ViewModelFactory(private val application: Application) : ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(RecViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST") return RecViewModel(application) as T
-            }
-            throw IllegalArgumentException("Unknown class name")
-        }
     }
 
     data class ToastModel(var message: String, var length: Int)

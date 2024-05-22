@@ -16,9 +16,7 @@ import fr.labomg.biophonie.viewmodels.RecViewModel
 
 class RecorderFragment : Fragment() {
 
-    private val viewModel: RecViewModel by activityViewModels {
-        RecViewModel.ViewModelFactory(requireActivity().application!!)
-    }
+    private val viewModel: RecViewModel by activityViewModels()
     private var _binding: FragmentRecordingBinding? = null
     private val binding
         get() = _binding!!

@@ -6,14 +6,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.data.Resource
 import fr.labomg.biophonie.data.source.GeoPointRepository
 import java.time.Instant
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MapViewModel(private val repository: GeoPointRepository) : ViewModel() {
+@HiltViewModel
+class MapViewModel @Inject constructor(private val repository: GeoPointRepository) : ViewModel() {
 
     private val _newGeoPoints = MutableLiveData<List<GeoPoint>>()
     val newGeoPoints = _newGeoPoints
@@ -72,15 +75,4 @@ class MapViewModel(private val repository: GeoPointRepository) : ViewModel() {
             }
         }
     }*/
-
-    class ViewModelFactory(private val geoPointRepository: GeoPointRepository) :
-        ViewModelProvider.Factory {
-
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            if (modelClass.isAssignableFrom(MapViewModel::class.java)) {
-                @Suppress("UNCHECKED_CAST") return MapViewModel(geoPointRepository) as T
-            }
-            throw IllegalArgumentException("Unknown class name")
-        }
-    }
 }

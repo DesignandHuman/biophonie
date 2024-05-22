@@ -15,6 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.databinding.FragmentTutoNameBinding
 import fr.labomg.biophonie.util.fadeIn
@@ -114,6 +115,7 @@ class TutoRecordFragment : Fragment(), FirstLaunchFragments {
     }
 }
 
+@AndroidEntryPoint
 class TutoNameFragment : Fragment() {
     private var _binding: FragmentTutoNameBinding? = null
     private val binding

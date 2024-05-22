@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewTreeObserver
+import androidx.activity.viewModels
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
@@ -22,6 +23,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.databinding.ActivityTutorialBinding
@@ -38,17 +40,10 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
+@AndroidEntryPoint
 class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
 
-    private val viewModel: TutorialViewModel by lazy {
-        ViewModelProvider(
-                this,
-                TutorialViewModel.ViewModelFactory(
-                    (application as BiophonieApplication).tutorialRepository
-                )
-            )
-            .get(TutorialViewModel::class.java)
-    }
+    private val viewModel: TutorialViewModel by viewModels()
     private var keyboardShown = false
     private lateinit var binding: ActivityTutorialBinding
     private val adapter = TutorialPagerAdapter(this)

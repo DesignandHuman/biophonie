@@ -12,12 +12,12 @@ import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.mapbox.geojson.Point
-import fr.labomg.biophonie.BiophonieApplication
+import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.data.Coordinates
 import fr.labomg.biophonie.databinding.FragmentBottomPlayerBinding
@@ -28,21 +28,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+@AndroidEntryPoint
 class BottomPlayerFragment : Fragment() {
 
     private var imageDisplayed: Boolean = false
     private var animationDuration: Int = 0
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val viewModel: BottomPlayerViewModel by lazy {
-        ViewModelProvider(
-                this,
-                BottomPlayerViewModel.ViewModelFactory(
-                    requireContext().applicationContext as BiophonieApplication
-                )
-            )
-            .get(BottomPlayerViewModel::class.java)
-    }
+    val viewModel: BottomPlayerViewModel by viewModels()
     private var _binding: FragmentBottomPlayerBinding? = null
     private val binding
         get() = _binding!!

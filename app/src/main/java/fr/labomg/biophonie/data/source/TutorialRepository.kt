@@ -6,18 +6,22 @@ import fr.labomg.biophonie.data.source.remote.WebService
 import fr.labomg.biophonie.util.AppPrefs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TutorialRepository(private val webService: WebService) {
+@Singleton
+class TutorialRepository
+    @Inject
+    constructor(private val webService: WebService) {
+        suspend fun postUser(name: String): Result<NetworkUser> {
+            return withContext(Dispatchers.IO) {
+                webService.postUser(NetworkAddUser(name)).onSuccess { storeUser(it) }
+            }
+        }
 
-    suspend fun postUser(name: String): Result<NetworkUser> {
-        return withContext(Dispatchers.IO) {
-            webService.postUser(NetworkAddUser(name)).onSuccess { storeUser(it) }
+        private fun storeUser(user: NetworkUser) {
+            AppPrefs.userId = user.userId
+            AppPrefs.userName = user.name
+            AppPrefs.password = user.password
         }
     }
-
-    private fun storeUser(user: NetworkUser) {
-        AppPrefs.userId = user.userId
-        AppPrefs.userName = user.name
-        AppPrefs.password = user.password
-    }
-}
