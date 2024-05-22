@@ -12,6 +12,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import androidx.core.view.postDelayed
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
@@ -35,11 +36,14 @@ import fr.labomg.biophonie.ui.fragments.TutoNameFragment
 import fr.labomg.biophonie.ui.fragments.TutoRecordFragment
 import fr.labomg.biophonie.viewmodels.TutorialViewModel
 import fr.labomg.biophonie.work.ClearCacheWorker
+import kotlinx.coroutines.delay
+import timber.log.Timber
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
+private const val ANIMATION_DELAY = 100L
 @AndroidEntryPoint
 class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
 
@@ -60,31 +64,17 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
 
     private fun setUpListeners() {
         binding.apply {
-            skip.setOnClickListener { pager.currentItem = NUM_PAGES - 1 }
-            pager.registerOnPageChangeCallback(
-                object : ViewPager2.OnPageChangeCallback() {
-
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        if (position == NUM_PAGES - 1) {
-                            next.setOnClickListener { viewModel.onClickEnter() }
-                            next.text = getString(R.string.done)
-                            next.setTextSize(
-                                TypedValue.COMPLEX_UNIT_PX,
-                                resources.getDimension(R.dimen.button_font_size)
-                            )
-                            // setting visibility does not work :(
-                            skip.setTextColor(this@TutorialActivity.getColor(R.color.colorAccent))
-                        } else {
-                            next.setOnClickListener { pager.currentItem++ }
-                            next.text = getString(R.string.next)
-                            next.textSize = TEXT_SIZE
-                            // setting visibility does not work :(
-                            skip.setTextColor(this@TutorialActivity.getColor(R.color.colorPrimary))
-                        }
-                    }
+            skip.setOnClickListener {
+                pager.setCurrentItem(NUM_PAGES - 1, true)
+            }
+            next.setOnClickListener {
+                if (pager.currentItem == NUM_PAGES - 1) {
+                    viewModel.onClickEnter()
+                } else {
+                    pager.setCurrentItem(pager.currentItem+1, true)
                 }
-            )
+                viewModel.onClickEnter()
+            }
         }
     }
 
@@ -108,9 +98,15 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 object : ViewPager2.OnPageChangeCallback() {
                     override fun onPageSelected(position: Int) {
                         super.onPageSelected(position)
-                        (supportFragmentManager.findFragmentByTag("f$position")
-                                as? FirstLaunchFragments)
-                            ?.animate()
+                        if (position == NUM_PAGES - 1) {
+                            displayLastPage()
+                        } else {
+                            displayPage()
+                        }
+                        postDelayed(ANIMATION_DELAY) {
+                            (supportFragmentManager.findFragmentByTag("f$position") as? FirstLaunchFragments)
+                                ?.animate()
+                        }
                     }
                 }
             )
@@ -149,7 +145,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         if (binding.pager.currentItem == 0) {
             finishAffinity()
         } else {
-            binding.pager.currentItem--
+            binding.pager.setCurrentItem(binding.pager.currentItem-1, true)
         }
     }
 
@@ -235,6 +231,27 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 connect(R.id.pager, ConstraintSet.TOP, root.id, ConstraintSet.TOP)
                 applyTo(root as ConstraintLayout)
             }
+        }
+    }
+
+    private fun displayPage() {
+        with(binding) {
+            next.text = getString(R.string.next)
+            next.textSize = TEXT_SIZE
+            // setting visibility does not work :(
+            skip.setTextColor(this@TutorialActivity.getColor(R.color.colorPrimary))
+        }
+    }
+
+    private fun displayLastPage() {
+        with(binding) {
+            next.text = getString(R.string.done)
+            next.setTextSize(
+                TypedValue.COMPLEX_UNIT_PX,
+                resources.getDimension(R.dimen.button_font_size)
+            )
+            // setting visibility does not work :(
+            skip.setTextColor(this@TutorialActivity.getColor(R.color.colorAccent))
         }
     }
 
