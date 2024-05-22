@@ -1,22 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
 <animated-vector
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt">
     <aapt:attr name="android:drawable">
         <vector
             android:name="vector"
-            android:width="65dp"
-            android:height="45dp"
-            android:viewportWidth="65"
-            android:viewportHeight="45">
+            android:width="59dp"
+            android:height="50dp"
+            android:viewportWidth="59"
+            android:viewportHeight="50">
             <group
                 android:name="g52_1"
                 android:pivotX="75"
-                android:pivotY="75"
-                android:scaleX="1.16"
-                android:scaleY="1.16"
-                android:translateX="8"
-                android:translateY="7">
+                android:pivotY="75">
                 <group
                     android:name="squirrel"
                     android:pivotX="30"
@@ -26,11 +21,13 @@
                     <path
                         android:name="path19_1"
                         android:pathData="M 27.081 12.525 C 28.432 13.355 29.246 14.91 29.03 16.567 C 29.01 16.713 28.983 16.856 28.95 16.995 C 29.609 16.496 30.073 15.748 30.188 14.869 C 30.457 12.808 28.847 10.782 29.115 8.721 C 29.265 7.573 29.938 6.623 30.867 6.066 C 30.301 5.484 29.54 5.079 28.668 4.965 C 26.633 4.7 24.77 6.113 24.508 8.121 C 24.378 9.124 24.671 10.088 25.252 10.832 C 25.762 11.485 26.371 12.089 27.08 12.524 Z"
-                        android:fillColor="#686868"/>
+                        android:fillColor="#686868"
+                        android:strokeWidth="1"/>
                     <path
                         android:name="path21_1"
                         android:pathData="M 21.245 18.788 L 21.245 18.786 C 21.311 18.285 21.776 17.934 22.284 18 L 23.072 18.103 C 22.637 17.424 22.436 16.841 22.521 16.182 L 21.6 16.062 L 19.864 18.604 L 18.482 18.423 C 18.547 17.921 19.013 17.569 19.522 17.635 L 19.752 15.864 C 19.05 15.15 18.122 14.684 17.112 14.552 C 16.523 14.475 15.987 14.17 15.624 13.704 L 15.389 13.403 C 15.543 12.216 16.444 11.309 17.566 11.075 L 17.705 10.007 C 18.214 10.073 18.573 10.534 18.508 11.035 C 18.573 10.533 19.039 10.181 19.548 10.247 L 19.43 11.155 C 19.365 11.658 19.724 12.118 20.233 12.184 L 25.3 12.845 C 27.08 13.077 28.338 14.69 28.11 16.446 C 27.881 18.203 26.251 19.439 24.471 19.207 L 21.246 18.786 Z M 17.811 12.795 C 18.065 12.828 18.298 12.652 18.33 12.4 C 18.363 12.148 18.183 11.919 17.929 11.885 C 17.674 11.852 17.442 12.028 17.409 12.28 C 17.377 12.532 17.556 12.761 17.811 12.795 Z"
-                        android:fillColor="#686868"/>
+                        android:fillColor="#686868"
+                        android:strokeWidth="1"/>
                 </group>
                 <group
                     android:name="pine"
@@ -57,13 +54,13 @@
                     android:name="swamps_1"
                     android:pivotX="25"
                     android:pivotY="30"
-                    android:rotation="-35">
+                    android:rotation="-45">
                     <group
                         android:name="swamps"
                         android:pivotX="30"
                         android:pivotY="25"
-                        android:translateX="-3"
-                        android:translateY="5"
+                        android:translateX="-5"
+                        android:translateY="7"
                         android:scaleY="0">
                         <path
                             android:name="path43"
@@ -86,7 +83,10 @@
                 <group
                     android:name="fields"
                     android:pivotX="30"
-                    android:pivotY="25">
+                    android:pivotY="25"
+                    android:translateX="-18"
+                    android:translateY="1"
+                    android:rotation="240">
                     <path
                         android:name="path31_1"
                         android:pathData="M 15.161 16.797 C 17.183 21.216 18.41 28.254 18.253 36.156 L 21.249 36.215 C 21.433 26.924 18.836 19.065 15.161 16.797 Z"
