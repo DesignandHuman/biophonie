@@ -1,5 +1,3 @@
-import com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.detekt)
@@ -133,25 +131,3 @@ dependencies {
 }
 
 ktfmt { kotlinLangStyle() }
-
-tasks.register<Copy>("installGitHooks") {
-    description = "Copies the git hooks from /pre-commit to the .git folder."
-    group = "git hooks"
-    from("$rootDir/scripts/pre-commit")
-    into("$rootDir/.git/hooks/")
-    filePermissions {
-        user {
-            read = true
-            execute = true
-        }
-        other.execute = false
-    }
-}
-
-tasks.register<KtfmtCheckTask>("ktfmtPreCommit") {
-    source = project.fileTree(rootDir)
-    include("**/*.kt")
-    include("**/*.kts")
-}
-
-afterEvaluate { tasks.getByPath(":app:preBuild").dependsOn("installGitHooks") }

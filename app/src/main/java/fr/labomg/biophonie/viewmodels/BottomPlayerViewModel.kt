@@ -24,18 +24,18 @@ import fr.labomg.biophonie.data.source.GeoPointRepository
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import javax.inject.Inject
 
 @HiltViewModel
-class BottomPlayerViewModel @Inject constructor (
-    private val repository: GeoPointRepository,
-    @ApplicationContext appContext: Context
-) : AndroidViewModel(appContext as Application) {
+class BottomPlayerViewModel
+@Inject
+constructor(private val repository: GeoPointRepository, @ApplicationContext appContext: Context) :
+    AndroidViewModel(appContext as Application) {
     private var currentIndex = 0
     private var lastLocation: Coordinates? = null
     private var isFetchingClose = false

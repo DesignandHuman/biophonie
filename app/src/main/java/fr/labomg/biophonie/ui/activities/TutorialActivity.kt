@@ -16,7 +16,6 @@ import androidx.core.view.postDelayed
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -25,7 +24,6 @@ import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
-import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.R
 import fr.labomg.biophonie.databinding.ActivityTutorialBinding
 import fr.labomg.biophonie.ui.fragments.FirstLaunchFragments
@@ -36,14 +34,13 @@ import fr.labomg.biophonie.ui.fragments.TutoNameFragment
 import fr.labomg.biophonie.ui.fragments.TutoRecordFragment
 import fr.labomg.biophonie.viewmodels.TutorialViewModel
 import fr.labomg.biophonie.work.ClearCacheWorker
-import kotlinx.coroutines.delay
-import timber.log.Timber
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.concurrent.TimeUnit
 
 private const val ANIMATION_DELAY = 100L
+
 @AndroidEntryPoint
 class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
 
@@ -64,14 +61,12 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
 
     private fun setUpListeners() {
         binding.apply {
-            skip.setOnClickListener {
-                pager.setCurrentItem(NUM_PAGES - 1, true)
-            }
+            skip.setOnClickListener { pager.setCurrentItem(NUM_PAGES - 1, true) }
             next.setOnClickListener {
                 if (pager.currentItem == NUM_PAGES - 1) {
                     viewModel.onClickEnter()
                 } else {
-                    pager.setCurrentItem(pager.currentItem+1, true)
+                    pager.setCurrentItem(pager.currentItem + 1, true)
                 }
                 viewModel.onClickEnter()
             }
@@ -104,7 +99,8 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                             displayPage()
                         }
                         postDelayed(ANIMATION_DELAY) {
-                            (supportFragmentManager.findFragmentByTag("f$position") as? FirstLaunchFragments)
+                            (supportFragmentManager.findFragmentByTag("f$position")
+                                    as? FirstLaunchFragments)
                                 ?.animate()
                         }
                     }
@@ -145,7 +141,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         if (binding.pager.currentItem == 0) {
             finishAffinity()
         } else {
-            binding.pager.setCurrentItem(binding.pager.currentItem-1, true)
+            binding.pager.setCurrentItem(binding.pager.currentItem - 1, true)
         }
     }
 

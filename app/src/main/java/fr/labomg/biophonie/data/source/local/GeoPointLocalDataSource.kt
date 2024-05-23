@@ -9,14 +9,15 @@ import fr.labomg.biophonie.data.source.asDomainModel
 import fr.labomg.biophonie.data.source.remote.Message
 import fr.labomg.biophonie.di.IoDispatcher
 import fr.labomg.biophonie.templates
-import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
 
 @Singleton
-class GeoPointLocalDataSource @Inject constructor(
+class GeoPointLocalDataSource
+@Inject
+constructor(
     private val geoPointDao: GeoPointDao,
     @IoDispatcher private val dispatcher: CoroutineDispatcher,
 ) : GeoPointDataSource {

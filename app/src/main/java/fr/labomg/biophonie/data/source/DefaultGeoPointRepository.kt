@@ -13,17 +13,19 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.nio.file.Path
+import javax.inject.Inject
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.moveTo
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 
 private const val COMPRESSION_PERCENTAGE = 75
 
-class DefaultGeoPointRepository @Inject constructor(
+class DefaultGeoPointRepository
+@Inject
+constructor(
     @RemoteDataSource private val geoPointRemoteDataSource: GeoPointDataSource,
     @LocalDataSource private val geoPointLocalDataSource: GeoPointDataSource
 ) : GeoPointRepository {

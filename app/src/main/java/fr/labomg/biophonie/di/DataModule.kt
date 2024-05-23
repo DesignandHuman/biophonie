@@ -12,7 +12,7 @@ import fr.labomg.biophonie.data.source.GeoPointRepository
 abstract class DataModule {
 
     @Binds
-    internal abstract fun bindGeoPointRepository(impl: DefaultGeoPointRepository): GeoPointRepository
-
+    internal abstract fun bindGeoPointRepository(
+        impl: DefaultGeoPointRepository
+    ): GeoPointRepository
 }
-

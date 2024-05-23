@@ -11,12 +11,12 @@ import fr.labomg.biophonie.data.source.remote.AccessTokenAuthenticator
 import fr.labomg.biophonie.data.source.remote.AuthenticationInterceptor
 import fr.labomg.biophonie.data.source.remote.WebService
 import fr.labomg.biophonie.util.HttpLoggingInterceptorLevel
+import javax.inject.Qualifier
+import javax.inject.Singleton
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
-import javax.inject.Qualifier
-import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
@@ -42,14 +42,9 @@ object WebModule {
         return MoshiConverterFactory.create(moshi).asLenient()
     }
 
-    @Qualifier
-    @Retention(AnnotationRetention.BINARY)
-    annotation class BaseUrl
+    @Qualifier @Retention(AnnotationRetention.BINARY) annotation class BaseUrl
 
-    @Singleton
-    @Provides
-    @BaseUrl
-    fun provideBaseUrl(): String = BuildConfig.BASE_URL
+    @Singleton @Provides @BaseUrl fun provideBaseUrl(): String = BuildConfig.BASE_URL
 
     @Singleton
     @Provides

@@ -5,20 +5,21 @@ import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.data.source.GeoPointDataSource
 import fr.labomg.biophonie.di.IoDispatcher
 import java.io.File
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
-class GeoPointRemoteDataSource @Inject constructor(
+class GeoPointRemoteDataSource
+@Inject
+constructor(
     private val webService: WebService,
     @IoDispatcher private val dispatcher: CoroutineDispatcher
 ) : GeoPointDataSource {

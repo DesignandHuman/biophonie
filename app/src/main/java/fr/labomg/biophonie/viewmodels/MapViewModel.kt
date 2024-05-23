@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import fr.labomg.biophonie.data.Coordinates
@@ -12,8 +11,8 @@ import fr.labomg.biophonie.data.GeoPoint
 import fr.labomg.biophonie.data.Resource
 import fr.labomg.biophonie.data.source.GeoPointRepository
 import java.time.Instant
-import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class MapViewModel @Inject constructor(private val repository: GeoPointRepository) : ViewModel() {
