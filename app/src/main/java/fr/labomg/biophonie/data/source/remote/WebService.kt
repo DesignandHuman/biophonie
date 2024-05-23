@@ -20,8 +20,7 @@ interface WebService {
         @Path("id") id: Int,
     ): Result<NetworkGeoPoint>
 
-    @GET("/api/v1/restricted/ping")
-    suspend fun pingRestricted(): Result<Message>
+    @GET("/api/v1/restricted/ping") suspend fun pingRestricted(): Result<Message>
 
     @POST("/api/v1/user/authorize")
     suspend fun refreshToken(

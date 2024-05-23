@@ -24,7 +24,6 @@ import androidx.core.content.res.ResourcesCompat.getFont
 import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.ViewModelProvider
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import androidx.work.Constraints
@@ -76,7 +75,6 @@ import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListen
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
 import dagger.hilt.android.AndroidEntryPoint
-import fr.labomg.biophonie.BiophonieApplication
 import fr.labomg.biophonie.BuildConfig
 import fr.labomg.biophonie.PROPERTY_ID
 import fr.labomg.biophonie.PROPERTY_NAME

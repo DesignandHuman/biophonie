@@ -13,8 +13,6 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.mapbox.geojson.Point
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -27,13 +25,11 @@ import java.io.IOException
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import timber.log.Timber
 import javax.inject.Inject
+import timber.log.Timber
 
 @HiltViewModel
-class RecViewModel @Inject constructor(
-    @ApplicationContext appContext: Context
-) :
+class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) :
     AndroidViewModel(appContext as Application), AacRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null

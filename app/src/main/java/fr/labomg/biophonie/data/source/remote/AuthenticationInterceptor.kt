@@ -1,12 +1,12 @@
 package fr.labomg.biophonie.data.source.remote
 
 import fr.labomg.biophonie.util.AppPrefs
+import javax.inject.Inject
+import javax.inject.Singleton
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class AuthenticationInterceptor @Inject constructor() : Interceptor {
