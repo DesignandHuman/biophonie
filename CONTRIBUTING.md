@@ -92,6 +92,11 @@ You can add exceptions to `detekt` with: `app/detekt-baseline.xml` or with `@Sup
 Other than that, the project do not have any testing implemented yet (track progress [here](https://github.com/DesignandHuman/biophonie/issues/34)).
 In the meantime, you should test your modifications by hand.
 
+## Architecture
+The project follows the recommended Android architecture guidelines and especially the type of modules described [here](https://developer.android.com/topic/modularization/patterns#types-of-modules).
+Module dependency graphs are available in the README of each module.
+If architecture changes are required, execution of `scripts/generateModuleGraphs.sh` regenerates the corresponding graphs.
+
 ## Commit
 This repository follows the [gitmoji](https://github.com/carloscuesta/gitmoji) convention. 
 A commit title should start with an emoji. See the [website](https://gitmoji.dev/) or use the [gitmoji-cli](https://github.com/carloscuesta/gitmoji-cli) to find the adequate emoji. Here are the main emojis that should be used but feel free to use the ones [listed](https://gitmoji.dev/) that fit better your needs:

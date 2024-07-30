@@ -1,0 +1,51 @@
+<resources>
+    <string name="geojson_url" translatable="false">api/v1/assets/geojson.json</string>
+    <string name="app_name" translatable="false">Biophonie</string>
+    <string name="map">Map</string>
+    <string name="lorem_ipsum">Puisqu’elle est parfois invisible à nos yeux, Biophonie est une interface à l’écoute de la nature et de sa biodiversité.\n—\nÀ l’instar du travail de Bernie Krause qui étudie la bioacoustique, le projet numérique Biophonie cartographie des environnements sonores naturels au fil du temps. Qu’il s’agisse du vent dans les arbres, du chant des oiseaux, des sons subtils d’insectes à la tombée du jour, ces paysages sonores sont le reflet de la biodiversité et de la vie présente dans notre environnement.\n—\nUne fois ces paysages sonores captés et observés, Biophonie permettra de les comparer d’une période à l’autre pour saisir l’appauvrissement ou la croissance des espaces naturels.\n—\nCe projet est réalisé par Labo.mg (Margaux Crinon et Geoffrey Dorne : concept et design) en partenariat avec Alban Rahier (développement).</string>
+    <string name="skip">Passer</string>
+    <string name="done">Commencer</string>
+    <string name="next"><![CDATA[>]]></string>
+    <string name="tuto_map"><b>Naviguez</b> sur la carte de Biophonie et <b>écoutez</b> les paysages sonores.</string>
+    <string name="tuto_details"><b>Cliquez</b> pour écouter <b>un paysage</b>.</string>
+    <string name="tuto_location"><b>Géolocalisez-vous</b> pour écouter les paysages proches de vous.</string>
+    <string name="tuto_record"><b>Enregistrez</b> vos propres paysages sonores sur la carte !</string>
+    <string name="subtitle"><![CDATA[Écoutons & préservons les paysages sonores de notre planète]]></string>
+    <string name="asking_name"><b>Chez Labo.mg</b>, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
+    <string name="georges">Georges</string>
+    <string name="sound_title">Forêt à l\'aube</string>
+    <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
+    <string name="permission_not_granted">Permission refusée, retour</string>
+    <string name="validation">Je valide</string>
+    <string name="description_title"><b>Pour finir</b>, donnez un titre à votre enregistrement</string>
+    <string name="title">Titre</string>
+    <string name="import_picture">J\'importe une photo</string>
+    <string name="shhh">Chut, écoutez…</string>
+    <string name="network_error">Connexion au serveur échouée</string>
+    <string name="default_error">Oups, une erreur s’est produite</string>
+    <string name="expand_player">Voir le son</string>
+    <string name="expand_image">Voir l\'image</string>
+    <string name="about_biophonie">À propos de Biophonie</string>
+    <string name="licence">LICENCE</string>
+    <string name="gnu_gpl_v3_0">GNU GPL v3.0</string>
+    <string name="developped_location">réalisé ici : 121°E 33°N</string>
+    <string name="go_to_labo_mg">Retrouvez Labo.mg</string>
+    <string name="retry">Réessayer</string>
+    <string name="play">Play</string>
+    <string name="locate">Se localiser</string>
+    <string name="trip">Voyager</string>
+    <string name="record">Enregistrer</string>
+    <string name="about">À propos</string>
+    <string name="see_picture">Voir la photo</string>
+    <string name="clearing">Clairière</string>
+    <string name="desert">Désert</string>
+    <string name="fields">Champs</string>
+    <string name="garden">Jardin</string>
+    <string name="grasslands">Prairie</string>
+    <string name="hedge">Haie</string>
+    <string name="lake">Lac</string>
+    <string name="mountains">Montagnes</string>
+    <string name="potager">Potager</string>
+    <string name="rainforest">Jungle</string>
+    <string name="temperateforest">Forêt</string>
+</resources>

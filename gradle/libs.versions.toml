@@ -34,6 +34,8 @@ lifecycle = "2.6.2"
 mapbox = "10.6.2"
 mapscaleview = "1.6.0"
 material = "1.9.0"
+minSdk = "23"
+module-graph = "2.5.0"
 moshi = "1.15.0"
 
 navigation = "2.3.5"
@@ -45,6 +47,7 @@ robolectric = "4.3.1"
 room = "2.5.2"
 
 securityCryptoKtx = "1.1.0-alpha06"
+sdk = "33"
 
 test = "1.5.0"
 timber = "5.0.1"
@@ -109,6 +112,11 @@ robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectr
 
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
+# Dependencies of the included build-logic
+android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+ktfmt-gradlePlugin = { module = "com.ncorti.ktfmt.gradle:plugin", version.ref = "ktfmt" }
+
 [bundles]
 coroutines = ["coroutines-core", "coroutines-android"]
 desugar = ["desugar-jdk", "desugar-jdk-nio"]
@@ -127,3 +135,12 @@ kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 ktfmt = { id = "com.ncorti.ktfmt.gradle", version.ref = "ktfmt" }
+module-graph = { id = "com.jraska.module.graph.assertion", version.ref = "module-graph" }
+
+# Plugins defined by this project
+biophonie-android-application = { id = "biophonie.android.application", version = "unspecified" }
+biophonie-android-feature = { id = "biophonie.android.feature", version = "unspecified" }
+biophonie-android-hilt = { id = "biophonie.android.hilt", version = "unspecified" }
+biophonie-android-library = { id = "biophonie.android.library", version = "unspecified" }
+biophonie-android-databinding = { id = "biophonie.android.databinding", version = "unspecified" }
+biophonie-android-buildconfig = { id = "biophonie.android.buildconfig", version = "unspecified" }

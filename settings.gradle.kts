@@ -1,4 +1,5 @@
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google()
         mavenCentral()
@@ -28,11 +29,24 @@ dependencyResolutionManagement {
     }
 }
 
+enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
+
+include(":app")
+include(":core:network")
+include(":core:assets")
+include(":core:ui")
+include(":core:utils")
+include(":core:work")
+include(":data:geopoint")
+include(":data:user")
+include(":feature:addgeopoint")
+include(":feature:exploregeopoints")
+include(":feature:firstlaunch")
+
+rootProject.name = "Biophonie"
+
 // integrate local soundwave dependency
 // requires soundwave PATH to be defined in global gradle.properties extra SOUNDWAVE_DIR
 // TODO: consider moving WaveFormPlayer into this project
 include(":soundwave")
 project(":soundwave").projectDir = File((extra["SOUNDWAVE_DIR"] ?: "") as String)
-
-include(":app")
-rootProject.name = "Biophonie"

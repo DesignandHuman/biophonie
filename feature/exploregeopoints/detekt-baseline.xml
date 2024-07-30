@@ -1,0 +1,9 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <CurrentIssues>
+    <ID>TooManyFunctions:BottomPlayerFragment.kt$BottomPlayerFragment : Fragment</ID>
+    <ID>TooManyFunctions:BottomPlayerViewModel.kt$BottomPlayerViewModel : AndroidViewModel</ID>
+    <ID>TooManyFunctions:MapActivity.kt$MapActivity : FragmentActivityOnMapClickListenerOnCameraChangeListenerOnIndicatorPositionChangedListenerOnMoveListener</ID>
+  </CurrentIssues>
+</SmellBaseline>

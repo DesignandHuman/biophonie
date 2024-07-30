@@ -2,6 +2,22 @@
 
 We welcome participation and contributions from everyone (see [CONTRIBUTING.md](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md)).
 
+# July 1, 2024
+
+## Features ✨ and improvements 🏁
+* modularize Biophonie application
+* add module dependency graphs (generated using `scripts/generateModuleGraphs.sh` from https://github.com/android/nowinandroid/)
+* add documentation for modularization graphs
+* create convention plugins for:
+  * Android Application
+  * Android Library
+  * BuildConfig
+  * Feature
+  * Hilt
+  * Lint
+* refactor TutorialRepository to use a proper UserRepository
+* improve performance of ktfmt hook
+
 # May 1, 2024
 
 ## Features ✨ and improvements 🏁

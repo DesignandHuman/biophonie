@@ -1,18 +1,27 @@
 #!/usr/bin/env bash
 
 echo "Running ktfmt check on staged files..."
-CHANGED_FILES="$(git diff --staged --name-only | tr '\n' ':' )"
+MODULES="$(./gradlew -q modules)"
 OUTPUT="/tmp/ktfmt-$(date +%s)"
-./gradlew --quiet ktfmtPreCommit --include-only="$CHANGED_FILES" > "$OUTPUT"
-EXIT_CODE=$?
-if [ $EXIT_CODE -ne 0 ]; then
-  cat "$OUTPUT"
+for module in $MODULES; do
+  path="${module//://}/"
+  changed_files="$(git diff --staged --name-only "$path" |grep -e "\.kts" -e "\.kt")"
+  if [[ -z $changed_files ]]; then
+    continue
+  fi
+  echo "ktfmt: Inspecting module $module"
+  relative_files="$(echo "$changed_files" | sed "s#^$path##g" | tr '\n' ':')"
+  ./gradlew --quiet "$module":ktfmtPreCommit --include-only="$relative_files" >> "$OUTPUT"
+  EXIT_CODE=$?
+  if [ $EXIT_CODE -ne 0 ]; then
+    cat "$OUTPUT"
+    rm "$OUTPUT"
+    echo "*******************************************************"
+    echo " ktfmt failed in module $module"
+    echo " Please fix the above issues before committing"
+    echo " Tip: run the formatter with './gradlew ktfmtFormat'"
+    echo "*******************************************************"
+    exit $EXIT_CODE
+  fi
   rm "$OUTPUT"
-  echo "*******************************************************"
-  echo "|                    ktfmt failed                     |"
-  echo "| Please fix the above issues before committing       |"
-  echo "| Tip: run the formatter with './gradlew ktfmtFormat' |"
-  echo "*******************************************************"
-  exit $EXIT_CODE
-fi
-rm "$OUTPUT"
+done

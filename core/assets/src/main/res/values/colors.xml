@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <color tools:override="true" name="colorPrimary">#EDEDED</color>
+    <color tools:override="true" name="colorPrimaryDark">#636363</color>
+    <color tools:override="true" name="colorAccent">#000000</color>
+    <color name="pressed_color">#80000000</color>
+    <color name="selected_color">#80EDEDED</color>
+    <color name="focused_color">#80636363</color>
+</resources>

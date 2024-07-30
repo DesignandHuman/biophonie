@@ -5,9 +5,6 @@ import androidx.appcompat.app.AppCompatDelegate
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import dagger.hilt.android.HiltAndroidApp
-import fr.labomg.biophonie.util.AppPrefs
-import fr.labomg.biophonie.util.MyDebugTree
-import fr.labomg.biophonie.util.ReleaseTree
 import javax.inject.Inject
 import timber.log.Timber.Forest.plant
 
@@ -23,6 +20,5 @@ class BiophonieApplication : Application(), Configuration.Provider {
         super.onCreate()
         if (BuildConfig.DEBUG) plant(MyDebugTree()) else plant(ReleaseTree())
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        AppPrefs.setup(this)
     }
 }

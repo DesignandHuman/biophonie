@@ -11,9 +11,8 @@ Tick the correct options.
 - [ ] Bug fix (non-breaking change which fixes an issue)
 - [ ] New feature (non-breaking change which adds functionality)
 - [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-
-Facultative:
 - [ ] This change requires a documentation update
+- [ ] Purely technical refactor
 
 # How Has This Been Tested?
 
@@ -35,3 +34,4 @@ Example:
 - [ ] I have added tests that prove my fix is effective or that my feature works (data+domain layer)
 - [ ] New and existing unit tests pass locally with my changes (data+domain layer)
 - [ ] Any dependent changes have been merged and published in downstream modules
+- [ ] I updated modules graph using `scripts/generateModuleGraphs.sh` if needed

@@ -1,16 +1,14 @@
-import com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask
-
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.detekt) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kapt) apply false
     alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.ktfmt)
+    alias(libs.plugins.ktfmt) apply false
+    alias(libs.plugins.module.graph) apply false
 }
-
-ktfmt { kotlinLangStyle() }
 
 tasks.register<Delete>("clean") { delete(rootProject.layout.buildDirectory) }
 
@@ -28,10 +26,11 @@ tasks.register<Copy>("installGitHooks") {
     }
 }
 
-tasks.register<KtfmtCheckTask>("ktfmtPreCommit") {
-    source = project.fileTree(rootDir)
-    include("**/*.kt")
-    include("**/*.kts")
+tasks.register("modules") {
+    rootProject.subprojects.forEach {
+        if (it.tasks.findByPath("ktfmtPreCommit") != null)
+            println(it.displayName.removePrefix("project ':").removeSuffix("'"))
+    }
 }
 
 afterEvaluate { tasks.getByPath(":app:preBuild").dependsOn(tasks.getByName("installGitHooks")) }

@@ -2,8 +2,8 @@ package fr.labomg.biophonie
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
-import fr.labomg.biophonie.data.source.GeoPointRepository
-import fr.labomg.biophonie.viewmodels.BottomPlayerViewModel
+import fr.labomg.biophonie.data.user.source.UserRepository
+import fr.labomg.biophonie.feature.exploregeopoints.BottomPlayerViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -17,7 +17,7 @@ class BottomPlayerViewModelTest {
     @Before
     fun setupViewModel() {
         // TODO get database
-        val repository = GeoPointRepository()
+        val repository = UserRepository()
 
         viewModel = BottomPlayerViewModel(ApplicationProvider.getApplicationContext())
     }

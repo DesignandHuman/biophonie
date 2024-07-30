@@ -1,0 +1,3 @@
+-keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.core.network.ResultCall {*;}
+-keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.core.network.ResultCallAdapterFactory {*;}
+-keep,allowobfuscation,allowshrinking public class kotlin.Result {*;}

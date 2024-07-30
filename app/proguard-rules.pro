@@ -24,13 +24,13 @@
 # kept. Suspend functions are wrapped in continuations where the type argument
 # is used.
 -keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
--keepclassmembers class fr.labomg.biophonie.data.source.remote.NetworkUser {
+-keepclassmembers class fr.labomg.biophonie.data.user.source.remote.User {
   @com.squareup.moshi.FromJson *;
   @com.squareup.moshi.ToJson *;
 }
 
--keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.data.source.ResultCall {*;}
--keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.data.source.ResultCallAdapterFactory {*;}
+-keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.core.network.ResultCall {*;}
+-keep,allowobfuscation,allowshrinking public class fr.labomg.biophonie.core.network.ResultCallAdapterFactory {*;}
 -keep,allowobfuscation,allowshrinking public class kotlin.Result {*;}
 
 # solves issue with xml inflation with `app:` parameters
