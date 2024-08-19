@@ -20,21 +20,27 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="true"
         android:theme="@style/AppTheme"
+        android:enableOnBackInvokedCallback="true"
         tools:replace="android:theme">
-        <activity android:name=".feature.addgeopoint.RecSoundActivity"
-            android:windowSoftInputMode="adjustResize"
-            android:resizeableActivity="false"/>
-        <activity android:name=".feature.firstlaunch.TutorialActivity"
-            android:windowSoftInputMode="adjustResize"/>
-        <activity android:name=".feature.exploregeopoints.MapActivity"
+        <activity android:name=".MainActivity"
             android:theme="@style/SplashTheme"
             android:foregroundServiceType="location"
             android:exported="true" >
+
+            <nav-graph android:value="@navigation/main_navigation" />
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name="fr.labomg.biophonie.feature.addgeopoint.AddActivity"
+            android:exported="false" >
+
+            <nav-graph android:value="@navigation/nested_add_navigation" />
+
         </activity>
 
         <!-- FileProvider used inside :feature:addgeopoint to record data -->

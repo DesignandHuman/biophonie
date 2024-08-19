@@ -2,20 +2,24 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/nav_graph"
-    app:startDestination="@id/recordingFragment">
+    android:id="@+id/add_nav_graph"
+    app:startDestination="@id/record_dest">
 
     <fragment
-        android:id="@+id/recordingFragment"
+        android:id="@+id/record_dest"
         android:name="fr.labomg.biophonie.feature.addgeopoint.RecorderFragment"
-        android:label="fragment_recording"
-        tools:layout="@layout/fragment_recording" >
+        android:label="@string/fragment_recording"
+        tools:layout="@layout/fragment_recording">
+        
         <action
             android:id="@+id/action_recordingFragment_to_galleryFragment"
-            app:enterAnim="@android:anim/fade_in"
-            app:exitAnim="@android:anim/fade_out"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"
             app:destination="@id/galleryFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/galleryFragment"
         android:name="fr.labomg.biophonie.feature.addgeopoint.GalleryFragment"
@@ -23,13 +27,18 @@
         tools:layout="@layout/fragment_gallery" >
         <action
             android:id="@+id/action_galleryFragment_to_titleFragment"
-            app:enterAnim="@android:anim/fade_in"
-            app:exitAnim="@android:anim/fade_out"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@android:anim/slide_in_left"
+            app:popExitAnim="@android:anim/slide_out_right"
             app:destination="@id/titleFragment" />
     </fragment>
+
     <fragment
         android:id="@+id/titleFragment"
         android:name="fr.labomg.biophonie.feature.addgeopoint.TitleFragment"
         android:label="fragment_title"
-        tools:layout="@layout/fragment_title" />
+        tools:layout="@layout/fragment_title">
+    </fragment>
+
 </navigation>

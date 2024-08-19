@@ -36,5 +36,5 @@ constructor(
         return Result.success(user)
     }
 
-    override fun isUserConnected(): Boolean = (AppPrefs.userName == null)
+    override fun isUserConnected(): Boolean = (AppPrefs.userName != null)
 }

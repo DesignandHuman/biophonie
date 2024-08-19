@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/firstlaunch_navigation"
+    app:startDestination="@id/tutorial_fragment">
+
+    <fragment
+        android:id="@+id/tutorial_fragment"
+        android:name="fr.labomg.biophonie.feature.firstlaunch.TutorialFragment">
+
+        <deepLink app:uri="android-app://fr.labomg.biophonie/firstlaunch" />
+
+    </fragment>
+
+</navigation>

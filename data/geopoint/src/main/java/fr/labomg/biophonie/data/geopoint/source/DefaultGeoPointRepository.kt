@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
 import fr.labomg.biophonie.core.assets.templates
+import fr.labomg.biophonie.core.network.di.IoDispatcher
 import fr.labomg.biophonie.core.network.di.LocalDataSource
 import fr.labomg.biophonie.core.network.di.RemoteDataSource
 import fr.labomg.biophonie.data.geopoint.Coordinates
@@ -17,7 +18,9 @@ import javax.inject.Inject
 import kotlin.io.path.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.moveTo
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -26,6 +29,8 @@ private const val COMPRESSION_PERCENTAGE = 75
 class DefaultGeoPointRepository
 @Inject
 constructor(
+    private val externalScope: CoroutineScope,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     @RemoteDataSource private val geoPointRemoteDataSource: GeoPointDataSource,
     @LocalDataSource private val geoPointLocalDataSource: GeoPointDataSource
 ) : GeoPointRepository {
@@ -39,7 +44,7 @@ constructor(
     override suspend fun saveAssetsInStorage(geoPoint: GeoPoint, dataPath: String) {
         val soundPath = Path(geoPoint.sound.local!!)
         val targetSound = Path(dataPath).resolve(soundPath.fileName)
-        withContext(Dispatchers.IO) { soundPath.moveTo(targetSound) }
+        withContext(ioDispatcher) { soundPath.moveTo(targetSound) }
         geoPoint.sound.local = targetSound.absolutePathString()
 
         if (geoPoint.picture.local != null) {
@@ -55,7 +60,7 @@ constructor(
     private suspend fun convertToWebp(imagePath: Path, dataPath: String): String {
         val compressedImage =
             File(dataPath, imagePath.fileName.toString().replaceAfter('.', "webp"))
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 compressedImage.createNewFile()
             } catch (e: IOException) {
@@ -67,7 +72,7 @@ constructor(
     }
 
     private suspend fun compressPicture(input: String, output: File) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val picture: Bitmap
             val out: FileOutputStream
             try {
@@ -103,10 +108,15 @@ constructor(
     override suspend fun getUnavailableGeoPoints(): List<GeoPoint> =
         geoPointLocalDataSource.getUnavailableGeoPoints()
 
-    override suspend fun saveNewGeoPoint(geoPoint: GeoPoint, dataPath: String): Result<GeoPoint> {
-        saveAssetsInStorage(geoPoint, dataPath)
-        return geoPointLocalDataSource.addGeoPoint(geoPoint, true)
-    }
+    override suspend fun saveNewGeoPoint(geoPoint: GeoPoint, dataPath: String): Result<GeoPoint> =
+        withContext(ioDispatcher) {
+            return@withContext externalScope
+                .async {
+                    saveAssetsInStorage(geoPoint, dataPath)
+                    geoPointLocalDataSource.addGeoPoint(geoPoint, true)
+                }
+                .await()
+        }
 
     override suspend fun addNewGeoPoints(): Boolean {
         var success = true

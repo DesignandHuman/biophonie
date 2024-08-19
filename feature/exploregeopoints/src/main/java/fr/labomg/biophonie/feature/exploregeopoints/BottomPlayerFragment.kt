@@ -12,18 +12,13 @@ import androidx.annotation.VisibleForTesting
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.vectordrawable.graphics.drawable.Animatable2Compat
 import androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.mapbox.geojson.Point
 import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.core.ui.ScreenMetricsCompat
-import fr.labomg.biophonie.data.geopoint.Coordinates
 import fr.labomg.biophonie.feature.exploregeopoints.databinding.FragmentBottomPlayerBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class BottomPlayerFragment : Fragment() {
@@ -32,12 +27,12 @@ class BottomPlayerFragment : Fragment() {
     private var animationDuration: Int = 0
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val viewModel: BottomPlayerViewModel by viewModels()
+    val viewModel: ExploreViewModel by activityViewModels()
     private var _binding: FragmentBottomPlayerBinding? = null
     private val binding
         get() = _binding!!
 
-    lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
+    private lateinit var bottomSheetBehavior: BottomSheetBehavior<*>
     private var progressBarAnimation: AnimatedVectorDrawableCompat? = null
 
     override fun onCreateView(
@@ -47,11 +42,7 @@ class BottomPlayerFragment : Fragment() {
     ): View {
         _binding =
             DataBindingUtil.inflate(inflater, R.layout.fragment_bottom_player, container, false)
-        binding.viewModel =
-            viewModel.apply {
-                // TODO(run that somehow on another thread or not ?)
-                setPlayerController(binding.playerView)
-            }
+        binding.viewModel = viewModel.apply { setPlayerController(binding.playerView) }
         binding.lifecycleOwner = viewLifecycleOwner
 
         bottomSheetBehavior = BottomSheetBehavior.from(binding.root)
@@ -62,7 +53,7 @@ class BottomPlayerFragment : Fragment() {
         setPeekHeight()
         setProgressBarPosition()
 
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+        hideBottomPlayer()
         animationDuration = resources.getInteger(android.R.integer.config_mediumAnimTime)
         progressBarAnimation =
             AnimatedVectorDrawableCompat.create(requireContext(), R.drawable.loader).apply {
@@ -99,14 +90,12 @@ class BottomPlayerFragment : Fragment() {
                 else screenHeight / THIRD_SCREEN_RATIO
         }
         binding.apply {
-            CoroutineScope(Dispatchers.Main).launch {
-                pin.translationY = -root.top.toFloat()
-                errorMessage.translationY = -root.top.toFloat() / HALF_THIRD_SCREEN_RATIO
-                retryFab.translationY = -root.top.toFloat() / HALF_THIRD_SCREEN_RATIO
-                progressBar.translationY = -root.top.toFloat() / HALF_SCREEN_RATIO
-                if (imageDisplayed) updateViewMargins(soundImage, root.top)
-                else updateViewMargins(playerView, root.top)
-            }
+            pin.translationY = -root.top.toFloat()
+            errorMessage.translationY = -root.top.toFloat() / HALF_THIRD_SCREEN_RATIO
+            retryFab.translationY = -root.top.toFloat() / HALF_THIRD_SCREEN_RATIO
+            progressBar.translationY = -root.top.toFloat() / HALF_SCREEN_RATIO
+            if (imageDisplayed) updateViewMargins(soundImage, root.top)
+            else updateViewMargins(playerView, root.top)
         }
     }
 
@@ -116,7 +105,7 @@ class BottomPlayerFragment : Fragment() {
     }
 
     private fun onExpand() {
-        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        expandBottomPlayer()
         if (!imageDisplayed) {
             displayImage()
         } else {
@@ -150,8 +139,7 @@ class BottomPlayerFragment : Fragment() {
                             binding.playerView.apply { requestLayout() }.layoutParams.height = 0
                         }
                         BottomSheetBehavior.STATE_HIDDEN -> {
-                            (activity as? MapActivity)?.onBottomSheetClose()
-                            viewModel.stopPlaylist()
+                            viewModel.unselect()
                         }
                         else -> binding.close.setImageResource(R.drawable.ic_close)
                     }
@@ -166,20 +154,11 @@ class BottomPlayerFragment : Fragment() {
         view.layoutParams = params
     }
 
-    fun clickOnGeoPoint(id: Int) {
-        viewModel.setGeoPointQuery(id, true)
-    }
-
-    fun displayClosestGeoPoint(coord: Coordinates) {
-        viewModel.displayClosestGeoPoint(coord)
-    }
-
     private fun setUpObservers() {
         viewModel.leftClickable.observe(viewLifecycleOwner) { binding.left.isEnabled = it }
         viewModel.rightClickable.observe(viewLifecycleOwner) { binding.right.isEnabled = it }
-        viewModel.bottomSheetState.observe(viewLifecycleOwner) { bottomSheetBehavior.state = it }
         viewModel.event.observe(viewLifecycleOwner) {
-            if (it == BottomPlayerViewModel.Event.LOADING) {
+            if (it == ExploreViewModel.Event.LOADING) {
                 if (imageDisplayed) {
                     displayWaveForm()
                     imageDisplayed = false
@@ -192,21 +171,13 @@ class BottomPlayerFragment : Fragment() {
             }
         }
         viewModel.geoPoint.observe(viewLifecycleOwner) {
-            it?.let {
-                (activity as? MapActivity)?.selectPoint(
-                    Point.fromLngLat(it.coordinates.longitude, it.coordinates.latitude),
-                    viewModel.geoPointId.value!!
-                )
-            }
+            if (it != null) showBottomPlayer() else hideBottomPlayer()
         }
     }
 
     private fun onClose() {
-        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED)
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
-        else {
-            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
-        }
+        if (bottomSheetBehavior.state == BottomSheetBehavior.STATE_EXPANDED) collapseBottomPlayer()
+        else hideBottomPlayer()
     }
 
     private fun crossFade(fadeIn: View, fadeOut: View) {
@@ -265,6 +236,22 @@ class BottomPlayerFragment : Fragment() {
         progressBarAnimation = null
         _binding = null
         viewModel.destroyController()
+    }
+
+    private fun collapseBottomPlayer() {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_COLLAPSED
+    }
+
+    private fun showBottomPlayer() {
+        collapseBottomPlayer()
+    }
+
+    private fun expandBottomPlayer() {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+    }
+
+    private fun hideBottomPlayer() {
+        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
     }
 
     companion object {

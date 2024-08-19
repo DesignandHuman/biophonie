@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="fr.labomg.biophonie.feature.exploregeopoints.BottomPlayerViewModel" />
+            type="fr.labomg.biophonie.feature.exploregeopoints.ExploreViewModel" />
         <import type="android.view.View" />
     </data>
 
@@ -73,7 +73,7 @@
             android:src="@drawable/ic_reload"
             android:focusable="true"
             android:clickable="true"
-            android:onClick="@{() -> viewModel.onRetry()}"
+            android:onClick="@{() -> viewModel.retry()}"
             android:layout_marginBottom="15dp"
             app:layout_constraintBottom_toTopOf="@id/error_message"
             app:layout_constraintStart_toStartOf="@id/error_message"
@@ -134,7 +134,7 @@
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/left"
-                android:onClick="@{() -> viewModel.onLeftClick()}"
+                android:onClick="@{() -> viewModel.previousGeoPoint()}"
                 android:background="@drawable/border_top"
                 android:clickable="true"
                 android:focusable="true"
@@ -163,7 +163,7 @@
 
             <androidx.appcompat.widget.AppCompatImageButton
                 android:id="@+id/right"
-                android:onClick="@{() -> viewModel.onRightClick()}"
+                android:onClick="@{() -> viewModel.nextGeoPoint()}"
                 android:clickable="true"
                 android:focusable="true"
                 android:background="@drawable/border_top"

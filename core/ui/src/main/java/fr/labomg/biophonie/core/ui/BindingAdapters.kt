@@ -1,19 +1,41 @@
-package fr.labomg.biophonie.feature.exploregeopoints
+package fr.labomg.biophonie.core.ui
 
+import android.net.Uri
 import android.text.SpannableStringBuilder
+import android.view.View
 import android.widget.TextView
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.text.bold
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.android.material.textfield.TextInputLayout
 import fr.haran.soundwave.ui.PlayerView
 import fr.labomg.biophonie.core.assets.templates
+import fr.labomg.biophonie.data.geopoint.BuildConfig
 import fr.labomg.biophonie.data.geopoint.Resource
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
+
+@BindingAdapter("uri")
+fun setImageUri(view: AppCompatImageView, imageUri: Uri?) {
+    imageUri?.let {
+        Glide.with(view.context)
+            .load(it)
+            .transition(DrawableTransitionOptions.withCrossFade())
+            .into(view)
+    }
+}
+
+@BindingAdapter("uri_thumbnail")
+fun setImageUriThumbnail(view: AppCompatImageView, imageUri: Uri?) {
+    imageUri?.let {
+        view.visibility = View.VISIBLE
+        setImageUri(view, imageUri)
+    }
+}
 
 @BindingAdapter("date")
 fun setDate(view: TextView, date: Instant?) {
@@ -70,4 +92,9 @@ fun setImageResource(view: AppCompatImageView, picture: Resource?) {
 @BindingAdapter("amplitudes")
 fun setAmplitudes(view: PlayerView, amplitudes: List<Float>?) {
     amplitudes?.let { view.setAmplitudes(amplitudes) }
+}
+
+@BindingAdapter("errorText")
+fun setErrorText(view: TextInputLayout, text: String?) {
+    view.error = text
 }

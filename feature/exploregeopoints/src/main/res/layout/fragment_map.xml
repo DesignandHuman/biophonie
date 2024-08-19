@@ -7,14 +7,14 @@
     <data>
         <variable
             name="viewModel"
-            type="fr.labomg.biophonie.feature.exploregeopoints.MapViewModel" />
+            type="fr.labomg.biophonie.feature.exploregeopoints.ExploreViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.activities.MapActivity"
-        android:id="@+id/containerMap">
+        tools:context=".MapFragment"
+        android:id="@+id/fragment_map">
 
         <com.mapbox.maps.MapView
             android:id="@+id/mapView"
@@ -23,10 +23,6 @@
             app:mapbox_cameraTargetLat="46.298657"
             app:mapbox_cameraTargetLng="2.574455"
             app:mapbox_cameraZoom="4"/>
-        <!--mapbox:mapbox_cameraBearing="34.33"
-        mapbox:mapbox_cameraTilt="50.25"
-        mapbox:mapbox_cameraZoomMax="12.41"
-        mapbox:mapbox_cameraZoomMin="6"-->
 
         <com.github.pengrad.mapscaleview.MapScaleView
             android:id="@+id/scaleView"

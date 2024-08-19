@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="113pt" height="116pt" viewBox="0.00 0.00 113.12 116.00">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="118pt" height="116pt" viewBox="0.00 0.00 117.87 116.00">
   <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 112)">
     <title>G</title>
-    <polygon fill="white" stroke="none" points="-4,4 -4,-112 109.12,-112 109.12,4 -4,4"/>
+    <polygon fill="white" stroke="none" points="-4,4 -4,-112 113.87,-112 113.87,4 -4,4"/>
     <g id="node1" class="node">
       <title>:core:assets</title>
-      <ellipse fill="none" stroke="black" cx="52.56" cy="-90" rx="52.06" ry="18"/>
-      <text text-anchor="middle" x="52.56" y="-84.58" font-family="Times,serif" font-size="14.00">:core:assets</text>
+      <ellipse fill="none" stroke="black" cx="54.93" cy="-90" rx="53.4" ry="18"/>
+      <text text-anchor="middle" x="54.93" y="-84.95" font-family="Times,serif" font-size="14.00">:core:assets</text>
     </g>
     <g id="node2" class="node">
       <title>:soundwave</title>
-      <ellipse fill="none" stroke="black" cx="52.56" cy="-18" rx="52.56" ry="18"/>
-      <text text-anchor="middle" x="52.56" y="-12.57" font-family="Times,serif" font-size="14.00">:soundwave</text>
+      <ellipse fill="none" stroke="black" cx="54.93" cy="-18" rx="54.93" ry="18"/>
+      <text text-anchor="middle" x="54.93" y="-12.95" font-family="Times,serif" font-size="14.00">:soundwave</text>
     </g>
     <g id="edge1" class="edge">
       <title>:core:assets-&gt;:soundwave</title>
-      <path fill="none" stroke="red" stroke-width="2" d="M52.56,-71.7C52.56,-64.41 52.56,-55.73 52.56,-47.54"/>
-      <polygon fill="red" stroke="red" stroke-width="2" points="56.06,-49.13 52.56,-39.13 49.06,-49.13 56.06,-49.13"/>
+      <path fill="none" stroke="red" stroke-width="2" d="M54.93,-71.7C54.93,-64.41 54.93,-55.73 54.93,-47.54"/>
+      <polygon fill="red" stroke="red" stroke-width="2" points="58.43,-49.13 54.93,-39.13 51.43,-49.13 58.43,-49.13"/>
     </g>
   </g>
 </svg>

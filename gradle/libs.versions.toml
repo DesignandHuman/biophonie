@@ -38,7 +38,7 @@ minSdk = "23"
 module-graph = "2.5.0"
 moshi = "1.15.0"
 
-navigation = "2.3.5"
+navigation = "2.5.3"
 
 okhttp = "4.11.0"
 
@@ -129,6 +129,7 @@ remote = ["retrofit", "moshi", "moshi-kotlin", "converter-moshi", "logging-inter
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
 android-library = { id = "com.android.library", version.ref = "androidGradlePlugin" }
+androidx-navigationSafeArgs = { id = "androidx.navigation.safeargs.kotlin", version.ref = "navigation" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }

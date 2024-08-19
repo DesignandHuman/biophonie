@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.biophonie.android.feature)
     alias(libs.plugins.biophonie.android.buildconfig)
+    alias(libs.plugins.androidx.navigationSafeArgs)
 }
 
 android {
@@ -16,6 +17,7 @@ android {
 dependencies {
     implementation(projects.core.assets)
     implementation(projects.core.ui)
+    implementation(projects.data.geopoint)
     implementation(projects.data.user)
     implementation(projects.soundwave)
 

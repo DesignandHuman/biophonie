@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.liveData
 import androidx.lifecycle.switchMap
-import com.google.android.material.bottomsheet.BottomSheetBehavior
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.haran.soundwave.controller.DefaultPlayerController
@@ -20,32 +20,29 @@ import fr.labomg.biophonie.core.network.NotFoundThrowable
 import fr.labomg.biophonie.data.geopoint.Coordinates
 import fr.labomg.biophonie.data.geopoint.GeoPoint
 import fr.labomg.biophonie.data.geopoint.source.GeoPointRepository
+import fr.labomg.biophonie.data.user.source.UserRepository
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
-class BottomPlayerViewModel
+class ExploreViewModel
 @Inject
-constructor(private val repository: GeoPointRepository, @ApplicationContext appContext: Context) :
-    AndroidViewModel(appContext as Application) {
+constructor(
+    private val geoPointRepository: GeoPointRepository,
+    private val userRepository: UserRepository,
+    @ApplicationContext appContext: Context
+) : AndroidViewModel(appContext as Application) {
     private var currentIndex = 0
     private var lastLocation: Coordinates? = null
     private var isFetchingClose = false
     private var playerController: DefaultPlayerController? = null
 
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    val geoPointId = MutableLiveData<Int>()
-
-    private val _bottomSheetState = MutableLiveData<Int>()
-    val bottomSheetState: LiveData<Int>
-        get() = _bottomSheetState
+    val geoPointId = MutableLiveData<Int?>()
 
     private val _event = MutableLiveData<Event>()
     val event: LiveData<Event>
@@ -63,15 +60,20 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
     val rightClickable: LiveData<Boolean>
         get() = _rightClickable
 
-    private val viewModelJob = SupervisorJob()
-    private val viewModelScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+    private val _newGeoPoints = MutableLiveData<List<GeoPoint>>()
+    val newGeoPoints = _newGeoPoints
+
     val geoPoint: LiveData<GeoPoint?> =
         geoPointId.switchMap { id ->
             liveData {
+                if (id == null) {
+                    emit(null)
+                    return@liveData
+                }
                 _event.value = Event.LOADING
                 isFetchingClose = false
                 lastLocation = null
-                repository
+                geoPointRepository
                     .fetchGeoPoint(id)
                     .onSuccess {
                         _event.value = Event.SUCCESS
@@ -96,6 +98,14 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
 
     private var passedIds: Array<Int> = arrayOf()
 
+    init {
+        refreshUnavailableGeoPoints()
+    }
+
+    fun refreshUnavailableGeoPoints() {
+        viewModelScope.launch { _newGeoPoints.value = geoPointRepository.getUnavailableGeoPoints() }
+    }
+
     fun setPlayerController(view: PlayerView) {
         playerController =
             DefaultPlayerController(view, getApplication<Application>().cacheDir.absolutePath)
@@ -114,7 +124,7 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
                 }
     }
 
-    fun onRetry() {
+    fun retry() {
         _eventNetworkError.value = null
         _event.value = Event.LOADING
         if (isFetchingClose && lastLocation != null) displayClosestGeoPoint(lastLocation!!)
@@ -123,14 +133,14 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
         }
     }
 
-    fun onLeftClick() {
+    fun previousGeoPoint() {
         currentIndex--
         geoPointId.value = passedIds[currentIndex]
         _rightClickable.value = true
     }
 
-    fun onRightClick() {
-        if (currentIndex <= passedIds.size - 1) displayClosestGeoPoint(geoPoint.value!!.coordinates)
+    fun nextGeoPoint() {
+        if (currentIndex >= passedIds.size - 1) displayClosestGeoPoint(geoPoint.value!!.coordinates)
         else {
             currentIndex++
             geoPointId.value = passedIds[currentIndex]
@@ -139,12 +149,11 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
 
     fun displayClosestGeoPoint(coordinates: Coordinates) {
         _event.value = Event.LOADING
-        _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         isFetchingClose = true
         lastLocation = coordinates
         pauseController()
         viewModelScope.launch {
-            repository
+            geoPointRepository
                 .getClosestGeoPointId(coordinates, passedIds)
                 .onSuccess {
                     currentIndex++
@@ -156,8 +165,7 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
                     _event.value = Event.FAILURE
                     when (it) {
                         is NotFoundThrowable -> {
-                            _eventNetworkError.value =
-                                "Vous avez écouté tous les points disponibles"
+                            _eventNetworkError.value = "Vous avez écouté tous les sons en ligne"
                             _rightClickable.value = false
                         }
                         is InternalErrorThrowable ->
@@ -170,7 +178,7 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
         }
     }
 
-    fun stopPlaylist() {
+    private fun stopPlaylist() {
         passedIds = arrayOf()
         _rightClickable.value = true
         currentIndex = 0
@@ -213,7 +221,6 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
     }
 
     fun setGeoPointQuery(id: Int, resetPlaylist: Boolean) {
-        _bottomSheetState.value = BottomSheetBehavior.STATE_COLLAPSED
         pauseController()
         if (geoPoint.value?.remoteId == id && _event.value != Event.FAILURE) return
         geoPointId.value = id
@@ -227,6 +234,13 @@ constructor(private val repository: GeoPointRepository, @ApplicationContext appC
     fun destroyController() {
         playerController?.destroyPlayer()
         playerController = null
+    }
+
+    fun isUserConnected(): Boolean = userRepository.isUserConnected()
+
+    fun unselect() {
+        geoPointId.value = null
+        stopPlaylist()
     }
 
     enum class Event {

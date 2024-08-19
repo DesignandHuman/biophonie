@@ -31,30 +31,52 @@ class TutoMapFragment : Fragment(), FirstLaunchFragments {
         (view?.findViewById<AppCompatImageView>(R.id.map_image)?.drawable as AnimatedVectorDrawable)
             .start()
     }
+
+    override fun onPause() {
+        super.onPause()
+        (view?.findViewById<AppCompatImageView>(R.id.map_image)?.drawable as AnimatedVectorDrawable)
+            .reset()
+    }
 }
 
 class TutoDetailsFragment : Fragment(), FirstLaunchFragments {
+
+    private lateinit var animator: ObjectAnimator
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View = inflater.inflate(R.layout.fragment_tuto_details, container, false)
+    ): View {
+        val view = inflater.inflate(R.layout.fragment_tuto_details, container, false)
+        initAnimator(view)
+        return view
+    }
 
-    override fun animate() {
-        val fab = view?.findViewById<FloatingActionButton>(R.id.play)
-        fab?.visibility = View.INVISIBLE
-        val clipDrawable = view?.findViewById<AppCompatImageView>(R.id.details_image)?.drawable
-        ObjectAnimator.ofInt(clipDrawable, "level", 0, ANIMATION_DURATION).apply {
+    private fun initAnimator(view: View) {
+        val clipDrawable = view.findViewById<AppCompatImageView>(R.id.details_image)?.drawable
+        animator = ObjectAnimator.ofInt(clipDrawable, "level", 0, ANIMATION_DURATION)
+        animator.apply {
             duration = FADE_IN_DURATION
             addListener(
                 object : AnimatorListenerAdapter() {
                     override fun onAnimationEnd(animation: Animator) {
-                        fab?.fadeIn()
+                        view.findViewById<FloatingActionButton>(R.id.play)?.fadeIn()
                     }
                 }
             )
-            start()
         }
+    }
+
+    override fun animate() {
+        animator.start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        animator.cancel()
+        view?.findViewById<FloatingActionButton>(R.id.play)?.visibility = View.INVISIBLE
+        view?.findViewById<AppCompatImageView>(R.id.details_image)?.drawable?.level = 0
     }
 
     companion object {
@@ -93,6 +115,16 @@ class TutoLocationFragment : Fragment(), FirstLaunchFragments {
                 as AnimatedVectorDrawable)
             .start()
     }
+
+    override fun onPause() {
+        super.onPause()
+        (view?.findViewById<View>(R.id.separator))?.visibility = View.INVISIBLE
+        (view?.findViewById<View>(R.id.trip))?.visibility = View.INVISIBLE
+        (view?.findViewById<View>(R.id.location))?.visibility = View.INVISIBLE
+        (view?.findViewById<AppCompatImageView>(R.id.background_location)?.background
+                as AnimatedVectorDrawable)
+            .reset()
+    }
 }
 
 interface FirstLaunchFragments {
@@ -110,6 +142,13 @@ class TutoRecordFragment : Fragment(), FirstLaunchFragments {
         (view?.findViewById<AppCompatImageView>(R.id.background_rec)?.drawable
                 as AnimatedVectorDrawable)
             .start()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        (view?.findViewById<AppCompatImageView>(R.id.background_rec)?.drawable
+                as AnimatedVectorDrawable)
+            .reset()
     }
 }
 
@@ -130,6 +169,7 @@ class TutoNameFragment : Fragment() {
         binding.viewModel = viewModel
         binding.lifecycleOwner = viewLifecycleOwner
         binding.nameEditText.setFiltersOnEditText(strict = true)
+        viewModel.warning.observe(viewLifecycleOwner) { binding.name.error = it }
         return binding.root
     }
 

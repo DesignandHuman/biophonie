@@ -3,7 +3,7 @@
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>TooManyFunctions:BottomPlayerFragment.kt$BottomPlayerFragment : Fragment</ID>
-    <ID>TooManyFunctions:BottomPlayerViewModel.kt$BottomPlayerViewModel : AndroidViewModel</ID>
-    <ID>TooManyFunctions:MapActivity.kt$MapActivity : FragmentActivityOnMapClickListenerOnCameraChangeListenerOnIndicatorPositionChangedListenerOnMoveListener</ID>
+    <ID>TooManyFunctions:ExploreViewModel.kt$ExploreViewModel : AndroidViewModel</ID>
+    <ID>TooManyFunctions:MapFragment.kt$MapFragment : FragmentOnMapClickListenerOnCameraChangeListenerOnIndicatorPositionChangedListenerOnMoveListener</ID>
   </CurrentIssues>
 </SmellBaseline>
