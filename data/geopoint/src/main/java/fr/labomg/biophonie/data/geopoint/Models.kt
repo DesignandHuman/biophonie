@@ -15,9 +15,21 @@ data class GeoPoint(
     var sound: Resource
 )
 
+data class NewGeoPoint(
+    val title: String,
+    val date: String,
+    val amplitudes: List<Int>,
+    var coordinates: Coordinates?,
+    val soundPath: String,
+    val landscapePath: String,
+    val templatePath: String
+)
+
 data class Resource(var remote: String? = null, var local: String? = null)
 
 data class Coordinates(val latitude: Double, val longitude: Double) {
+    constructor(latitude: Float, longitude: Float) : this(latitude.toDouble(), longitude.toDouble())
+
     override fun toString() =
         LocationConverter.latitudeAsDMS(latitude, 2) +
             LocationConverter.longitudeAsDMS(longitude, 2)

@@ -6,11 +6,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.DialogFragment
 import fr.labomg.biophonie.feature.exploregeopoints.databinding.FragmentAboutBinding
 
-class AboutFragment : Fragment() {
+class AboutDialog : DialogFragment() {
 
     private var _binding: FragmentAboutBinding? = null
     private val binding
@@ -27,19 +28,18 @@ class AboutFragment : Fragment() {
         return binding.root
     }
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(MATCH_PARENT, MATCH_PARENT)
+    }
+
     private fun setUpClickListeners() {
         binding.link.setOnClickListener {
             val uriUrl: Uri = Uri.parse("http://labo.mg")
             val launchBrowser = Intent(Intent.ACTION_VIEW, uriUrl)
             startActivity(launchBrowser)
         }
-        binding.close.setOnClickListener {
-            activity
-                ?.supportFragmentManager
-                ?.beginTransaction()
-                ?.remove(this)
-                ?.commitAllowingStateLoss()
-        }
+        binding.close.setOnClickListener { dismiss() }
     }
 
     override fun onDestroyView() {

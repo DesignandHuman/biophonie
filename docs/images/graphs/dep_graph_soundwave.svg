@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="113pt" height="44pt" viewBox="0.00 0.00 113.12 44.00">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="118pt" height="44pt" viewBox="0.00 0.00 117.87 44.00">
   <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
     <title>G</title>
-    <polygon fill="white" stroke="none" points="-4,4 -4,-40 109.12,-40 109.12,4 -4,4"/>
+    <polygon fill="white" stroke="none" points="-4,4 -4,-40 113.87,-40 113.87,4 -4,4"/>
     <g id="node1" class="node">
       <title>:soundwave</title>
-      <ellipse fill="none" stroke="black" cx="52.56" cy="-18" rx="52.56" ry="18"/>
-      <text text-anchor="middle" x="52.56" y="-12.57" font-family="Times,serif" font-size="14.00">:soundwave</text>
+      <ellipse fill="none" stroke="black" cx="54.93" cy="-18" rx="54.93" ry="18"/>
+      <text text-anchor="middle" x="54.93" y="-12.95" font-family="Times,serif" font-size="14.00">:soundwave</text>
     </g>
   </g>
 </svg>

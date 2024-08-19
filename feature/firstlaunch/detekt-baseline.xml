@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>TooManyFunctions:TutorialActivity.kt$TutorialActivity : FragmentActivityOnGlobalLayoutListener</ID>
+    <ID>TooManyFunctions:TutorialFragment.kt$TutorialFragment : FragmentOnGlobalLayoutListener</ID>
   </CurrentIssues>
 </SmellBaseline>

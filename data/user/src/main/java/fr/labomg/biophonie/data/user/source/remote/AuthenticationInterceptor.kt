@@ -2,14 +2,14 @@ package fr.labomg.biophonie.data.user.source.remote
 
 import fr.labomg.biophonie.core.network.addAuthorizationHeader
 import fr.labomg.biophonie.data.user.source.UserRepository
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 @Singleton
 class AuthenticationInterceptor @Inject constructor(private val userRepository: UserRepository) :

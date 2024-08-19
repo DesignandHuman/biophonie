@@ -1,13 +1,14 @@
 package fr.labomg.biophonie.feature.firstlaunch
 
-import android.content.Intent
 import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.ViewTreeObserver
-import androidx.activity.viewModels
+import androidx.activity.addCallback
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.content.ContextCompat
@@ -15,7 +16,8 @@ import androidx.core.content.res.ResourcesCompat
 import androidx.core.view.postDelayed
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
@@ -25,7 +27,7 @@ import androidx.work.WorkManager
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.core.work.ClearCacheWorker
-import fr.labomg.biophonie.feature.firstlaunch.databinding.ActivityTutorialBinding
+import fr.labomg.biophonie.feature.firstlaunch.databinding.FragmentTutorialBinding
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -34,21 +36,23 @@ import java.util.concurrent.TimeUnit
 private const val ANIMATION_DELAY = 100L
 
 @AndroidEntryPoint
-class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutListener {
+class TutorialFragment : Fragment(), ViewTreeObserver.OnGlobalLayoutListener {
 
-    private val viewModel: TutorialViewModel by viewModels()
+    private val viewModel: TutorialViewModel by activityViewModels()
     private var keyboardShown = false
-    private lateinit var binding: ActivityTutorialBinding
-    private val adapter = TutorialPagerAdapter(this)
+    private lateinit var binding: FragmentTutorialBinding
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = DataBindingUtil.setContentView(this, R.layout.activity_tutorial)
-
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        binding = DataBindingUtil.inflate(inflater, R.layout.fragment_tutorial, container, false)
         setUpViewPager()
         setUpListeners()
         setUpDataObservers()
         setUpClearCacheWorker()
+        return binding.root
     }
 
     private fun setUpListeners() {
@@ -62,27 +66,26 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 }
             }
         }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner) {
+            if (binding.pager.currentItem == 0) {
+                requireActivity().finish()
+            } else {
+                binding.pager.setCurrentItem(binding.pager.currentItem - 1, true)
+            }
+        }
     }
 
     private fun setUpDataObservers() {
-        viewModel.shouldStartActivity.observe(this) {
+        viewModel.shouldStartExploring.observe(viewLifecycleOwner) {
             if (it) {
-                startActivity(
-                    Intent().apply {
-                        setClassName(
-                            this@TutorialActivity,
-                            "fr.labomg.biophonie.feature.exploregeopoints.MapActivity"
-                        )
-                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    }
-                )
+                findNavController().popBackStack(R.id.firstlaunch_navigation, true)
             }
         }
     }
 
     private fun setUpViewPager() {
         binding.pager.apply {
-            adapter = this@TutorialActivity.adapter
+            adapter = TutorialPagerAdapter(this@TutorialFragment)
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             registerOnPageChangeCallback(
                 object : ViewPager2.OnPageChangeCallback() {
@@ -94,7 +97,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                             displayPage()
                         }
                         postDelayed(ANIMATION_DELAY) {
-                            (supportFragmentManager.findFragmentByTag("f$position")
+                            (childFragmentManager.findFragmentByTag("f$position")
                                     as? FirstLaunchFragments)
                                 ?.animate()
                         }
@@ -123,21 +126,12 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 Duration.between(now, tonight.plusDays(DAYS_BETWEEN_WORK_REQUEST))
             )
         }
-        WorkManager.getInstance(this)
+        WorkManager.getInstance(requireContext())
             .enqueueUniquePeriodicWork(
                 ClearCacheWorker.WORK_NAME,
                 ExistingPeriodicWorkPolicy.REPLACE,
                 requestBuilder.build()
             )
-    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (binding.pager.currentItem == 0) {
-            finishAffinity()
-        } else {
-            binding.pager.setCurrentItem(binding.pager.currentItem - 1, true)
-        }
     }
 
     override fun onResume() {
@@ -150,7 +144,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         binding.root.viewTreeObserver.removeOnGlobalLayoutListener(this)
     }
 
-    private class TutorialPagerAdapter(fa: FragmentActivity) : FragmentStateAdapter(fa) {
+    private class TutorialPagerAdapter(fa: TutorialFragment) : FragmentStateAdapter(fa) {
 
         override fun getItemCount(): Int = NUM_PAGES
 
@@ -190,11 +184,13 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
     private fun deployWithSoftKeyboard() {
         binding.apply {
             decoration.visibility = View.VISIBLE
-            root.setBackgroundColor(
-                ContextCompat.getColor(this@TutorialActivity, R.color.colorAccent)
-            )
+            root.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.colorAccent))
             circle.background =
-                ResourcesCompat.getDrawable(resources, R.drawable.background_circle, theme)
+                ResourcesCompat.getDrawable(
+                    resources,
+                    R.drawable.background_circle,
+                    requireContext().theme
+                )
             ConstraintSet().apply {
                 clone(binding.root as ConstraintLayout)
                 clear(R.id.pager, ConstraintSet.VERTICAL)
@@ -209,10 +205,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
         binding.apply {
             decoration.visibility = View.GONE
             root.setBackgroundColor(
-                ContextCompat.getColor(
-                    this@TutorialActivity,
-                    R.color.design_default_color_background
-                )
+                ContextCompat.getColor(requireContext(), R.color.design_default_color_background)
             )
             circle.background = null
             ConstraintSet().apply {
@@ -230,7 +223,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
             next.text = getString(R.string.next)
             next.textSize = TEXT_SIZE
             // setting visibility does not work :(
-            skip.setTextColor(this@TutorialActivity.getColor(R.color.colorPrimary))
+            skip.setTextColor(requireContext().getColor(R.color.colorPrimary))
         }
     }
 
@@ -242,7 +235,7 @@ class TutorialActivity : FragmentActivity(), ViewTreeObserver.OnGlobalLayoutList
                 resources.getDimension(R.dimen.button_font_size)
             )
             // setting visibility does not work :(
-            skip.setTextColor(this@TutorialActivity.getColor(R.color.colorAccent))
+            skip.setTextColor(requireContext().getColor(R.color.colorAccent))
         }
     }
 

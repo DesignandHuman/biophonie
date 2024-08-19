@@ -21,6 +21,7 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.labomg.biophonie.core.assets.displayTemplates
@@ -30,7 +31,7 @@ import timber.log.Timber
 class GalleryFragment :
     Fragment(), LandscapesAdapter.OnLandscapeListener, ChooseMeanDialog.ChooseMeanListener {
 
-    private val viewModel: RecViewModel by activityViewModels()
+    private val viewModel: AddViewModel by activityViewModels()
 
     private val takePicture =
         registerForActivityResult(ActivityResultContracts.TakePicture()) {
@@ -67,7 +68,7 @@ class GalleryFragment :
     private fun setLiveDataObservers() {
         viewModel.toast.observe(viewLifecycleOwner) {
             it?.let {
-                Toast.makeText(requireContext(), it.message, it.length).show()
+                Toast.makeText(requireContext(), it.message, it.duration).show()
                 viewModel.onToastDisplayed()
             }
         }
@@ -112,7 +113,7 @@ class GalleryFragment :
                 view.findNavController().navigate(R.id.action_galleryFragment_to_titleFragment)
             }
             topPanel.close.setOnClickListener { activity?.finish() }
-            topPanel.previous.setOnClickListener { activity?.onBackPressed() }
+            topPanel.previous.setOnClickListener { findNavController().popBackStack() }
             importPicture.setOnClickListener { getOriginOfLandscape() }
             thumbnail.setOnClickListener { viewModel?.restorePreviewFromThumbnail() }
         }

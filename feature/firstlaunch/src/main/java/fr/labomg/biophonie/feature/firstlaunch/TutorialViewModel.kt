@@ -22,9 +22,9 @@ class TutorialViewModel @Inject constructor(private val userRepository: UserRepo
     val warning: LiveData<String>
         get() = _warning
 
-    private val _shouldStartActivity = MutableLiveData<Boolean>()
-    val shouldStartActivity: LiveData<Boolean>
-        get() = _shouldStartActivity
+    private val _shouldStartExploring = MutableLiveData<Boolean>()
+    val shouldStartExploring: LiveData<Boolean>
+        get() = _shouldStartExploring
 
     val name = ObservableField<String>()
 
@@ -38,7 +38,7 @@ class TutorialViewModel @Inject constructor(private val userRepository: UserRepo
                 viewModelScope.launch {
                     userRepository
                         .addUser(nameEntered)
-                        .onSuccess { _shouldStartActivity.value = true }
+                        .onSuccess { _shouldStartExploring.value = true }
                         .onFailure {
                             when (it) {
                                 is NoConnectionThrowable ->

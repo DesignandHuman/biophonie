@@ -2,6 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>TooManyFunctions:RecViewModel.kt$RecViewModel : AndroidViewModelInformationRetriever</ID>
+    <ID>TooManyFunctions:AddViewModel.kt$AddViewModel : AndroidViewModelInformationRetriever</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="viewModel"
-            type="fr.labomg.biophonie.feature.addgeopoint.RecViewModel" />
+            type="fr.labomg.biophonie.feature.addgeopoint.AddViewModel" />
     </data>
 
 <androidx.constraintlayout.widget.ConstraintLayout
@@ -53,6 +53,7 @@
         android:layout_marginHorizontal="40dp"
         android:padding="8dp"
         app:hintEnabled="false"
+        app:errorText="@{viewModel.error}"
         app:layout_constraintBottom_toTopOf="@id/ok"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

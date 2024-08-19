@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.biophonie.android.feature)
     alias(libs.plugins.biophonie.android.databinding)
     alias(libs.plugins.biophonie.android.buildconfig)
+    alias(libs.plugins.androidx.navigationSafeArgs)
 }
 
 android {
@@ -18,7 +19,6 @@ dependencies {
     implementation(projects.core.assets)
     implementation(projects.core.ui)
     implementation(projects.data.user)
-    implementation(projects.core.work)
     implementation(projects.soundwave)
     implementation(projects.data.geopoint)
     implementation(projects.data.geopoint)
@@ -28,6 +28,7 @@ dependencies {
     implementation(libs.glide)
     implementation(libs.material) // BottomSheetPlayer implementation
     implementation(libs.bundles.map)
+    implementation(libs.bundles.navigation)
 
     // ---testing dependencies--- //
     testImplementation(libs.androidx.coreTesting)

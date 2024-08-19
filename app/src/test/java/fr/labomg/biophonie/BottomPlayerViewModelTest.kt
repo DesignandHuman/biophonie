@@ -3,7 +3,7 @@ package fr.labomg.biophonie
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.core.app.ApplicationProvider
 import fr.labomg.biophonie.data.user.source.UserRepository
-import fr.labomg.biophonie.feature.exploregeopoints.BottomPlayerViewModel
+import fr.labomg.biophonie.feature.exploregeopoints.ExploreViewModel
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -12,14 +12,14 @@ class BottomPlayerViewModelTest {
 
     @get:Rule var instantExecutorRule = InstantTaskExecutorRule()
 
-    private lateinit var viewModel: BottomPlayerViewModel
+    private lateinit var viewModel: ExploreViewModel
 
     @Before
     fun setupViewModel() {
         // TODO get database
         val repository = UserRepository()
 
-        viewModel = BottomPlayerViewModel(ApplicationProvider.getApplicationContext())
+        viewModel = ExploreViewModel(ApplicationProvider.getApplicationContext())
     }
 
     @Test

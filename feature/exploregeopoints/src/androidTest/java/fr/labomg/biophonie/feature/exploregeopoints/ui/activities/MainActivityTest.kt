@@ -23,7 +23,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
-import fr.labomg.biophonie.feature.exploregeopoints.MapActivity
+import fr.labomg.biophonie.MainActivity
 import fr.labomg.biophonie.feature.exploregeopoints.R
 import org.hamcrest.Matcher
 import org.junit.Rule
@@ -38,11 +38,11 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
-class MapActivityTest {
+class MainActivityTest {
 
     @get:Rule
-    var activityRule: ActivityScenarioRule<MapActivity> =
-        ActivityScenarioRule(MapActivity::class.java)
+    var activityRule: ActivityScenarioRule<fr.labomg.biophonie.MainActivity> =
+        ActivityScenarioRule(fr.labomg.biophonie.MainActivity::class.java)
 
     @Test
     fun deploy_bottom_player() {

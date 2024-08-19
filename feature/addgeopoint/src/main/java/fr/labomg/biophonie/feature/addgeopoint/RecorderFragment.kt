@@ -10,11 +10,14 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
+import dagger.hilt.android.AndroidEntryPoint
 import fr.labomg.biophonie.feature.addgeopoint.databinding.FragmentRecordingBinding
 
+@AndroidEntryPoint
 class RecorderFragment : Fragment() {
 
-    private val viewModel: RecViewModel by activityViewModels()
+    private val viewModel: AddViewModel by activityViewModels()
     private var _binding: FragmentRecordingBinding? = null
     private val binding
         get() = _binding!!
@@ -37,10 +40,10 @@ class RecorderFragment : Fragment() {
     private fun setDataObserver() {
         viewModel.recordComplete.observe(viewLifecycleOwner) {
             if (it) {
+                viewModel.onValidateRecording()
                 binding.root
                     .findNavController()
                     .navigate(R.id.action_recordingFragment_to_galleryFragment)
-                viewModel.onValidateRecording()
             }
         }
     }
@@ -61,7 +64,9 @@ class RecorderFragment : Fragment() {
     }
 
     private fun setClickListeners() {
-        binding.topPanel.previous.setOnClickListener { activity?.onBackPressed() }
+        binding.topPanel.previous.setOnClickListener {
+            activity?.onBackPressedDispatcher?.onBackPressed()
+        }
         binding.topPanel.close.setOnClickListener { activity?.finish() }
     }
 

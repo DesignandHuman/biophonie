@@ -5,7 +5,6 @@ import android.app.Application
 import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
-import android.os.Bundle
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.core.content.FileProvider
@@ -13,23 +12,34 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.mapbox.geojson.Point
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.haran.soundwave.controller.AacRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 import fr.labomg.biophonie.core.assets.templates
+import fr.labomg.biophonie.data.geopoint.Coordinates
+import fr.labomg.biophonie.data.geopoint.GeoPoint
+import fr.labomg.biophonie.data.geopoint.NewGeoPoint
+import fr.labomg.biophonie.data.geopoint.Resource
+import fr.labomg.biophonie.data.geopoint.source.GeoPointRepository
 import java.io.File
 import java.io.IOException
+import java.time.Instant
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
-class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) :
-    AndroidViewModel(appContext as Application), AacRecorderController.InformationRetriever {
+class AddViewModel
+@Inject
+constructor(
+    @ApplicationContext appContext: Context,
+    private val geoPointRepository: GeoPointRepository
+) : AndroidViewModel(appContext as Application), AacRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null
     val mTitle = ObservableField<String>()
@@ -37,7 +47,7 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
     private var recorderController: AacRecorderController? = null
     private lateinit var currentAmplitudes: List<Int>
     private lateinit var currentSoundPath: String
-    private lateinit var coordinates: Point
+    private lateinit var coordinates: Coordinates
     var currentId: Int = 0
 
     private val _landscapeUri = MutableLiveData(getResourceUri(templates.values.first()))
@@ -47,6 +57,10 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
     private val _landscapeThumbnail = MutableLiveData<Uri>()
     val landscapeThumbnail: LiveData<Uri>
         get() = _landscapeThumbnail
+
+    private val _error = MutableLiveData<String>()
+    val error: LiveData<String>
+        get() = _error
 
     private val _toast = MutableLiveData<ToastModel?>()
     val toast: LiveData<ToastModel?>
@@ -64,9 +78,9 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
     val recordComplete: LiveData<Boolean>
         get() = _recordComplete
 
-    private val _result = MutableLiveData<Result>()
-    val result: LiveData<Result>
-        get() = _result
+    private val _wasSubmitted = MutableLiveData(false)
+    val wasSubmitted: LiveData<Boolean>
+        get() = _wasSubmitted
 
     fun pictureResult(picture: Uri? = null) {
         updateFromDefault(false)
@@ -154,7 +168,7 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
         if (fromDefault != _fromDefault.value) _fromDefault.value = fromDefault
     }
 
-    data class ToastModel(var message: String, var length: Int)
+    data class ToastModel(var message: String, var duration: Int)
 
     override fun setPath(path: String) {
         currentSoundPath = path
@@ -202,13 +216,13 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
     // solved by lib desugaring
     @SuppressLint("NewApi")
     fun validationAndSubmit() {
-        val instant = ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
         val title = mTitle.get()
         title?.let {
             if (it.length < MAXIMUM_TITLE_CHARS)
-                _toast.value =
-                    ToastModel("Le titre doit faire plus de 7 caractères", Toast.LENGTH_SHORT)
+                _error.value = "Le titre doit faire plus de 7 caractères"
             else {
+                val instant =
+                    ZonedDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ISO_INSTANT)
                 var landscapePath = ""
                 var templatePath = ""
                 if (_fromDefault.value == false) {
@@ -222,28 +236,48 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
                             File.separator +
                             _landscapeUri.value!!.path!!.substringAfterLast(File.separator)
                 } else templatePath = templates.keys.elementAt(currentId)
-                _result.value =
-                    Result(
-                        it,
-                        instant,
-                        currentAmplitudes,
-                        coordinates,
-                        currentSoundPath,
-                        landscapePath,
-                        templatePath
+                val geoPoint =
+                    NewGeoPoint(
+                        title = it,
+                        date = instant,
+                        amplitudes = currentAmplitudes,
+                        coordinates = coordinates,
+                        soundPath = currentSoundPath,
+                        landscapePath = landscapePath,
+                        templatePath = templatePath
                     )
+                requestAddGeoPoint(
+                    geoPoint,
+                    getApplication<Application>().applicationContext.filesDir.absolutePath
+                )
+                _wasSubmitted.value = true
             }
+        }
+    }
+
+    // solved by lib desugaring
+    @SuppressLint("NewApi")
+    private fun requestAddGeoPoint(geoPoint: NewGeoPoint, dataPath: String) {
+        val templatePath = geoPoint.templatePath.apply { removePrefix("/drawable/") }
+        viewModelScope.launch {
+            geoPointRepository.saveNewGeoPoint(
+                GeoPoint(
+                    title = geoPoint.title,
+                    date = Instant.parse(geoPoint.date),
+                    amplitudes = geoPoint.amplitudes.map { it.toFloat() },
+                    coordinates = geoPoint.coordinates!!,
+                    picture = Resource(local = templatePath.ifEmpty { geoPoint.landscapePath }),
+                    sound = Resource(local = geoPoint.soundPath),
+                    remoteId = 0,
+                    id = 0
+                ),
+                dataPath
+            )
         }
     }
 
     fun onValidateRecording() {
         _recordComplete.value = false
-    }
-
-    fun setCoordinates(extras: Bundle?) {
-        extras?.let {
-            coordinates = Point.fromLngLat(it.getDouble("longitude"), it.getDouble("latitude"))
-        }
     }
 
     override fun onCleared() {
@@ -260,15 +294,9 @@ class RecViewModel @Inject constructor(@ApplicationContext appContext: Context) 
         recorderController?.startRecording()
     }
 
-    data class Result(
-        val title: String,
-        val date: String,
-        val amplitudes: List<Int>,
-        val coordinates: Point,
-        val soundPath: String,
-        val landscapePath: String,
-        val templatePath: String
-    )
+    fun setCoordinates(coordinates: Coordinates) {
+        this.coordinates = coordinates
+    }
 
     companion object {
         private const val MAXIMUM_TITLE_CHARS = 7

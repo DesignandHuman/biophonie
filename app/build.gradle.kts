@@ -40,12 +40,14 @@ android {
 }
 
 dependencies {
+    implementation(projects.core.work)
     implementation(projects.feature.addgeopoint)
     implementation(projects.feature.exploregeopoints)
     implementation(projects.feature.firstlaunch)
 
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.hiltWork)
+    implementation(libs.bundles.navigation)
     kapt(libs.androidx.hiltCompiler)
     kapt(libs.hilt.compiler)
 
