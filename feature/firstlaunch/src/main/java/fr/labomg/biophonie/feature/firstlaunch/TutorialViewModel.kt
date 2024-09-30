@@ -1,60 +1,76 @@
 package fr.labomg.biophonie.feature.firstlaunch
 
-import androidx.databinding.ObservableField
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import fr.labomg.biophonie.core.network.BadRequestThrowable
 import fr.labomg.biophonie.core.network.ConflictThrowable
 import fr.labomg.biophonie.core.network.InternalErrorThrowable
 import fr.labomg.biophonie.core.network.NoConnectionThrowable
 import fr.labomg.biophonie.data.user.source.UserRepository
 import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 @HiltViewModel
 class TutorialViewModel @Inject constructor(private val userRepository: UserRepository) :
     ViewModel() {
 
-    private val _warning = MutableLiveData<String>()
-    val warning: LiveData<String>
-        get() = _warning
+    var name by mutableStateOf("")
+        private set
 
-    private val _shouldStartExploring = MutableLiveData<Boolean>()
-    val shouldStartExploring: LiveData<Boolean>
-        get() = _shouldStartExploring
+    private var _uiState = MutableStateFlow(NameUiState())
+    val uiState: StateFlow<NameUiState> = _uiState.asStateFlow()
 
-    val name = ObservableField<String>()
+    private var _shouldStartMapExploration = MutableStateFlow(false)
+    val shouldStartMapExploration: StateFlow<Boolean> = _shouldStartMapExploration.asStateFlow()
 
-    fun onClickEnter() {
-        val nameEntered = name.get()
+    private val pattern = Regex("[a-zA-z\\s-]*")
+
+    fun updateName(enteredName: String) {
+        name = enteredName
+        if (enteredName.matches(pattern)) {
+            _uiState.updateError()
+        } else {
+            _uiState.updateError(NameError.SPECIAL_CHAR)
+        }
+    }
+
+    private fun MutableStateFlow<NameUiState>.updateError(error: NameError? = null) {
+        if (error == null)
+            this.update { it.copy(isNameInvalid = false, supportingText = NameError.EMPTY) }
+        else this.update { it.copy(isNameInvalid = true, supportingText = error) }
+    }
+
+    fun submit() {
         when {
-            nameEntered == null -> _warning.value = "Le nom ne peut pas être nul"
-            nameEntered.length < MINIMUM_NAME_LENGTH ->
-                _warning.value = "Le nom doit faire plus de 2 caractères"
+            name.isEmpty() -> _uiState.updateError(NameError.NOT_NULL)
+            name.length <= MINIMUM_NAME_LENGTH -> _uiState.updateError(NameError.TOO_SHORT)
             else ->
                 viewModelScope.launch {
                     userRepository
-                        .addUser(nameEntered)
-                        .onSuccess { _shouldStartExploring.value = true }
-                        .onFailure {
-                            when (it) {
-                                is NoConnectionThrowable ->
-                                    _warning.value = "Connexion au serveur échouée"
-                                is BadRequestThrowable -> _warning.value = "Mauvais nom"
-                                is ConflictThrowable -> _warning.value = "Le nom est déjà pris"
-                                is InternalErrorThrowable ->
-                                    _warning.value = "Le serveur n’a pas pu traiter la requête"
-                                else -> _warning.value = "Oups, une erreur s’est produite"
-                            }
-                        }
+                        .addUser(name)
+                        .onSuccess { _shouldStartMapExploration.value = true }
+                        .onFailure { throwable -> _uiState.updateError(throwable.toNameError()) }
                 }
         }
     }
 
+    private fun Throwable.toNameError(): NameError {
+        return when (this) {
+            is NoConnectionThrowable -> NameError.NETWORK_UNREACHABLE
+            is ConflictThrowable -> NameError.NOT_UNIQUE
+            is InternalErrorThrowable -> NameError.SERVER_ERROR
+            else -> NameError.UNKNOWN
+        }
+    }
+
     companion object {
-        private const val MINIMUM_NAME_LENGTH = 3
+        private const val MINIMUM_NAME_LENGTH = 2
     }
 }

@@ -19,7 +19,6 @@ android {
         versionCode = 3
         versionName = "0.2.0"
         vectorDrawables.useSupportLibrary = true
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         signingConfig = signingConfigs.getByName("debug")
     }
 

@@ -1,3 +1,4 @@
+
 import com.ncorti.ktfmt.gradle.KtfmtExtension
 import com.ncorti.ktfmt.gradle.tasks.KtfmtCheckTask
 import org.gradle.api.Plugin

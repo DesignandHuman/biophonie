@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.kapt)
-    alias(libs.plugins.biophonie.android.library)
+    alias(libs.plugins.biophonie.android.library.compose)
     alias(libs.plugins.biophonie.android.databinding)
 }
 
@@ -15,6 +15,7 @@ dependencies {
 
     implementation(libs.androidx.appCompat)
     implementation(libs.androidx.constraintLayout)
+    implementation(libs.androidx.compose.material)
     implementation(libs.material)
     implementation(libs.glide)
 }
