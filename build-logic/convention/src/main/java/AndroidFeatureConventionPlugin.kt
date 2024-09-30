@@ -10,7 +10,7 @@ class AndroidFeatureConventionPlugin: Plugin<Project> {
     override fun apply(target: Project) {
         with(target) {
             with(pluginManager) {
-                apply("biophonie.android.library")
+                apply("biophonie.android.library.compose")
                 apply("biophonie.android.hilt")
                 apply("biophonie.android.databinding")
             }
@@ -19,9 +19,19 @@ class AndroidFeatureConventionPlugin: Plugin<Project> {
                 buildFeatures {
                     buildConfig = true
                 }
+                defaultConfig {
+                    testInstrumentationRunner = "fr.labomg.biophonie.core.testing.BiophonieTestRunner"
+                }
+                testOptions.animationsDisabled = true
             }
 
             dependencies {
+                "androidTestImplementation"(project(":core:testing"))
+
+                "implementation"(libs.findLibrary("androidx.hiltNavigation.compose").get())
+                "implementation"(libs.findLibrary("androidx.lifecycle.viewmodel.compose").get())
+                "implementation"(libs.findLibrary("androidx.lifecycle.runtime.compose").get())
+
                 "implementation"(libs.findLibrary("timber").get())
                 "implementation"(libs.findLibrary("androidx.fragmentKtx").get())
                 "implementation"(libs.findBundle("lifecycle").get())

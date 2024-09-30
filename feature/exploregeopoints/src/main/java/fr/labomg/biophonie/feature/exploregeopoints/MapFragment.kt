@@ -126,8 +126,10 @@ class MapFragment :
     }
 
     private fun checkUserConnected() {
-        if (!viewModel.isUserConnected())
+        if (!viewModel.isUserConnected()) {
+            findNavController().popBackStack()
             findNavController().navigate("android-app://fr.labomg.biophonie/firstlaunch".toUri())
+        }
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -474,13 +476,23 @@ class MapFragment :
 
     override fun onStart() {
         super.onStart()
-        activity?.registerReceiver(gpsReceiver, IntentFilter(LocationManager.MODE_CHANGED_ACTION))
+        ContextCompat.registerReceiver(
+            requireContext(),
+            gpsReceiver,
+            IntentFilter(LocationManager.MODE_CHANGED_ACTION),
+            ContextCompat.RECEIVER_NOT_EXPORTED
+        )
     }
 
     override fun onResume() {
         super.onResume()
         viewModel.refreshUnavailableGeoPoints()
         toggleRecFabAnimated(false)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        activity?.unregisterReceiver(gpsReceiver)
     }
 
     override fun onStop() {
@@ -490,6 +502,7 @@ class MapFragment :
 
     override fun onDestroyView() {
         super.onDestroyView()
+        mapboxMap.removeOnCameraChangeListener(this)
         onCameraTrackingDismissed()
         _binding = null
     }
@@ -497,7 +510,6 @@ class MapFragment :
     override fun onDestroy() {
         super.onDestroy()
         recAnimation = null
-        activity?.unregisterReceiver(gpsReceiver)
     }
 
     override fun onCameraChanged(eventData: CameraChangedEventData) {

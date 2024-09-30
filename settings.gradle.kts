@@ -32,8 +32,9 @@ dependencyResolutionManagement {
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":app")
-include(":core:network")
 include(":core:assets")
+include(":core:network")
+include(":core:testing")
 include(":core:ui")
 include(":core:utils")
 include(":core:work")

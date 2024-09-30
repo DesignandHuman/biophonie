@@ -10,6 +10,8 @@
         android:name="fr.labomg.biophonie.feature.exploregeopoints.MapFragment"
         tools:layout="@layout/fragment_map">
 
+        <deepLink app:uri="android-app://fr.labomg.biophonie/exploregeopoints" />
+
         <action
             android:id="@+id/open_about"
             app:destination="@id/about_dest"/>

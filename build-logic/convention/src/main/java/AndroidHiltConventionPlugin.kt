@@ -1,7 +1,7 @@
+
 import fr.labomg.biophonie.libs
 import org.gradle.api.Plugin
 import org.gradle.api.Project
-import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.dependencies
 
 class AndroidHiltConventionPlugin : Plugin<Project> {
@@ -15,6 +15,8 @@ class AndroidHiltConventionPlugin : Plugin<Project> {
             dependencies {
                 "implementation"(libs.findLibrary("hilt.android").get())
                 "kapt"(libs.findLibrary("hilt.compiler").get())
+                "androidTestImplementation"(libs.findLibrary("hilt.android.testing").get())
+                "kaptAndroidTest"(libs.findLibrary("hilt.android.compiler").get())
             }
 
         }
