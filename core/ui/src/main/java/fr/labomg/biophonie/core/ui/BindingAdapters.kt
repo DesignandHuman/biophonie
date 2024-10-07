@@ -12,8 +12,6 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.material.textfield.TextInputLayout
 import fr.haran.soundwave.ui.PlayerView
 import fr.labomg.biophonie.core.assets.templates
-import fr.labomg.biophonie.data.geopoint.BuildConfig
-import fr.labomg.biophonie.data.geopoint.Resource
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -25,6 +23,7 @@ fun setImageUri(view: AppCompatImageView, imageUri: Uri?) {
         Glide.with(view.context)
             .load(it)
             .transition(DrawableTransitionOptions.withCrossFade())
+            .error(android.R.drawable.stat_notify_error)
             .into(view)
     }
 }
@@ -67,25 +66,24 @@ fun setTitle(view: PlayerView, date: Instant?) {
 }
 
 @BindingAdapter("resource")
-fun setImageResource(view: AppCompatImageView, picture: Resource?) {
+fun setImageResource(view: AppCompatImageView, picture: String?) {
+    val baseName = picture?.substringBefore(".")
     picture?.let {
-        val uri =
-            if (it.local == null) {
-                "${BuildConfig.BASE_URL}/api/v1/assets/picture/${picture.remote}"
-            } else {
-                if (templates.containsKey(picture.local)) {
-                    view.setImageResource(templates[picture.local]!!)
-                    return
-                } else {
-                    "${picture.local}"
-                }
+        if (templates.containsKey(baseName)) {
+            view.setImageResource(templates[baseName]!!)
+            return
+        } else {
+            var uri = it
+            if (!uri.contains("/")) {
+                uri = "${BuildConfig.BASE_URL}/api/v1/assets/picture/${uri}"
             }
-        Glide.with(view.context)
-            .load(uri)
-            .placeholder(R.drawable.loader)
-            .transition(DrawableTransitionOptions.withCrossFade())
-            .error(android.R.drawable.stat_notify_error)
-            .into(view)
+            Glide.with(view.context)
+                .load(uri)
+                .placeholder(R.drawable.loader)
+                .transition(DrawableTransitionOptions.withCrossFade())
+                .error(android.R.drawable.stat_notify_error)
+                .into(view)
+        }
     }
 }
 

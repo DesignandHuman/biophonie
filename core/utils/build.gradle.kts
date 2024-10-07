@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.biophonie.android.library)
+    alias(libs.plugins.biophonie.android.hilt)
     alias(libs.plugins.biophonie.android.buildconfig)
 }
 

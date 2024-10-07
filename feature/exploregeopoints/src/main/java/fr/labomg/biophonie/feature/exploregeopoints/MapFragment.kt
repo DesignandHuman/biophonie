@@ -68,13 +68,13 @@ import com.mapbox.maps.plugin.locationcomponent.OnIndicatorPositionChangedListen
 import com.mapbox.maps.plugin.locationcomponent.location
 import com.mapbox.maps.plugin.scalebar.scalebar
 import dagger.hilt.android.AndroidEntryPoint
+import fr.labomg.biophonie.core.model.Coordinates
+import fr.labomg.biophonie.core.model.GeoPoint
 import fr.labomg.biophonie.core.ui.ScreenMetricsCompat
 import fr.labomg.biophonie.core.ui.dpToPx
 import fr.labomg.biophonie.core.utils.CustomLocationProvider
 import fr.labomg.biophonie.core.utils.GPSCheck
 import fr.labomg.biophonie.core.utils.isGPSEnabled
-import fr.labomg.biophonie.data.geopoint.Coordinates
-import fr.labomg.biophonie.data.geopoint.GeoPoint
 import fr.labomg.biophonie.feature.exploregeopoints.databinding.FragmentMapBinding
 import timber.log.Timber
 
@@ -474,25 +474,25 @@ class MapFragment :
         binding.scaleView.update(cameraState.zoom.toFloat(), cameraState.center.latitude())
     }
 
-    override fun onStart() {
-        super.onStart()
+    override fun onResume() {
+        super.onResume()
         ContextCompat.registerReceiver(
             requireContext(),
             gpsReceiver,
             IntentFilter(LocationManager.MODE_CHANGED_ACTION),
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
-    }
-
-    override fun onResume() {
-        super.onResume()
         viewModel.refreshUnavailableGeoPoints()
         toggleRecFabAnimated(false)
     }
 
     override fun onPause() {
         super.onPause()
-        activity?.unregisterReceiver(gpsReceiver)
+        try {
+            activity?.unregisterReceiver(gpsReceiver)
+        } catch (e: IllegalArgumentException) {
+            Timber.e(e, "tried to unregister gpscheck even though it was not registered")
+        }
     }
 
     override fun onStop() {

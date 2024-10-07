@@ -8,8 +8,7 @@ android {
 }
 
 dependencies {
-    implementation(projects.data.geopoint)
-
+    implementation(projects.core.data)
     implementation(libs.androidx.workRuntime)
     implementation(libs.androidx.hiltWork)
     kapt(libs.androidx.hiltCompiler)

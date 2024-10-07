@@ -5,7 +5,7 @@ import androidx.activity.viewModels
 import androidx.fragment.app.FragmentActivity
 import androidx.navigation.navArgs
 import dagger.hilt.android.AndroidEntryPoint
-import fr.labomg.biophonie.data.geopoint.Coordinates
+import fr.labomg.biophonie.core.model.Coordinates
 
 @AndroidEntryPoint
 class AddActivity : FragmentActivity() {

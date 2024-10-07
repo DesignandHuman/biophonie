@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import fr.labomg.biophonie.core.network.AccessTokenAuthenticator
+import fr.labomg.biophonie.core.network.AuthenticationInterceptor
 import fr.labomg.biophonie.core.network.BuildConfig
 import fr.labomg.biophonie.core.network.HttpLoggingInterceptorLevel
 import fr.labomg.biophonie.core.network.ResultCallAdapterFactory
@@ -35,6 +37,36 @@ object NetworkModule {
     fun provideRetrofit(
         jsonConverter: MoshiConverterFactory,
         @Unauthenticated okHttpClient: OkHttpClient,
+        @BaseUrl baseUrl: String,
+    ): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(baseUrl)
+            .addConverterFactory(jsonConverter)
+            .addCallAdapterFactory(ResultCallAdapterFactory())
+            .client(okHttpClient)
+            .build()
+
+    @Singleton
+    @Provides
+    @Authenticated
+    fun provideAuthenticatedOkHttpClient(
+        authenticationInterceptor: AuthenticationInterceptor,
+        accessTokenAuthenticator: AccessTokenAuthenticator,
+    ): OkHttpClient =
+        OkHttpClient.Builder()
+            .addInterceptor(
+                HttpLoggingInterceptor().apply { level = HttpLoggingInterceptorLevel },
+            )
+            .addInterceptor(authenticationInterceptor)
+            .authenticator(accessTokenAuthenticator)
+            .build()
+
+    @Singleton
+    @Provides
+    @Authenticated
+    fun provideAuthenticatedRetrofit(
+        jsonConverter: MoshiConverterFactory,
+        @Authenticated okHttpClient: OkHttpClient,
         @BaseUrl baseUrl: String,
     ): Retrofit =
         Retrofit.Builder()

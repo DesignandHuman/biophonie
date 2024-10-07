@@ -16,9 +16,9 @@ android {
 
 dependencies {
     implementation(projects.core.assets)
+    implementation(projects.core.domain)
+    implementation(projects.core.model)
     implementation(projects.core.ui)
-    implementation(projects.data.geopoint)
-    implementation(projects.data.user)
     implementation(projects.soundwave)
 
     implementation(libs.bundles.map)

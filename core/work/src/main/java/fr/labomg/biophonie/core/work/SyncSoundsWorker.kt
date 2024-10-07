@@ -6,7 +6,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import fr.labomg.biophonie.data.geopoint.source.GeoPointRepository
+import fr.labomg.biophonie.core.data.GeoPointRepository
 
 @HiltWorker
 class SyncSoundsWorker

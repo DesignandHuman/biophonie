@@ -16,9 +16,6 @@ class AndroidFeatureConventionPlugin: Plugin<Project> {
             }
 
             extensions.configure<LibraryExtension> {
-                buildFeatures {
-                    buildConfig = true
-                }
                 defaultConfig {
                     testInstrumentationRunner = "fr.labomg.biophonie.core.testing.BiophonieTestRunner"
                 }

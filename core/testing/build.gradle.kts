@@ -9,7 +9,6 @@ android {
 
 dependencies {
     implementation(projects.core.network)
-    implementation(projects.data.user)
     implementation(libs.androidx.runner)
     implementation(libs.hilt.android.testing)
     implementation(libs.androidx.testCore)
