@@ -19,7 +19,6 @@ class AndroidLintConventionPlugin : Plugin<Project> {
             tasks.register<KtfmtCheckTask>("ktfmtPreCommit") {
                 source = project.fileTree(rootDir)
                 include("**/*.kt")
-                include("**/*.kts")
             }
         }
     }

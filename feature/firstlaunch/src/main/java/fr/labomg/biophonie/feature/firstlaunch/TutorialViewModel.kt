@@ -6,10 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import fr.labomg.biophonie.core.data.UserRepository
 import fr.labomg.biophonie.core.network.ConflictThrowable
 import fr.labomg.biophonie.core.network.InternalErrorThrowable
 import fr.labomg.biophonie.core.network.NoConnectionThrowable
-import fr.labomg.biophonie.data.user.source.UserRepository
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

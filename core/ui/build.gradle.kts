@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.kapt)
     alias(libs.plugins.biophonie.android.library.compose)
+    alias(libs.plugins.biophonie.android.buildconfig)
     alias(libs.plugins.biophonie.android.databinding)
 }
 
@@ -10,7 +11,6 @@ android {
 
 dependencies {
     implementation(projects.core.assets)
-    implementation(projects.data.geopoint)
     implementation(projects.soundwave)
 
     implementation(libs.androidx.appCompat)

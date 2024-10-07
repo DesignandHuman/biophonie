@@ -9,14 +9,14 @@ plugins {
 android {
     namespace = "fr.labomg.biophonie"
 
-    signingConfigs { // force br
-        getByName("debug") { // force br
+    signingConfigs {
+        getByName("debug") {
             keyPassword = "android"
         }
     }
 
     defaultConfig {
-        versionCode = 3
+        versionCode = 4
         versionName = "0.2.0"
         vectorDrawables.useSupportLibrary = true
         signingConfig = signingConfigs.getByName("debug")

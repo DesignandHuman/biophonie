@@ -14,13 +14,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.haran.soundwave.controller.DefaultPlayerController
 import fr.haran.soundwave.ui.PlayerView
+import fr.labomg.biophonie.core.data.GeoPointRepository
+import fr.labomg.biophonie.core.data.UserRepository
+import fr.labomg.biophonie.core.model.Coordinates
+import fr.labomg.biophonie.core.model.GeoPoint
 import fr.labomg.biophonie.core.network.InternalErrorThrowable
 import fr.labomg.biophonie.core.network.NoConnectionThrowable
 import fr.labomg.biophonie.core.network.NotFoundThrowable
-import fr.labomg.biophonie.data.geopoint.Coordinates
-import fr.labomg.biophonie.data.geopoint.GeoPoint
-import fr.labomg.biophonie.data.geopoint.source.GeoPointRepository
-import fr.labomg.biophonie.data.user.source.UserRepository
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -195,28 +195,23 @@ constructor(
     }
 
     private fun addSoundToPlayer() {
-        if (geoPoint.value!!.sound.local != null) {
-            try {
-                playerController?.addAudioFileUri(
-                    getApplication(),
-                    Uri.fromFile(File(geoPoint.value!!.sound.local!!))
-                )
-                return
-            } catch (e: IOException) {
-                Timber.e("could not add local sound to player: $e")
-            }
+        try {
+            playerController?.addAudioFileUri(
+                getApplication(),
+                Uri.fromFile(File(geoPoint.value!!.sound))
+            )
+            return
+        } catch (e: IOException) {
+            Timber.e("could not add local sound to player: $e")
         }
 
-        if (geoPoint.value!!.sound.remote != null) {
-            val url = "${BuildConfig.BASE_URL}/api/v1/assets/sound/${geoPoint.value!!.sound.remote}"
-            try {
-                playerController?.addAudioUrl(url)
-                return
-            } catch (e: FileNotFoundException) {
-                _eventNetworkError.value =
-                    "Nous n’avons pas pu trouver le son. Réessayez plus tard."
-                Timber.e("could not add remote sound to player: $e")
-            }
+        val url = "${BuildConfig.BASE_URL}/api/v1/assets/sound/${geoPoint.value!!.sound}"
+        try {
+            playerController?.addAudioUrl(url)
+            return
+        } catch (e: FileNotFoundException) {
+            _eventNetworkError.value = "Nous n’avons pas pu trouver le son. Réessayez plus tard."
+            Timber.e("could not add remote sound to player: $e")
         }
     }
 

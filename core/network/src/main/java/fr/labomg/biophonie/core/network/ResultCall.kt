@@ -1,5 +1,6 @@
 package fr.labomg.biophonie.core.network
 
+import com.squareup.moshi.JsonDataException
 import java.io.IOException
 import java.lang.reflect.ParameterizedType
 import java.lang.reflect.Type
@@ -15,6 +16,7 @@ import retrofit2.CallAdapter
 import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
+import timber.log.Timber
 
 class ResultCall<T>(private val delegate: Call<T>) : Call<Result<T>> {
 
@@ -47,6 +49,9 @@ class ResultCall<T>(private val delegate: Call<T>) : Call<Result<T>> {
                 override fun onFailure(call: Call<T>, t: Throwable) {
                     val throwable =
                         if (t is IOException) NoConnectionThrowable() else UnexpectedThrowable()
+                    if (t is JsonDataException) {
+                        Timber.e(t)
+                    }
                     callback.onResponse(
                         this@ResultCall,
                         Response.success(Result.failure(throwable))

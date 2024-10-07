@@ -9,11 +9,12 @@ android {
 
 dependencies {
     implementation(projects.core.assets)
+    implementation(projects.core.data)
     implementation(projects.core.network)
     androidTestImplementation(projects.core.testing)
     implementation(projects.core.ui)
+    implementation(projects.core.utils)
     implementation(projects.core.work)
-    implementation(projects.data.user)
 
     val composeBom = platform(libs.androidx.compose.bom)
     implementation(composeBom)

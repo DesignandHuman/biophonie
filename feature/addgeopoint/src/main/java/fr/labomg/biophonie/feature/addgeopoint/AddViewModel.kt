@@ -12,17 +12,15 @@ import androidx.databinding.ObservableField
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import fr.haran.soundwave.controller.AacRecorderController
 import fr.haran.soundwave.ui.RecPlayerView
 import fr.labomg.biophonie.core.assets.templates
-import fr.labomg.biophonie.data.geopoint.Coordinates
-import fr.labomg.biophonie.data.geopoint.GeoPoint
-import fr.labomg.biophonie.data.geopoint.NewGeoPoint
-import fr.labomg.biophonie.data.geopoint.Resource
-import fr.labomg.biophonie.data.geopoint.source.GeoPointRepository
+import fr.labomg.biophonie.core.domain.CreateGeoPointUseCase
+import fr.labomg.biophonie.core.model.Coordinates
+import fr.labomg.biophonie.core.model.GeoPoint
+import fr.labomg.biophonie.core.model.NewGeoPoint
 import java.io.File
 import java.io.IOException
 import java.time.Instant
@@ -30,7 +28,6 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 @HiltViewModel
@@ -38,7 +35,7 @@ class AddViewModel
 @Inject
 constructor(
     @ApplicationContext appContext: Context,
-    private val geoPointRepository: GeoPointRepository
+    private val createGeoPointUseCase: CreateGeoPointUseCase
 ) : AndroidViewModel(appContext as Application), AacRecorderController.InformationRetriever {
 
     private var captureUri: Uri? = null
@@ -259,21 +256,19 @@ constructor(
     @SuppressLint("NewApi")
     private fun requestAddGeoPoint(geoPoint: NewGeoPoint, dataPath: String) {
         val templatePath = geoPoint.templatePath.apply { removePrefix("/drawable/") }
-        viewModelScope.launch {
-            geoPointRepository.saveNewGeoPoint(
-                GeoPoint(
-                    title = geoPoint.title,
-                    date = Instant.parse(geoPoint.date),
-                    amplitudes = geoPoint.amplitudes.map { it.toFloat() },
-                    coordinates = geoPoint.coordinates!!,
-                    picture = Resource(local = templatePath.ifEmpty { geoPoint.landscapePath }),
-                    sound = Resource(local = geoPoint.soundPath),
-                    remoteId = 0,
-                    id = 0
-                ),
-                dataPath
-            )
-        }
+        createGeoPointUseCase(
+            GeoPoint(
+                title = geoPoint.title,
+                date = Instant.parse(geoPoint.date),
+                amplitudes = geoPoint.amplitudes.map { it.toFloat() },
+                coordinates = geoPoint.coordinates!!,
+                picture = templatePath.ifEmpty { geoPoint.landscapePath },
+                sound = geoPoint.soundPath,
+                remoteId = 0,
+                id = 0
+            ),
+            dataPath
+        )
     }
 
     fun onValidateRecording() {

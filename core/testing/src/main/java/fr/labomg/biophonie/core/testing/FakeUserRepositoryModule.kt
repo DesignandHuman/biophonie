@@ -5,18 +5,21 @@ import dagger.Provides
 import dagger.hilt.components.SingletonComponent
 import dagger.hilt.testing.TestInstallIn
 import fr.labomg.biophonie.core.network.ConflictThrowable
-import fr.labomg.biophonie.data.user.di.UserDataModule
-import fr.labomg.biophonie.data.user.source.UserRepository
 import fr.labomg.biophonie.data.user.source.remote.User
+import fr.labomg.core.data.UserRepository
+import fr.labomg.core.data.di.UserDataModule
 import javax.inject.Singleton
 
 @Module
-@TestInstallIn(components = [SingletonComponent::class], replaces = [UserDataModule::class])
+@TestInstallIn(
+    components = [SingletonComponent::class],
+    replaces = [fr.labomg.core.data.di.UserDataModule::class]
+)
 object FakeUserRepositoryModule {
     @Singleton
     @Provides
     fun provideFakeUserRepository() =
-        object : UserRepository {
+        object : fr.labomg.core.data.UserRepository {
 
             val dummyUser =
                 User(
