@@ -7,7 +7,5 @@
     <ID>MagicNumber:PagerNavigation.kt$5</ID>
     <ID>MagicNumber:TutorialScreen.kt$0.5f</ID>
     <ID>MagicNumber:TutorialScreen.kt$3</ID>
-    <ID>UnusedPrivateMember:PagerNavigation.kt$@PreviewLightDark @Composable private fun VerticalPagerNavigationPreview()</ID>
-    <ID>UnusedPrivateMember:TutorialScreen.kt$@OptIn(ExperimentalMaterial3WindowSizeClassApi::class) @PreviewLightDark @PreviewScreenSizes @PreviewFontScale @Composable private fun TutorialScreenPreview()</ID>
   </CurrentIssues>
 </SmellBaseline>

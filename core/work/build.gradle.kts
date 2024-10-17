@@ -1,6 +1,6 @@
 plugins {
     alias(libs.plugins.biophonie.android.library)
-    alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -8,11 +8,16 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.data)
-    implementation(libs.androidx.workRuntime)
-    implementation(libs.androidx.hiltWork)
-    kapt(libs.androidx.hiltCompiler)
-    kapt(libs.hilt.compiler)
+    ksp(libs.androidx.hiltCompiler)
+    ksp(libs.hilt.compiler)
 
-    implementation(libs.bundles.map)
+    api(libs.androidx.hiltWork)
+    api(libs.androidx.workRuntime)
+    api(libs.hilt.dagger)
+    api(libs.javax.inject)
+    api(projects.core.data)
+
+    implementation(libs.mapbox)
+    implementation(libs.mapbox.common)
+    implementation(libs.mapbox.core)
 }

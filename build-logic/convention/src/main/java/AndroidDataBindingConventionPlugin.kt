@@ -7,6 +7,10 @@ class AndroidDataBindingConventionPlugin: Plugin<Project> {
 
     override fun apply(target: Project) {
         with(target) {
+            with(pluginManager) {
+                apply("org.jetbrains.kotlin.kapt")
+            }
+
             when {
                 pluginManager.hasPlugin("com.android.application") ->
                     configure<ApplicationExtension> {

@@ -10,15 +10,17 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.assets)
-    implementation(projects.core.database)
-    implementation(projects.core.model)
-    implementation(projects.core.network)
-    implementation(projects.core.preferences)
-    implementation(projects.core.utils)
-
-    implementation(libs.bundles.remote)
-    implementation(libs.bundles.local)
-    ksp(libs.moshi.codegen)
     ksp(libs.androidx.roomCompiler)
+    ksp(libs.moshi.codegen)
+
+    api(libs.coroutines.core)
+    api(libs.hilt.dagger)
+    api(libs.javax.inject)
+    api(projects.core.database)
+    api(projects.core.model)
+    api(projects.core.network)
+    api(projects.core.preferences)
+    api(projects.core.utils)
+
+    implementation(libs.hilt.core)
 }

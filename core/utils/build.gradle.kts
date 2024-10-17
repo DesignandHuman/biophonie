@@ -9,7 +9,15 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.coreKtx)
-    implementation(libs.bundles.map)
-    implementation(libs.bundles.coroutines)
+    api(libs.coroutines.core)
+    api(libs.hilt.dagger)
+    api(libs.javax.inject)
+    api(libs.mapbox.base)
+    api(libs.mapbox.geojson)
+
+    implementation(libs.hilt.core)
+    implementation(libs.mapbox.common)
+    implementation(libs.mapbox.location)
+
+    runtimeOnly(libs.bundles.coroutines)
 }

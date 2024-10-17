@@ -7,9 +7,8 @@ android {
 }
 
 dependencies {
-    //needed to override soundwave color resources
-    implementation(projects.soundwave)
-
     implementation(libs.androidx.appCompat)
     implementation(libs.material)
+    //needed to override soundwave color resources
+    implementation(projects.soundwave)
 }

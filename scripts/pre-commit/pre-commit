@@ -1,13 +1,24 @@
 #!/usr/bin/env bash
 
 echo "Running git pre-commit hooks..."
-for hook in "$(dirname "$0")/pre-commit.d"/*; do
-    "$hook"
-    RESULT=$?
-    if [ $RESULT != 0 ]; then
-        echo "pre-commit.d/$hook returned non-zero: $RESULT, abort commit"
-        exit $RESULT
-    fi
+pids=()
+isSuccess=true
+for hook in "$(dirname "$0")/pre-commit.d"/*.sh; do
+    "$hook" &
+    pids+=($!)
 done
 
-exit
+for pid in ${pids[*]}; do
+  wait "$pid"
+  RESULT=$?
+  if [ $RESULT != 0 ]; then
+    isSuccess=false
+    echo "pre-commit.d/$hook returned non-zero: $RESULT, commit will abort"
+  fi
+done
+
+if [ $isSuccess = true ]; then
+  exit 0
+else
+  exit 1
+fi

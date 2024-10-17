@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+echo "Running git pre-push hooks..."
+pids=()
+isSuccess=true
+for hook in "$(dirname "$0")/pre-push.d"/*.sh; do
+    "$hook" &
+    pids+=($!)
+done
+
+for pid in ${pids[*]}; do
+  wait "$pid"
+  RESULT=$?
+  if [ $RESULT != 0 ]; then
+    isSuccess=false
+    echo "pre-push.d/$hook returned non-zero: $RESULT, push will abort"
+  fi
+done
+
+if [ $isSuccess = true ]; then
+  exit 0
+else
+  exit 1
+fi

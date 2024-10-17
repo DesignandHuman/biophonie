@@ -16,14 +16,18 @@ android {
 }
 
 dependencies {
-    implementation(libs.bundles.remote)
-    implementation(projects.core.assets)
-    implementation(projects.core.model)
-    implementation(projects.core.utils)
-
-    implementation(libs.bundles.remote)
-    implementation(libs.bundles.local)
-    implementation(libs.androidx.securityCrypto)
-    ksp(libs.moshi.codegen)
     ksp(libs.androidx.roomCompiler)
+    ksp(libs.moshi.codegen)
+
+    api(libs.bundles.remote)
+    api(libs.hilt.dagger)
+    api(libs.javax.inject)
+    api(libs.okhttp)
+    api(libs.okio)
+    api(projects.core.model)
+    api(projects.core.utils)
+
+    implementation(libs.coroutines.core)
+    implementation(libs.hilt.core)
+    implementation(projects.core.assets)
 }
