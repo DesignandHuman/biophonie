@@ -7,7 +7,7 @@ import org.gradle.api.Project
  * Configure base Kotlin with Android options
  */
 internal fun Project.configureBuildConfig(
-    commonExtension: CommonExtension<*, *, *, *, *>,
+    commonExtension: CommonExtension<*, *, *, *, *, *>,
 ) {
 
     commonExtension.apply {

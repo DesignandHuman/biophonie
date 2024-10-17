@@ -12,6 +12,8 @@ class AndroidLintConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("com.ncorti.ktfmt.gradle")
                 apply("io.gitlab.arturbosch.detekt")
+                apply("com.autonomousapps.dependency-analysis")
+                apply("com.squareup.sort-dependencies")
             }
 
             configure<KtfmtExtension> { kotlinLangStyle() }

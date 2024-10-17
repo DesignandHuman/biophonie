@@ -8,8 +8,20 @@ android {
 }
 
 dependencies {
-    implementation(projects.core.network)
-    implementation(libs.androidx.runner)
+    api(libs.androidx.runner)
+    api(libs.hilt.dagger)
+    api(libs.javax.inject)
+    api(projects.core.data)
+
+    debugApi(libs.androidx.activity)
+    debugApi(libs.androidx.lifecycle.viewmodel)
+    debugApi(libs.hilt.core)
+
     implementation(libs.hilt.android.testing)
-    implementation(libs.androidx.testCore)
+    implementation(projects.core.model)
+    implementation(projects.core.network)
+
+    releaseImplementation(libs.hilt.core)
+
+    runtimeOnly(libs.androidx.testCore)
 }

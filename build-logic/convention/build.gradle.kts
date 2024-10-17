@@ -55,8 +55,8 @@ gradlePlugin {
             implementationClass = "AndroidHiltConventionPlugin"
         }
         register("androidLibraryCompose") {
-            id = "biophonie.android.library.compose"
-            implementationClass = "AndroidLibraryComposeConventionPlugin"
+            id = "biophonie.android.compose"
+            implementationClass = "AndroidComposeConventionPlugin"
         }
         register("androidLibrary") {
             id = "biophonie.android.library"
@@ -65,6 +65,10 @@ gradlePlugin {
         register("androidLint") {
             id = "biophonie.android.lint"
             implementationClass = "AndroidLintConventionPlugin"
+        }
+        register("library") {
+            id = "biophonie.library"
+            implementationClass = "JvmLibraryConventionPlugin"
         }
     }
 }

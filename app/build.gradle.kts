@@ -3,7 +3,7 @@ plugins {
     alias(libs.plugins.biophonie.android.buildconfig)
     alias(libs.plugins.biophonie.android.databinding)
     alias(libs.plugins.biophonie.android.hilt)
-    alias(libs.plugins.kapt)
+    alias(libs.plugins.ksp)
 }
 
 android {
@@ -17,7 +17,7 @@ android {
 
     defaultConfig {
         versionCode = 4
-        versionName = "0.2.0"
+        versionName = "0.3.0"
         vectorDrawables.useSupportLibrary = true
         signingConfig = signingConfigs.getByName("debug")
     }
@@ -39,16 +39,31 @@ android {
 }
 
 dependencies {
+    ksp(libs.androidx.hiltCompiler)
+
+    implementation(libs.androidx.activity)
+    implementation(libs.androidx.appCompat)
+    implementation(libs.androidx.fragment)
+    implementation(libs.androidx.hiltWork)
+    implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.androidx.lifecycle.viewmodel.savedState)
+    implementation(libs.androidx.workRuntime)
+    implementation(libs.converter.moshi)
+    implementation(libs.coroutines.core)
+    implementation(libs.hilt.core)
+    implementation(libs.hilt.dagger)
+    implementation(libs.javax.inject)
+    implementation(libs.okhttp)
+    implementation(libs.retrofit)
+    implementation(projects.core.assets)
+    implementation(projects.core.data)
+    implementation(projects.core.database)
+    implementation(projects.core.domain)
+    implementation(projects.core.network)
+    implementation(projects.core.preferences)
+    implementation(projects.core.utils)
     implementation(projects.core.work)
     implementation(projects.feature.addgeopoint)
     implementation(projects.feature.exploregeopoints)
     implementation(projects.feature.firstlaunch)
-
-    implementation(libs.androidx.appCompat)
-    implementation(libs.androidx.hiltWork)
-    implementation(libs.bundles.navigation)
-    kapt(libs.androidx.hiltCompiler)
-    kapt(libs.hilt.compiler)
-
-    implementation(libs.androidx.workRuntime)
 }

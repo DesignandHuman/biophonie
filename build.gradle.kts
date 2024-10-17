@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.androidx.navigationSafeArgs) apply false
+    alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.dependency.analysis)
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kapt) apply false
@@ -9,6 +11,18 @@ plugins {
     alias(libs.plugins.ksp) apply false
     alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.module.graph) apply false
+    alias(libs.plugins.sort.dependencies) apply false
+}
+
+dependencyAnalysis {
+    issues {
+        all {
+            onAny {
+                severity("fail")
+                exclude("com.jakewharton.timber:timber", "com.google.dagger:hilt-android")
+            }
+        }
+    }
 }
 
 tasks.register<Delete>("clean") { delete(rootProject.layout.buildDirectory) }
@@ -16,7 +30,7 @@ tasks.register<Delete>("clean") { delete(rootProject.layout.buildDirectory) }
 tasks.register<Copy>("installGitHooks") {
     description = "Copies the git hooks from /pre-commit to the .git folder."
     group = "git hooks"
-    from("$rootDir/scripts/pre-commit")
+    from("$rootDir/scripts/pre-commit", "$rootDir/scripts/pre-push")
     into("$rootDir/.git/hooks/")
     filePermissions {
         user {
