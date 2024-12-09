@@ -1,6 +1,5 @@
 package fr.labomg.biophonie.core.database.model
 
-import android.annotation.SuppressLint
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -27,8 +26,6 @@ data class GeoPointEntity(
     @ColumnInfo(name = "available") val available: Boolean = true
 )
 
-// solved by lib desugaring
-@SuppressLint("NewApi")
 fun GeoPointEntity.toExternal(): GeoPoint {
     return GeoPoint(
         id = id,
@@ -36,11 +33,13 @@ fun GeoPointEntity.toExternal(): GeoPoint {
         title = title,
         date = Instant.parse(date),
         amplitudes = amplitudes,
-        coordinates = Coordinates(latitude, longitude),
+        coordinates = Coordinates(longitude, latitude),
         picture = picture ?: remotePicture!!,
         sound = sound ?: remoteSound!!
     )
 }
+
+fun List<GeoPointEntity>.toExternal(): List<GeoPoint> = map(GeoPointEntity::toExternal)
 
 fun GeoPoint.toEntity(fromUser: Boolean = false): GeoPointEntity {
     return GeoPointEntity(
@@ -49,8 +48,8 @@ fun GeoPoint.toEntity(fromUser: Boolean = false): GeoPointEntity {
         title = title,
         date = date.toString(),
         amplitudes = amplitudes,
-        latitude = coordinates.latitude,
         longitude = coordinates.longitude,
+        latitude = coordinates.latitude,
         picture = if (fromUser) picture else null,
         sound = if (fromUser) sound else null,
         remotePicture = if (!fromUser) picture else null,

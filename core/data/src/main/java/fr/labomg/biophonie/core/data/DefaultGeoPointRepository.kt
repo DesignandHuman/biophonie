@@ -10,6 +10,8 @@ import fr.labomg.biophonie.core.network.model.toExternal
 import fr.labomg.biophonie.core.utils.di.IoDispatcher
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 
@@ -23,8 +25,10 @@ constructor(
 
     override suspend fun fetchGeoPoint(id: Int): Result<GeoPoint> {
         return withContext(ioDispatcher) {
-            val localGeoPoint =
-                if (id > 0) localDataSource.getGeoPoint(id) else localDataSource.getNewGeoPoint(-id)
+            val remoteGeoPoint = localDataSource.getGeoPoint(id)
+            if (remoteGeoPoint != null)
+                return@withContext Result.success(remoteGeoPoint.toExternal())
+            val localGeoPoint = localDataSource.getNewGeoPoint(id)
             if (localGeoPoint != null) return@withContext Result.success(localGeoPoint.toExternal())
             else
                 return@withContext remoteDataSource
@@ -38,10 +42,17 @@ constructor(
         return remoteDataSource.getClosestGeoPointId(coord, not)
     }
 
+    override fun getGeopointStream(id: Int): Flow<GeoPoint> {
+        TODO("Not yet implemented")
+    }
+
     override suspend fun getUnavailableGeoPoints(): List<GeoPoint> =
         withContext(ioDispatcher) {
             return@withContext localDataSource.getUnavailableGeoPoints().map { it.toExternal() }
         }
+
+    override fun getUnavailableGeoPointsStream(): Flow<List<GeoPoint>> =
+        localDataSource.observeAllUnavailable().map { it.toExternal() }
 
     override suspend fun saveNewGeoPoint(geoPoint: GeoPoint) =
         withContext(ioDispatcher) { localDataSource.upsert(geoPoint.toEntity(true)) }

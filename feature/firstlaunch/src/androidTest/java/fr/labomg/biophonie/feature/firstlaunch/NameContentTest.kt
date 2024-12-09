@@ -10,7 +10,7 @@ import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
-import fr.labomg.biophonie.core.testing.EmptyTestActivity
+import fr.labomg.biophonie.core.testing.HiltEmptyTestActivity
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -20,7 +20,7 @@ class NameContentTest {
 
     @get:Rule(order = 0) var hiltRule = HiltAndroidRule(this)
 
-    @get:Rule(order = 1) val composeRule = createAndroidComposeRule<EmptyTestActivity>()
+    @get:Rule(order = 1) val composeRule = createAndroidComposeRule<HiltEmptyTestActivity>()
 
     private lateinit var okString: String
     private lateinit var nameString: String

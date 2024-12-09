@@ -16,6 +16,6 @@ class AddActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add)
-        viewModel.setCoordinates(Coordinates(safeArgs.latitude, safeArgs.longitude))
+        viewModel.setCoordinates(Coordinates(safeArgs.longitude, safeArgs.latitude))
     }
 }

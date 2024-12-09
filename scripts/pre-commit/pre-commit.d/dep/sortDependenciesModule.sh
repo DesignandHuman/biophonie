@@ -7,6 +7,7 @@ changed_files="$(git diff --staged --name-only "$path" |grep -e "\.kts")"
 if [[ -z $changed_files ]]; then
   exit 0
 fi
+echo "checkSortDependencies: Inspecting module $module"
 ./gradlew --quiet "$module":checkSortDependencies >> "$OUTPUT"
 EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then

@@ -124,11 +124,15 @@ private fun PagerState.isLastPage(): Boolean = currentPage == pageCount - 1
 @PreviewLightDark
 @Composable
 private fun VerticalPagerNavigationPreview() {
-    FirstLaunchPreview { VerticalPagerNavigation(pagerState = rememberPagerState(1) { 5 }) }
+    FirstLaunchPreview {
+        VerticalPagerNavigation(pagerState = rememberPagerState(1) { Constants.PAGE_NUMBER })
+    }
 }
 
 @Preview
 @Composable
 private fun HorizontalPagerNavigationPreview() {
-    FirstLaunchPreview { HorizontalPagerNavigation(pagerState = rememberPagerState(1) { 5 }) }
+    FirstLaunchPreview {
+        HorizontalPagerNavigation(pagerState = rememberPagerState(1) { Constants.PAGE_NUMBER })
+    }
 }

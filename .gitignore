@@ -116,3 +116,4 @@ fabric.properties
 
 ### Build results ###
 app/release
+.kotlin

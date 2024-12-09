@@ -20,4 +20,5 @@ dependencies {
     implementation(libs.mapbox)
     implementation(libs.mapbox.common)
     implementation(libs.mapbox.core)
+    implementation(projects.core.model)
 }

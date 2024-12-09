@@ -127,7 +127,7 @@ fun ListeningExplanation(modifier: Modifier = Modifier) {
                         clipRect(right = size.width * reveal) { this@drawWithContent.drawContent() }
                     }
             )
-            OutlinedFloatingActionButton(
+            UnclickableFab(
                 drawableId = R.drawable.ic_play,
                 contentDesc = R.string.play,
                 modifier = Modifier.align(Alignment.Center)
@@ -199,7 +199,8 @@ private fun UnclickableFab(
 ) {
     CompositionLocalProvider(LocalRippleConfiguration provides null) {
         OutlinedFloatingActionButton(
-            drawableId = drawableId,
+            onClick = {},
+            painter = painterResource(drawableId),
             contentDesc = contentDesc,
             modifier = modifier
         )
@@ -220,7 +221,7 @@ private fun LocationDecoration(modifier: Modifier = Modifier) {
             modifier = Modifier.rotate(30f).align(Alignment.Center)
         )
         UnclickableFab(
-            drawableId = R.drawable.trip,
+            drawableId = R.drawable.ic_trip,
             contentDesc = R.string.trip,
             modifier = Modifier.align(Alignment.BottomEnd)
         )

@@ -2,8 +2,8 @@ package fr.labomg.biophonie.core.model
 
 import kotlin.math.abs
 
-data class Coordinates(val latitude: Double, val longitude: Double) {
-    constructor(latitude: Float, longitude: Float) : this(latitude.toDouble(), longitude.toDouble())
+data class Coordinates(val longitude: Double, val latitude: Double) {
+    constructor(longitude: Float, latitude: Float) : this(longitude.toDouble(), latitude.toDouble())
 
     override fun toString(): String {
         try {

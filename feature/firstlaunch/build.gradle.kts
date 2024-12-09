@@ -41,11 +41,9 @@ dependencies {
     implementation(libs.bundles.compose)
     implementation(libs.material)
     implementation(projects.core.assets)
-    implementation(projects.core.database)
     implementation(projects.core.model)
     implementation(projects.core.network)
     implementation(projects.core.ui)
-    implementation(projects.core.utils)
     implementation(projects.core.work)
     implementation(projects.soundwave)
 
@@ -59,6 +57,8 @@ dependencies {
     androidTestImplementation(libs.androidx.testCore)
     androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.jUnit)
+    androidTestImplementation(projects.core.database)
     androidTestImplementation(projects.core.preferences)
     androidTestImplementation(projects.core.testing)
+    androidTestImplementation(projects.core.utils)
 }

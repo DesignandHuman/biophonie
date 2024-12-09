@@ -3,7 +3,7 @@
     <string name="app_name" translatable="false">Biophonie</string>
     <string name="fragment_recording" translatable="false">fragment_recording</string>
     <string name="next">Next</string>
-    <string name="lorem_ipsum">As it is sometimes invisible to our eyes, Biophonie is an interface for listening to nature and its biodiversity.\n-Like Bernie Krause\'s work studying bioacoustics, the Biophonie digital project maps natural sound environments over time. Whether it\'s the wind in the trees, birdsong or the subtle sounds of insects at dusk, these soundscapes reflect the biodiversity and life present in our environment.\nOnce these soundscapes have been captured and observed, Biophonie will enable us to compare them from one period to another, to understand the impoverishment or growth of natural spaces.\nThis project is produced by Labo.mg (Margaux Crinon and Geoffrey Dorne: concept and design) in partnership with Alban Rahier (development).</string>
+    <string name="biophonie_introduction">&lt;p&gt;As it is sometimes invisible to our eyes, &lt;b&gt;Biophonie&lt;/b&gt; is an interface for listening to nature and its biodiversity.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Like &lt;b&gt;Bernie Krause&lt;/b&gt;\'s work studying bioacoustics, the Biophonie digital project maps natural &lt;b&gt;sound environments&lt;/b&gt; over time. Whether it\'s the wind in the trees, birdsong or the subtle sounds of insects at dusk, these &lt;b&gt;soundscapes reflect the biodiversity&lt;/b&gt; and life present in our environment.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Once these soundscapes have been captured and observed, Biophonie will enable us to compare them from one period to another, to understand the impoverishment or growth of natural spaces.&lt;/p&gt;&lt;br&gt;&lt;p&gt;This project is produced by &lt;b&gt;Labo.mg&lt;/b&gt; (Margaux Crinon and Geoffrey Dorne: concept and design) in partnership with &lt;b&gt;Alban Rahier&lt;/b&gt; (development).&lt;/p&gt;</string>
     <string name="skip">Skip</string>
     <string name="done">Start</string>
     <string name="firstlaunch_map_description">&lt;b&gt;Browse&lt;/b&gt; on the Biophonie map and &lt;b&gt;listen to&lt;/b&gt; soundscapes.</string>
@@ -15,7 +15,6 @@
     <string name="firstlaunch_name_description">&lt;b&gt;At Labo.mg&lt;/b&gt; we like privacy. We\'ll only ask for your name :)</string>
     <string name="georges">Georges</string>
     <string name="sound_title">Forest at dawn</string>
-    <string name="location_permission_explanation">The application needs your permission to locate you.</string>
     <string name="name_cannot_be_null">Name cannot be null.</string>
     <string name="name_should_be_longer">Name should be longer than 2 characters.</string>
     <string name="connection_failed">Connection failed.</string>
@@ -57,4 +56,19 @@
     <string name="potager">Vegetable garden</string>
     <string name="rainforest">Jungle</string>
     <string name="temperateforest">Forest</string>
+    <string name="permission_required">Permission required</string>
+    <string name="location_access">Location access</string>
+    <string name="microphone_access">Microphone access</string>
+    <string name="cancel">Cancel</string>
+    <string name="searching_location">Searching location</string>
+    <string name="location_permission_required">We only use your position to place sounds on the map. Approximate location access is sufficient.</string>
+    <string name="location_permission_permanently_declined">This app needs location access to record a sound. Location data is only used to place sounds on the map.</string>
+    <string name="record_permission_required">We only use your microphone to record sounds for the app. Please grant access to the microphone.</string>
+    <string name="record_permission_permanently_declined">This app needs access to the microphone to capture sounds. No other audio is accessed or saved.</string>
+    <string name="grant">Grant</string>
+    <string name="go_to_settings">Go to settings</string>
+    <string name="close">Close</string>
+    <string name="gps_activation">GPS required</string>
+    <string name="gps_activation_required">To be able to use this feature, you need to activate the GPS in the settings.</string>
+    <string name="go_to_gps_settings">Settings</string>
 </resources>

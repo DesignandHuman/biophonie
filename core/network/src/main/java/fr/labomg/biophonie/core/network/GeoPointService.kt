@@ -23,8 +23,8 @@ interface GeoPointService {
 
     @GET("/api/v1/geopoint/closest/to/{latitude}/{longitude}")
     suspend fun getClosestGeoPoint(
-        @Path("latitude") latitude: Double,
         @Path("longitude") longitude: Double,
+        @Path("latitude") latitude: Double,
         @Query("not[]") not: Array<Int>,
     ): Result<NetworkGeoId>
 

@@ -3,7 +3,7 @@
 module="$1"
 OUTPUT="/tmp/buildHealth_$RANDOM"
 echo "buildHealth: Inspecting module $module"
-./gradlew --quiet "$module":projectHealth >> "$OUTPUT"
+./gradlew --quiet "$module":buildHealth >> "$OUTPUT"
 EXIT_CODE=$?
 if [ $EXIT_CODE -ne 0 ]; then
   cat "$OUTPUT"
