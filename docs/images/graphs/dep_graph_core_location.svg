@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="131pt" height="44pt" viewBox="0.00 0.00 131.18 44.00">
+  <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(4 40)">
+    <title>G</title>
+    <polygon fill="white" stroke="none" points="-4,4 -4,-40 127.18,-40 127.18,4 -4,4"/>
+    <g id="node1" class="node">
+      <title>:core:location</title>
+      <ellipse fill="none" stroke="black" cx="61.59" cy="-18" rx="61.59" ry="18"/>
+      <text text-anchor="middle" x="61.59" y="-12.95" font-family="Times,serif" font-size="14.00">:core:location</text>
+    </g>
+  </g>
+</svg>

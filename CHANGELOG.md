@@ -2,6 +2,16 @@
 
 We welcome participation and contributions from everyone (see [CONTRIBUTING.md](https://github.com/DesignandHuman/biophonie/blob/master/CONTRIBUTING.md)).
 
+# December 3rd, 2024
+
+## Features ✨ and improvements 🏁
+* Refactor map ui layer of :feature:exploregeopoints to use mapbox compose extensions
+* Update Mapbox SDK
+* Use a location data source with callbackFlow
+* Save CameraState in user preferences when leaving the screen
+* Add unitTests for viewModel
+* Add instrumentedTests using screenshot testing for Map exploration
+
 # July 1, 2024
 
 ## Features ✨ and improvements 🏁

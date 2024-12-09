@@ -24,7 +24,7 @@ fun NetworkGeoPoint.toExternal(): GeoPoint {
         id = 0,
         remoteId = id,
         title = title,
-        coordinates = Coordinates(latitude, longitude),
+        coordinates = Coordinates(longitude, latitude),
         date = Instant.parse(date),
         amplitudes = amplitudes,
         picture = picture,

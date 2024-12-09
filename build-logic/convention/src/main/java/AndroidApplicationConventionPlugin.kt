@@ -13,7 +13,7 @@ class AndroidApplicationConventionPlugin : Plugin<Project> {
                 apply("com.android.application")
                 apply("org.jetbrains.kotlin.android")
                 apply("com.jraska.module.graph.assertion")
-                apply("biophonie.android.lint")
+                apply("biophonie.lint")
             }
 
             extensions.configure<ApplicationExtension> {

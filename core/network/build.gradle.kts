@@ -15,6 +15,14 @@ android {
     }
 }
 
+dependencyAnalysis {
+    issues {
+        onModuleStructure {
+            severity("ignore")
+        }
+    }
+}
+
 dependencies {
     ksp(libs.androidx.roomCompiler)
     ksp(libs.moshi.codegen)

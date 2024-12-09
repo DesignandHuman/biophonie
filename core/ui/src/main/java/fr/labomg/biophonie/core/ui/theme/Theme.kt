@@ -221,7 +221,7 @@ fun AppTheme(
         }
 
     // needed if LocalSpacing is to be overriden
-    CompositionLocalProvider(LocalSpacing provides Spacing()) {
+    CompositionLocalProvider(LocalSpacing provides Spacing(), LocalSize provides Size()) {
         MaterialTheme(
             colorScheme = colorScheme,
             typography = typography,

@@ -67,7 +67,7 @@
                 <androidx.appcompat.widget.AppCompatTextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="@string/lorem_ipsum"
+                    android:text="@string/biophonie_introduction"
                     android:background="@drawable/border_bottom"
                     android:padding="15dp" />
 

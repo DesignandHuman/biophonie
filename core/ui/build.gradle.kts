@@ -10,6 +10,7 @@ android {
 }
 
 dependencies {
+    api(libs.androidx.activity)
     api(libs.androidx.appCompat)
     api(libs.androidx.compose.runtime)
     api(libs.androidx.compose.ui)
@@ -21,6 +22,7 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.foundation.layout)
     implementation(libs.androidx.compose.material)
+    implementation(libs.androidx.compose.material.icons)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.unit)
     implementation(libs.androidx.coreKtx)

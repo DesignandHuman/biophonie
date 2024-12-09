@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.dependency.analysis)
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.dropshots) apply false
     alias(libs.plugins.hilt) apply false
     alias(libs.plugins.kapt) apply false
     alias(libs.plugins.kotlin.android) apply false
@@ -12,17 +13,6 @@ plugins {
     alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.module.graph) apply false
     alias(libs.plugins.sort.dependencies) apply false
-}
-
-dependencyAnalysis {
-    issues {
-        all {
-            onAny {
-                severity("fail")
-                exclude("com.jakewharton.timber:timber", "com.google.dagger:hilt-android")
-            }
-        }
-    }
 }
 
 tasks.register<Delete>("clean") { delete(rootProject.layout.buildDirectory) }

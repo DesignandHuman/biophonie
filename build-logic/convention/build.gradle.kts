@@ -20,6 +20,7 @@ kotlin {
 
 dependencies {
     compileOnly(libs.android.gradlePlugin)
+    compileOnly(libs.dependency.analysis.gradlePlugin)
     compileOnly(libs.detekt.gradlePlugin)
     compileOnly(libs.kotlin.gradlePlugin)
     compileOnly(libs.ktfmt.gradlePlugin)
@@ -54,21 +55,21 @@ gradlePlugin {
             id = "biophonie.android.hilt"
             implementationClass = "AndroidHiltConventionPlugin"
         }
-        register("androidLibraryCompose") {
-            id = "biophonie.android.compose"
-            implementationClass = "AndroidComposeConventionPlugin"
-        }
         register("androidLibrary") {
             id = "biophonie.android.library"
             implementationClass = "AndroidLibraryConventionPlugin"
         }
-        register("androidLint") {
-            id = "biophonie.android.lint"
-            implementationClass = "AndroidLintConventionPlugin"
+        register("androidLibraryCompose") {
+            id = "biophonie.android.compose"
+            implementationClass = "AndroidComposeConventionPlugin"
         }
         register("library") {
             id = "biophonie.library"
             implementationClass = "JvmLibraryConventionPlugin"
+        }
+        register("lint") {
+            id = "biophonie.lint"
+            implementationClass = "LintConventionPlugin"
         }
     }
 }

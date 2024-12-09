@@ -59,18 +59,10 @@
             <set>
                 <objectAnimator
                     android:propertyName="trimPathEnd"
-                    android:startOffset="200"
+                    android:startOffset="0"
                     android:duration="1000"
                     android:valueFrom="0.5"
                     android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="trimPathEnd"
-                    android:startOffset="5200"
-                    android:duration="1000"
-                    android:valueFrom="1"
-                    android:valueTo="0.5"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
@@ -81,18 +73,10 @@
             <set>
                 <objectAnimator
                     android:propertyName="trimPathEnd"
-                    android:startOffset="200"
+                    android:startOffset="0"
                     android:duration="1000"
                     android:valueFrom="0.5"
                     android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="trimPathEnd"
-                    android:startOffset="5200"
-                    android:duration="1000"
-                    android:valueFrom="1"
-                    android:valueTo="0.5"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
@@ -103,18 +87,10 @@
             <set>
                 <objectAnimator
                     android:propertyName="trimPathEnd"
-                    android:startOffset="1200"
+                    android:startOffset="1000"
                     android:duration="500"
                     android:valueFrom="0"
                     android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="trimPathEnd"
-                    android:startOffset="4700"
-                    android:duration="500"
-                    android:valueFrom="1"
-                    android:valueTo="0"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
@@ -125,7 +101,7 @@
             <set>
                 <objectAnimator
                     android:propertyName="trimPathEnd"
-                    android:startOffset="200"
+                    android:startOffset="0"
                     android:duration="1000"
                     android:valueFrom="1"
                     android:valueTo="0.0001"
@@ -133,7 +109,7 @@
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
                 <objectAnimator
                     android:propertyName="strokeWidth"
-                    android:startOffset="1700"
+                    android:startOffset="1500"
                     android:duration="400"
                     android:valueFrom="5.975"
                     android:valueTo="0"
@@ -141,7 +117,7 @@
                     android:interpolator="@android:anim/anticipate_interpolator"/>
                 <objectAnimator
                     android:propertyName="strokeWidth"
-                    android:startOffset="2100"
+                    android:startOffset="1900"
                     android:duration="400"
                     android:valueFrom="0"
                     android:valueTo="5.975"
@@ -149,44 +125,12 @@
                     android:interpolator="@android:anim/overshoot_interpolator"/>
                 <objectAnimator
                     android:propertyName="strokeWidth"
-                    android:startOffset="2500"
+                    android:startOffset="2300"
                     android:duration="400"
                     android:valueFrom="5.975"
                     android:valueTo="0"
                     android:valueType="floatType"
                     android:interpolator="@android:anim/anticipate_interpolator"/>
-                <objectAnimator
-                    android:propertyName="strokeWidth"
-                    android:startOffset="4300"
-                    android:duration="400"
-                    android:valueFrom="0"
-                    android:valueTo="5.975"
-                    android:valueType="floatType"
-                    android:interpolator="@android:anim/overshoot_interpolator"/>
-                <objectAnimator
-                    android:propertyName="strokeWidth"
-                    android:startOffset="3900"
-                    android:duration="400"
-                    android:valueFrom="5.975"
-                    android:valueTo="0"
-                    android:valueType="floatType"
-                    android:interpolator="@android:anim/anticipate_interpolator"/>
-                <objectAnimator
-                    android:propertyName="strokeWidth"
-                    android:startOffset="3500"
-                    android:duration="400"
-                    android:valueFrom="0"
-                    android:valueTo="5.975"
-                    android:valueType="floatType"
-                    android:interpolator="@android:anim/overshoot_interpolator"/>
-                <objectAnimator
-                    android:propertyName="trimPathEnd"
-                    android:startOffset="5200"
-                    android:duration="1000"
-                    android:valueFrom="0.0001"
-                    android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
         </aapt:attr>
     </target>
@@ -195,18 +139,10 @@
             <set>
                 <objectAnimator
                     android:propertyName="trimPathEnd"
-                    android:startOffset="1200"
+                    android:startOffset="1000"
                     android:duration="500"
                     android:valueFrom="0"
                     android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="trimPathEnd"
-                    android:startOffset="4700"
-                    android:duration="500"
-                    android:valueFrom="1"
-                    android:valueTo="0"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>
@@ -217,18 +153,10 @@
             <set>
                 <objectAnimator
                     android:propertyName="trimPathEnd"
-                    android:startOffset="1200"
+                    android:startOffset="1000"
                     android:duration="500"
                     android:valueFrom="0"
                     android:valueTo="1"
-                    android:valueType="floatType"
-                    android:interpolator="@android:interpolator/fast_out_slow_in"/>
-                <objectAnimator
-                    android:propertyName="trimPathEnd"
-                    android:startOffset="4700"
-                    android:duration="500"
-                    android:valueFrom="1"
-                    android:valueTo="0"
                     android:valueType="floatType"
                     android:interpolator="@android:interpolator/fast_out_slow_in"/>
             </set>

@@ -18,7 +18,7 @@ class GeoPointRemoteDataSource @Inject constructor(private val geoPointService: 
     suspend fun getGeoPoint(id: Int): Result<NetworkGeoPoint> = geoPointService.getGeoPoint(id)
 
     suspend fun getClosestGeoPointId(coord: Coordinates, not: Array<Int>): Result<Int> =
-        geoPointService.getClosestGeoPoint(coord.latitude, coord.longitude, not).map { it.id }
+        geoPointService.getClosestGeoPoint(coord.longitude, coord.latitude, not).map { it.id }
 
     suspend fun addGeoPoint(geoPoint: GeoPoint): Result<NetworkGeoPoint> {
         val soundFile = File(geoPoint.sound)

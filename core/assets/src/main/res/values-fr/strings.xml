@@ -1,6 +1,6 @@
 <resources>
     <string name="next">Suivant</string>
-    <string name="lorem_ipsum">Puisqu’elle est parfois invisible à nos yeux, Biophonie est une interface à l’écoute de la nature et de sa biodiversité.\n—\nÀ l’instar du travail de Bernie Krause qui étudie la bioacoustique, le projet numérique Biophonie cartographie des environnements sonores naturels au fil du temps. Qu’il s’agisse du vent dans les arbres, du chant des oiseaux, des sons subtils d’insectes à la tombée du jour, ces paysages sonores sont le reflet de la biodiversité et de la vie présente dans notre environnement.\n—\nUne fois ces paysages sonores captés et observés, Biophonie permettra de les comparer d’une période à l’autre pour saisir l’appauvrissement ou la croissance des espaces naturels.\n—\nCe projet est réalisé par Labo.mg (Margaux Crinon et Geoffrey Dorne : concept et design) en partenariat avec Alban Rahier (développement).</string>
+    <string name="biophonie_introduction">&lt;p&gt;Puisqu’elle est parfois invisible à nos yeux, &lt;b&gt;Biophonie&lt;/b&gt; est une interface dédiée à l’écoute de la nature et de sa biodiversité.&lt;/p&gt;&lt;br&gt;&lt;p&gt;À l’instar du travail de &lt;b&gt;Bernie Krause&lt;/b&gt; qui étudie la bioacoustique, le projet numérique Biophonie cartographie des &lt;b&gt;environnements sonores naturels&lt;/b&gt; au fil du temps. Qu’il s’agisse du vent dans les arbres, du chant des oiseaux, des sons subtils d’insectes à la tombée du jour, ces paysages sonores sont le &lt;b&gt;reflet de la biodiversité&lt;/b&gt; et de la vie présente dans notre environnement.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Une fois ces paysages sonores captés et observés, Biophonie permettra de les comparer d’une période à l’autre pour saisir l’appauvrissement ou la croissance des espaces naturels.&lt;/p&gt;&lt;br&gt;&lt;p&gt;Ce projet est réalisé par &lt;b&gt;Labo.mg&lt;/b&gt; (Margaux Crinon et Geoffrey Dorne : concept et design) en partenariat avec &lt;b&gt;Alban Rahier&lt;/b&gt; (développement).&lt;/p&gt;</string>
     <string name="skip">Passer</string>
     <string name="done">Commencer</string>
     <string name="firstlaunch_map_description">&lt;b&gt;Naviguez&lt;/b&gt; sur la carte de Biophonie et &lt;b&gt;écoutez&lt;/b&gt; les paysages sonores.</string>
@@ -12,7 +12,6 @@
     <string name="firstlaunch_name_description">&lt;b&gt;Chez Labo.mg&lt;/b&gt;, on aime la vie privée. On ne vous demandera que votre prénom :)</string>
     <string name="georges">Georges</string>
     <string name="sound_title">Forêt à l\'aube</string>
-    <string name="location_permission_explanation">L\'application a besoin de votre permission pour vous situer.</string>
     <string name="name_cannot_be_null">Le nom ne peut pas être nul</string>
     <string name="name_should_be_longer">Le nom doit faire plus de 3 caractères.</string>
     <string name="connection_failed">Connexion au serveur échouée.</string>
@@ -54,4 +53,19 @@
     <string name="potager">Potager</string>
     <string name="rainforest">Jungle</string>
     <string name="temperateforest">Forêt</string>
+    <string name="permission_required">Permission requise</string>
+    <string name="location_access">Localisation requise</string>
+    <string name="cancel">Annuler</string>
+    <string name="location_permission_required">Nous utilisons votre position uniquement pour placer les sons sur la carte. L\'accès à la localisation approximative est suffisant.</string>
+    <string name="location_permission_permanently_declined">Cette application nécessite l\'accès à la localisation pour enregistrer un son. Les données de localisation sont uniquement utilisées pour placer les sons sur la carte.</string>
+    <string name="record_permission_required">Nous utilisons votre micro uniquement pour enregistrer des sons pour l\'application. Veuillez accorder l\'accès au micro.</string>
+    <string name="record_permission_permanently_declined">Cette application nécessite l\'accès au micro pour capturer des sons. Aucun autre audio n\'est accédé ou sauvegardé.</string>
+    <string name="grant">Autoriser</string>
+    <string name="go_to_settings">Paramètres</string>
+    <string name="microphone_access">Accès au micro</string>
+    <string name="searching_location">Recherche de la position</string>
+    <string name="close">Fermer</string>
+    <string name="gps_activation">GPS required</string>
+    <string name="gps_activation_required">To be able to use this feature, you need to activate the GPS in the settings.</string>
+    <string name="go_to_gps_settings">Settings</string>
 </resources>

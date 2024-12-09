@@ -24,6 +24,6 @@ constructor(
     }
 
     companion object {
-        const val WORK_NAME = "fr.labomg.biophonie.mapviewmodel.SyncSoundsWorker"
+        const val WORK_NAME = "fr.labomg.biophonie.core.work.SyncSoundsWorker"
     }
 }

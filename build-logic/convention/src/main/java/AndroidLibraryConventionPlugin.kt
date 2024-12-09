@@ -13,7 +13,7 @@ class AndroidLibraryConventionPlugin : Plugin<Project> {
             with(pluginManager) {
                 apply("com.android.library")
                 apply("org.jetbrains.kotlin.android")
-                apply("biophonie.android.lint")
+                apply("biophonie.lint")
             }
 
             extensions.configure<LibraryExtension> {

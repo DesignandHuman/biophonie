@@ -12,18 +12,22 @@ appCompat = "1.7.0"
 cardview = "1.0.0"
 composeBom = "2024.09.03"
 constraintLayout = "2.1.4"
-coroutines = "1.8.0"
+coroutines = "1.9.0"
 
+datastore = "1.1.1"
 dependencyAnalysis = "2.1.4"
 desugar = "2.1.2"
 detekt = "1.23.5"
 detektCompose = "0.4.12"
+differ = "0.0.1-alpha1"
+dropshots = "0.4.2"
 
 espresso = "3.6.1"
 
 fragment = "1.8.4"
 
 glide = "4.11.0"
+gson = "2.8.9"
 
 hamcrest = "2.2"
 hilt = "2.51.1"
@@ -31,20 +35,22 @@ hilt = "2.51.1"
 javaxInject = "1"
 jUnit = "4.13.2"
 
-kotlin = "2.0.0"
-ksp = "2.0.0-1.0.23"
+kotlin = "2.0.21"
+ksp = "2.0.21-1.0.25"
 ktfmt = "0.17.0"
 
 leakCanary = "2.10"
 lifecycle = "2.8.6"
 
-mapbox = "10.16.1"
-mapboxCommon = "23.8.3"
+mapbox = "11.7.0"
+mapboxCommon = "24.7.0"
 mapboxGeoJson = "6.9.0"
 mapboxGestures = "0.8.0"
 mapscaleview = "1.6.0"
 material = "1.12.0"
 minSdk = "23"
+mockito = "5.14.2"
+mockwebserver = "4.11.0"
 module-graph = "2.5.0"
 moshi = "1.15.0"
 
@@ -69,6 +75,7 @@ workRuntime = "2.9.1"
 
 [libraries]
 androidx-activity = { module = "androidx.activity:activity", version.ref = "activity" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity" }
 androidx-activityKtx = { module = "androidx.activity:activity-ktx", version.ref = "activity" }
 androidx-annotation = { module = "androidx.annotation:annotation", version.ref = "annotation" }
 androidx-appCompat = { module = "androidx.appcompat:appcompat", version.ref = "appCompat" }
@@ -80,8 +87,10 @@ androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", versi
 androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
 androidx-compose-foundation-layout = { group = "androidx.compose.foundation", name = "foundation-layout" }
 androidx-compose-material = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons = { group = "androidx.compose.material", name = "material-icons-core" }
 androidx-compose-material-window-size = { group = "androidx.compose.material3", name = "material3-window-size-class-android"}
 androidx-compose-runtime = { group = "androidx.compose.runtime", name = "runtime"}
+androidx-compose-runtime-saveable = { group = "androidx.compose.runtime", name = "runtime-saveable"}
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-geometry = { group = "androidx.compose.ui", name = "ui-geometry" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
@@ -97,6 +106,9 @@ androidx-cooordinatorLayout = { module = "androidx.coordinatorlayout:coordinator
 androidx-core = { module = "androidx.core:core", version.ref = "androidCore" }
 androidx-coreKtx = { module = "androidx.core:core-ktx", version.ref = "androidCore" }
 androidx-coreTesting = { module = "androidx.arch.core:core-testing", version.ref = "androidCoreTesting" }
+androidx-datastore-core = { module = "androidx.datastore:datastore-core", version.ref = "datastore" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
+androidx-datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastore" }
 androidx-fragment = { module = "androidx.fragment:fragment", version.ref = "fragment" }
 androidx-fragmentKtx = { module = "androidx.fragment:fragment-ktx", version.ref = "fragment" }
 androidx-fragmentTesting = { module = "androidx.fragment:fragment-testing", version.ref = "fragment" }
@@ -128,6 +140,7 @@ androidx-sqlite = { module = "androidx.sqlite:sqlite", version.ref = "sqlite" }
 androidx-testCore = { module = "androidx.test:core", version.ref = "test" }
 androidx-testEspresso = { module = "androidx.test.espresso:espresso-core", version.ref = "espresso" }
 androidx-testJUnit = { module = "androidx.test.ext:junit", version.ref = "androidxjUnit" }
+androidx-testMonitor = { module = "androidx.test:monitor", version.ref = "test" }
 androidx-testRules = { module = "androidx.test:rules", version.ref = "test" }
 androidx-vectordrawable = { module = "androidx.vectordrawable:vectordrawable-animated", version.ref = "androidxUi" }
 androidx-workRuntime = {module = "androidx.work:work-runtime", version.ref = "workRuntime"}
@@ -136,12 +149,15 @@ androidx-workRuntimeKtx = {module = "androidx.work:work-runtime-ktx", version.re
 converter-moshi = { module = "com.squareup.retrofit2:converter-moshi", version.ref = "retrofit" }
 coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutines" }
 coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 desugar-jdk = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
 desugar-jdk-nio = { module = "com.android.tools:desugar_jdk_libs_nio", version.ref = "desugar" }
 detekt-compose-rules = { module = "io.nlopez.compose.rules:detekt", version.ref = "detektCompose" }
+dropbox-differ = {module = "com.dropbox.differ:differ", version.ref = "differ" }
 
 glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide"}
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
 
 hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
@@ -166,6 +182,7 @@ mapbox-attribution = { module = "com.mapbox.plugin:maps-attribution", version.re
 mapbox-base = { module = "com.mapbox.maps:base", version.ref = "mapbox" }
 mapbox-common = { module = "com.mapbox.common:common", version.ref = "mapboxCommon" }
 mapbox-compass = { module = "com.mapbox.plugin:maps-compass", version.ref = "mapbox" }
+mapbox-compose = { module = "com.mapbox.extension:maps-compose", version.ref = "mapbox" }
 mapbox-core = { module = "com.mapbox.maps:android-core", version.ref = "mapbox" }
 mapbox-geojson = { module = "com.mapbox.mapboxsdk:mapbox-sdk-geojson", version.ref = "mapboxGeoJson" }
 mapbox-gestures = { module = "com.mapbox.mapboxsdk:mapbox-android-gestures", version.ref = "mapboxGestures" }
@@ -179,6 +196,8 @@ mapbox-style = { module = "com.mapbox.extension:maps-style", version.ref = "mapb
 mapbox-viewport = { module = "com.mapbox.plugin:maps-viewport", version.ref = "mapbox" }
 mapscaleview = { module = "com.github.pengrad:mapscaleview", version.ref = "mapscaleview" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
 moshi = { module = "com.squareup.moshi:moshi", version.ref = "moshi" }
 moshi-codegen = { module = "com.squareup.moshi:moshi-kotlin-codegen", version.ref = "moshi" }
 moshi-kotlin = { module = "com.squareup.moshi:moshi-kotlin", version.ref = "moshi" }
@@ -198,6 +217,7 @@ timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 
 # Dependencies of the included build-logic
 android-gradlePlugin = { module = "com.android.tools.build:gradle", version.ref = "androidGradlePlugin" }
+dependency-analysis-gradlePlugin = { module = "com.autonomousapps:dependency-analysis-gradle-plugin", version.ref = "dependencyAnalysis" }
 detekt-gradlePlugin = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
 kotlin-gradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 ktfmt-gradlePlugin = { module = "com.ncorti.ktfmt.gradle:plugin", version.ref = "ktfmt" }
@@ -218,6 +238,7 @@ androidx-navigationSafeArgs = { id = "androidx.navigation.safeargs.kotlin", vers
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 dependency-analysis = { id = "com.autonomousapps.dependency-analysis", version.ref = "dependencyAnalysis" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+dropshots = { id = "com.dropbox.dropshots", version.ref = "dropshots" }
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 kapt = { id = "org.jetbrains.kotlin.kapt", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

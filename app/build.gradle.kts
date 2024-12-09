@@ -43,6 +43,8 @@ dependencies {
 
     implementation(libs.androidx.activity)
     implementation(libs.androidx.appCompat)
+    implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.datastore.preferences.core)
     implementation(libs.androidx.fragment)
     implementation(libs.androidx.hiltWork)
     implementation(libs.androidx.lifecycle.viewmodel)
@@ -59,6 +61,7 @@ dependencies {
     implementation(projects.core.data)
     implementation(projects.core.database)
     implementation(projects.core.domain)
+    implementation(projects.core.location)
     implementation(projects.core.network)
     implementation(projects.core.preferences)
     implementation(projects.core.utils)
@@ -66,4 +69,6 @@ dependencies {
     implementation(projects.feature.addgeopoint)
     implementation(projects.feature.exploregeopoints)
     implementation(projects.feature.firstlaunch)
+
+    androidTestRuntimeOnly(libs.androidx.runner)
 }

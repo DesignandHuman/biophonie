@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Query
 import androidx.room.Upsert
 import fr.labomg.biophonie.core.database.model.GeoPointEntity
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface GeoPointDao {
@@ -20,4 +21,7 @@ interface GeoPointDao {
 
     @Query("select * from geopointentity where remote_id == :remoteId")
     fun getGeoPoint(remoteId: Int): GeoPointEntity?
+
+    @Query("select * from geopointentity where not available")
+    fun observeAllUnavailable(): Flow<List<GeoPointEntity>>
 }

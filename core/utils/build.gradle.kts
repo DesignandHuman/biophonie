@@ -12,12 +12,9 @@ dependencies {
     api(libs.coroutines.core)
     api(libs.hilt.dagger)
     api(libs.javax.inject)
-    api(libs.mapbox.base)
-    api(libs.mapbox.geojson)
 
     implementation(libs.hilt.core)
-    implementation(libs.mapbox.common)
-    implementation(libs.mapbox.location)
 
     runtimeOnly(libs.bundles.coroutines)
+    runtimeOnly(libs.mapbox.common)
 }
